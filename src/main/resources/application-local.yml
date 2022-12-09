@@ -1,13 +1,8 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: utf-8
 spring:
   config:
     activate:
       on-profile: "local"
+
   jpa:
     open-in-view: true
     hibernate:

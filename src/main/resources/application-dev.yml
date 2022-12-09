@@ -1,13 +1,8 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: utf-8
 spring:
   config:
     activate:
       on-profile: "dev"
+
   jpa:
     open-in-view: true
     hibernate:
@@ -23,5 +18,5 @@ spring:
       enabled: always
   logging:
     level:
-      '[org.springframework.web]': INFO
-      '[org.hibernate]': INFO
+      '[org.springframework.web]': DEBUG
+      '[org.hibernate]': DEBUG
