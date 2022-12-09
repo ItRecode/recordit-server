@@ -5,3 +5,4 @@ spring:
       "local": "local, datasource, redis, oauth"
       "dev": "dev, datasource, redis, oauth"
       "prod": "prod"
+    default: local
