@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: "test"
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:~/RecordIt
+    username: sa
+    password:
+  redis:
+    host: localhost
+    port: 49151
+  session:
+    store-type: redis
