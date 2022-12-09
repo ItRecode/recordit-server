@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  output:
+    ansi:
+      enabled: always
+  logging:
+    level:
+      '[org.springframework.web]': DEBUG
+      '[org.hibernate]': DEBUG
