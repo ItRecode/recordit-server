@@ -4,7 +4,7 @@ import com.recodeit.server.constant.LoginType;
 
 public class KakaoOauthService implements OauthService {
     @Override
-    public LoginType getLoginType(String loginType) {
+    public LoginType getLoginType() {
         return LoginType.KAKAO;
     }
 

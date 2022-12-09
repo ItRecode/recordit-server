@@ -4,7 +4,7 @@ import com.recodeit.server.constant.LoginType;
 
 public interface OauthService {
 
-    LoginType getLoginType(String loginType);
+    LoginType getLoginType();
 
     void request();
 }
