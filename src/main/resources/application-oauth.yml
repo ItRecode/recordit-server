@@ -1,4 +1,4 @@
 spring:
   config:
     activate:
-      on-profile: "OAuth"
+      on-profile: "oauth"
