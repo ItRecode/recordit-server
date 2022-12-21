@@ -15,13 +15,13 @@ public class MemberController {
 
 	private final MemberService memberService;
 
-	@GetMapping("/member/oauth/{logintype}")
-	public void oauthLogin(@PathVariable("logintype") String loginType) {
+	@GetMapping("/member/oauth/{loginType}")
+	public void oauthLogin(@PathVariable("loginType") String loginType) {
 		memberService.oauthLogin(loginType);
 	}
 
 	@PostMapping("/member/oauth/{loginType}")
-	public void oauthRegister(@PathVariable("logintype") String loginType) {
+	public void oauthRegister(@PathVariable("loginType") String loginType) {
 		memberService.oauthRegister(loginType);
 	}
 }
