@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = 'com.recodeit'
+group = 'com.recordit'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -29,7 +29,7 @@ dependencies {
 
     // embedded redis
     implementation('it.ozimov:embedded-redis:0.7.3') {
-        exclude group : "org.slf4j", module : "slf4j-simple"
+        exclude group: "org.slf4j", module: "slf4j-simple"
     }
 
     compileOnly 'org.projectlombok:lombok'
