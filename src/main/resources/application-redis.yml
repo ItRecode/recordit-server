@@ -1,0 +1,11 @@
+spring:
+  config:
+    activate:
+      on-profile: "redis"
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    session:
+      store-type: redis
+
