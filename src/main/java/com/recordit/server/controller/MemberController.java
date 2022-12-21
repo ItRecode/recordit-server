@@ -2,6 +2,7 @@ package com.recordit.server.controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recordit.server.service.MemberService;
@@ -15,7 +16,7 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/member/oauth/{loginType}")
-	public void oauthLogin(@PathVariable("loginType") String loginType) {
+	public void oauthLogin(@PathVariable("loginType") String loginType, @RequestBody String token) {
 		memberService.oauthLogin(loginType);
 	}
 
