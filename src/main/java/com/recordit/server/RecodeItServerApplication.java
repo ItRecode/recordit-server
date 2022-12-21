@@ -1,4 +1,4 @@
-package com.recodeit.server;
+package com.recordit.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

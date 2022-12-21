@@ -1,4 +1,4 @@
-package com.recodeit.server.configuration;
+package com.recordit.server.configuration;
 
 import javax.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
