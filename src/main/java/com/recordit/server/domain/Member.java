@@ -1,5 +1,6 @@
 package com.recordit.server.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -16,15 +17,16 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Where(clause = "deleted_at is null")
-@SQLDelete(sql = "UPDATE member SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE MEMBER SET MEMBER.deletedAt = CURRENT_TIMESTAMP WHERE MEMBER.MEMBER_ID = ?")
+@Getter
 public class Member extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "MEMBER_ID")
 	private Long id;
 	private String password;
 	private String nickname;
