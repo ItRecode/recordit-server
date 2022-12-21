@@ -1,4 +1,4 @@
-package com.recodeit.server.domain;
+package com.recordit.server.domain;
 
 import java.time.LocalDateTime;
 

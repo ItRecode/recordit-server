@@ -1,10 +1,10 @@
-package com.recodeit.server.util;
+package com.recordit.server.util;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
 
-import com.recodeit.server.exception.NotFoundUserInfoInSessionException;
+import com.recordit.server.exception.NotFoundUserInfoInSessionException;
 
 import lombok.RequiredArgsConstructor;
 

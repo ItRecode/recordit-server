@@ -1,4 +1,4 @@
-package com.recodeit.server.util;
+package com.recordit.server.util;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -11,7 +11,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpSession;
 
-import com.recodeit.server.exception.NotFoundUserInfoInSessionException;
+import com.recordit.server.exception.NotFoundUserInfoInSessionException;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionUtilTest {

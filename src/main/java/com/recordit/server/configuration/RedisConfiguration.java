@@ -1,4 +1,4 @@
-package com.recodeit.server.configuration;
+package com.recordit.server.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +18,9 @@ public class RedisConfiguration {
 	private final String password;
 
 	public RedisConfiguration(
-		@Value("${spring.redis.host}") String host,
-		@Value("${spring.redis.port}") int port,
-		@Value("${spring.redis.password}") String password
+			@Value("${spring.redis.host}") String host,
+			@Value("${spring.redis.port}") int port,
+			@Value("${spring.redis.password}") String password
 	) {
 		this.host = host;
 		this.port = port;
