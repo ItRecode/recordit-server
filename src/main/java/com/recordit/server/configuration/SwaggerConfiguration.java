@@ -16,7 +16,7 @@ public class SwaggerConfiguration {
 	public Docket api() {
 		return new Docket(DocumentationType.OAS_30)
 				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.recodeit"))
+				.apis(RequestHandlerSelectors.basePackage("com.recordit"))
 				.paths(PathSelectors.any())
 				.build().apiInfo(apiInfo());
 	}
