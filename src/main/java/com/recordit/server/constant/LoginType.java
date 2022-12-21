@@ -11,6 +11,6 @@ public enum LoginType {
 		return Arrays.stream(LoginType.values())
 				.filter(loginType -> loginType.name().equals(str))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException(""));
+				.orElseThrow(() -> new IllegalArgumentException("일치하는 로그인 타입이 없습니다."));
 	}
 }
