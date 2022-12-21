@@ -71,7 +71,7 @@ public class SessionUtilTest {
 		// given
 
 		// when
-		sessionUtil.removeSession();
+		sessionUtil.invalidateSession();
 
 		// then
 		assertThat(mockHttpSession.isInvalid()).isTrue();

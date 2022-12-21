@@ -27,7 +27,7 @@ public class SessionUtil {
 		return userId;
 	}
 
-	public void removeSession() {
+	public void invalidateSession() {
 		httpSession.invalidate();
 	}
 }
