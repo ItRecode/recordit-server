@@ -1,10 +1,10 @@
 package com.recordit.server.domain;
 
-import java.util.UUID;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.hibernate.annotations.SQLDelete;
@@ -24,12 +24,12 @@ import lombok.NoArgsConstructor;
 public class Member extends BaseEntity {
 
 	@Id
-	@GeneratedValue(generator = "uuid2")
-	@Column(name = "MEMBER_ID", columnDefinition = "BINARY(16)")
-	private UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	private String password;
 	private String nickname;
 	private String oauthId;
+	@Enumerated(value = EnumType.STRING)
 	private LoginType loginType;
 
 	private Member(String password, String nickname, String oauthId, LoginType loginType) {
