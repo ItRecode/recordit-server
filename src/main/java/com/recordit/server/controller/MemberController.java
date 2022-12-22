@@ -35,9 +35,9 @@ public class MemberController {
 	}
 
 	@ApiOperation(value = "회원가입",
-			notes = "로그인 타입, TEMPSESSIONID, 닉네임을 받아 회원가입을 진행합니다")
+			notes = "로그인 타입, register_session, 닉네임을 받아 회원가입을 진행합니다")
 	@ApiResponses({
-			@ApiResponse(code = 200, message = "API 정상 작동 / 세션 로그인 처리하고 Header에 Set-cookie: SESSION=; 헤더로 응답"),
+			@ApiResponse(code = 200, message = "API 정상 작동 / 회원가입을 진행하고 세션 로그인 처리하고 Header에 Set-cookie: SESSION=; 헤더로 응답"),
 			@ApiResponse(code = 428, message = "register_session 정보가 Redis에 없거나 비정상적일 경우"),
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
 	})
