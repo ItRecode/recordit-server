@@ -21,3 +21,7 @@ spring:
     password:
   session:
     store-type: redis
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false

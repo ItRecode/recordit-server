@@ -22,3 +22,7 @@ spring:
     level:
       '[org.springframework.web]': DEBUG
       '[org.hibernate]': DEBUG
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false
