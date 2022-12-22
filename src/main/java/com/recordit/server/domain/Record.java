@@ -43,6 +43,9 @@ public class Record extends BaseEntity {
 	@Column(name = "CONTENT")
 	private String content;
 
+	@Column(name = "NUM_OF_IMAGE")
+	private Integer numOfImage;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "RECORD_COLOR_ID")
 	private RecordColor recordColor;
