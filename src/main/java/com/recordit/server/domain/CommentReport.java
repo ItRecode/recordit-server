@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity(name = "COMMENT_REPORT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "DELETED_AT is null")
-@SQLDelete(sql = "UPDATE COMMENT_REPORT SET COMMENT_REPORT.DELETED_AT = CURRENT_TIMESTAMP WHERE COMMENT_REPORT.RECORD_REPORT_ID = ?")
+@SQLDelete(sql = "UPDATE COMMENT_REPORT SET COMMENT_REPORT.DELETED_AT = CURRENT_TIMESTAMP WHERE COMMENT_REPORT.COMMENT_REPORT_ID = ?")
 @Getter
 public class CommentReport extends BaseEntity {
 
@@ -35,5 +35,5 @@ public class CommentReport extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "COMMENT_ID")
 	private Comment reportedComment;
-	
+
 }
