@@ -1,5 +1,6 @@
 package com.recordit.server.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,9 +41,19 @@ public class MemberController {
 			@ApiResponse(code = 428, message = "TEMPSESSIONUUID 정보가 Redis에 없거나 비정상적일 경우"),
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
 	})
-
 	@PostMapping("/oauth/register/{loginType}")
 	public void oauthRegister(@PathVariable("loginType") String loginType, @RequestBody String nickname) {
 		memberService.oauthRegister(loginType);
+	}
+
+	@ApiOperation(value = "닉네임 중복확인",
+			notes = "닉네임을 받아 해당 닉네임이 중복되었는지 판별")
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "닉네임이 사용 가능한 경우"),
+			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
+	})
+	@GetMapping
+	public void duplicateNicknameCheck(@RequestBody String nickname) {
+
 	}
 }
