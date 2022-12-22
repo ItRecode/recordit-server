@@ -12,7 +12,7 @@ public class KakaoOauthService implements OauthService {
 	}
 
 	@Override
-	public void request() {
-
+	public String request() {
+		return null;
 	}
 }
