@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 
 @Entity(name = "RECORD_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_at is null")
-@SQLDelete(sql = "UPDATE RECORD_CATEGORY SET RECORD_CATEGORY.deletedAt = CURRENT_TIMESTAMP WHERE RECORD_CATEGORY.RECORD_CATEGORY_ID = ?")
+@Where(clause = "DELETED_AT is null")
+@SQLDelete(sql = "UPDATE RECORD_CATEGORY SET RECORD_CATEGORY.DELETED_AT = CURRENT_TIMESTAMP WHERE RECORD_CATEGORY.RECORD_CATEGORY_ID = ?")
 @Getter
 public class RecordCategory extends BaseEntity {
 
@@ -32,5 +32,6 @@ public class RecordCategory extends BaseEntity {
 	@JoinColumn(name = "PARENT_RECORD_CATEGORY_ID")
 	private RecordCategory parentRecordCategory;
 
+	@Column(name = "NAME")
 	private String name;
 }
