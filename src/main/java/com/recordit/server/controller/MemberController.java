@@ -1,5 +1,6 @@
 package com.recordit.server.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,8 +51,7 @@ public class MemberController {
 			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
 			@RequestBody LoginRequestDto loginRequestDto
 	) {
-		memberService.oauthLogin(loginType);
-		return ResponseEntity.ok(null);
+		return new ResponseEntity(memberService.oauthLogin(loginType, loginRequestDto), HttpStatus.UNAUTHORIZED);
 	}
 
 	@ApiOperation(
@@ -69,11 +69,12 @@ public class MemberController {
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
 	})
 	@PostMapping("/oauth/register/{loginType}")
-	public void oauthRegister(
+	public ResponseEntity oauthRegister(
 			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
 			@RequestBody RegisterRequestDto registerRequestDto
 	) {
-		memberService.oauthRegister(loginType);
+		memberService.oauthRegister(loginType, registerRequestDto);
+		return new ResponseEntity(HttpStatus.OK);
 	}
 
 	@ApiOperation(
@@ -85,6 +86,8 @@ public class MemberController {
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
 	})
 	@GetMapping("/nickname")
-	public void duplicateNicknameCheck(@RequestParam String nickname) {
+	public ResponseEntity duplicateNicknameCheck(@RequestParam String nickname) {
+		memberService.isDuplicateNickname(nickname);
+		return new ResponseEntity(HttpStatus.OK);
 	}
 }
