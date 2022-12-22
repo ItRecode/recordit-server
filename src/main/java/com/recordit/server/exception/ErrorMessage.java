@@ -10,7 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class ErrorMessage {
+	private int code;
+	private String errorSimpleName;
 	private String msg;
-	private String errorCode;
 	private LocalDateTime timestamp;
 }
