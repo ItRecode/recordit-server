@@ -7,6 +7,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -18,6 +20,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "IMAGE_FILE")
+@Table(uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"REF_TYPE", "REF_ID"})
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "DELETED_AT is null")
 @SQLDelete(sql = "UPDATE IMAGE_FILE SET IMAGE_FILE.DELETED_AT = CURRENT_TIMESTAMP WHERE IMAGE_FILE.IMAGE_FILE_ID = ?")
