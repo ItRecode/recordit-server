@@ -22,11 +22,11 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@ApiOperation(value = "로그인",
-			notes = "로그인 타입과 세션을 받아 가입된 회원이라면 로그인을 진행시키고 Header에 setCookie로 응답합니다")
+			notes = "로그인 타입과 세션을 받아 가입된 회원이라면 로그인을 진행시키고 Header에 Set-cookie: SESSION=;응답합니다")
 	@ApiResponses({
-			@ApiResponse(code = 200, message = "API 정상 작동 / Header에 setCookie값 응답"),
+			@ApiResponse(code = 200, message = "API 정상 작동 / Header에 Set-cookie: SESSION=;응답"),
 			@ApiResponse(code = 401, message = "회원정보가 없어 회원가입이 필요한 경우입니다."
-					+ "Body로 응답된 TEMPSESSIONUUID와 사용자에게 닉네임을 받아 '/member/oauth/register/{loginType}'으로 요청하세요")
+					+ "Body로 응답된 register_session과 사용자에게 닉네임을 받아 '/member/oauth/register/{loginType}'으로 요청하세요")
 	})
 	@PostMapping("/oauth/login/{loginType}")
 	public void oauthLogin(
@@ -37,8 +37,8 @@ public class MemberController {
 	@ApiOperation(value = "회원가입",
 			notes = "로그인 타입, TEMPSESSIONID, 닉네임을 받아 회원가입을 진행합니다")
 	@ApiResponses({
-			@ApiResponse(code = 200, message = "API 정상 작동 / 세션 로그인 처리하고 SESSIONID 헤더로 응답"),
-			@ApiResponse(code = 428, message = "TEMPSESSIONUUID 정보가 Redis에 없거나 비정상적일 경우"),
+			@ApiResponse(code = 200, message = "API 정상 작동 / 세션 로그인 처리하고 Header에 Set-cookie: SESSION=; 헤더로 응답"),
+			@ApiResponse(code = 428, message = "register_session 정보가 Redis에 없거나 비정상적일 경우"),
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
 	})
 	@PostMapping("/oauth/register/{loginType}")
