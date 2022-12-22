@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.recordit.server.exception.member.NotEnteredLoginTypeException;
+import com.recordit.server.exception.member.NotMatchLoginTypeException;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -14,11 +17,11 @@ public class OauthServiceLocator {
 
 	public OauthService getOauthServiceByLoginType(String loginType) {
 		if (!StringUtils.hasText(loginType)) {
-			throw new NullPointerException("로그인 타입이 입력되지 않았습니다.");
+			throw new NotEnteredLoginTypeException("로그인 타입이 입력되지 않았습니다.");
 		}
 		return oauthServices.stream()
 				.filter(oauthService -> oauthService.getLoginType().name().equals(loginType))
 				.findFirst()
-				.orElseThrow(() -> new NullPointerException("일치하는 로그인 타입이 없습니다."));
+				.orElseThrow(() -> new NotMatchLoginTypeException("일치하는 로그인 타입이 없습니다."));
 	}
 }

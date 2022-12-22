@@ -4,7 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
 
-import com.recordit.server.exception.NotFoundUserInfoInSessionException;
+import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 
 import lombok.RequiredArgsConstructor;
 

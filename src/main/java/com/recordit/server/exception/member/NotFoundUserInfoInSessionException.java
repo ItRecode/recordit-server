@@ -1,4 +1,4 @@
-package com.recordit.server.exception;
+package com.recordit.server.exception.member;
 
 public class NotFoundUserInfoInSessionException extends RuntimeException {
 	public NotFoundUserInfoInSessionException(String message) {

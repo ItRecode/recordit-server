@@ -11,7 +11,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpSession;
 
-import com.recordit.server.exception.NotFoundUserInfoInSessionException;
+import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionUtilTest {
