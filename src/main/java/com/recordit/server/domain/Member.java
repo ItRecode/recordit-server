@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 
 @Entity(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_at is null")
-@SQLDelete(sql = "UPDATE MEMBER SET MEMBER.deletedAt = CURRENT_TIMESTAMP WHERE MEMBER.MEMBER_ID = ?")
+@Where(clause = "DELETED_AT is null")
+@SQLDelete(sql = "UPDATE MEMBER SET MEMBER.DELETED_AT = CURRENT_TIMESTAMP WHERE MEMBER.MEMBER_ID = ?")
 @Getter
 public class Member extends BaseEntity {
 
@@ -28,9 +28,20 @@ public class Member extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "MEMBER_ID")
 	private Long id;
+
+	@Column(name = "USERNAME")
+	private String username;
+
+	@Column(name = "PASSWORD")
 	private String password;
+
+	@Column(name = "NICKNAME")
 	private String nickname;
+
+	@Column(name = "OAUTH_ID")
 	private String oauthId;
+
+	@Column(name = "LOGIN_TYPE")
 	@Enumerated(value = EnumType.STRING)
 	private LoginType loginType;
 
