@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.service.oauth.OauthServiceLocator;
+import com.recordit.server.util.RedisManager;
+import com.recordit.server.util.SessionUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
@@ -26,6 +28,12 @@ public class MemberServiceTest {
 
 	@Mock
 	private MemberRepository memberRepository;
+
+	@Mock
+	private SessionUtil sessionUtil;
+
+	@Mock
+	RedisManager redisManager;
 
 	@Nested
 	@DisplayName("닉네임 중복 확인 기능에서 닉네임이")
