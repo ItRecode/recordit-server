@@ -38,5 +38,12 @@ public class MemberExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 				.body(ErrorMessage.of(exception, HttpStatus.CONFLICT));
 	}
+
+	@ExceptionHandler(NotFoundRegisterSessionException.class)
+	public ResponseEntity<ErrorMessage> handleNotFoundRegisterSessionException(
+			NotFoundRegisterSessionException exception) {
+		return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED)
+				.body(ErrorMessage.of(exception, HttpStatus.PRECONDITION_REQUIRED));
+	}
 }
 
