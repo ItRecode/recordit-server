@@ -41,6 +41,9 @@ public class MemberController {
 					}
 			),
 			@ApiResponse(
+					code = 400, message = "API에서 지정한 LoginType이 아닐 경우입니다"
+			),
+			@ApiResponse(
 					code = 401, message = "회원정보가 없어 회원가입이 필요한 경우입니다\t\n"
 					+ "Body로 응답된 register_session과 사용자에게 닉네임을 받아 '/member/oauth/register/{loginType}'으로 요청하세요",
 					response = RegisterSessionResponseDto.class
@@ -64,6 +67,9 @@ public class MemberController {
 					responseHeaders = {
 							@ResponseHeader(name = "Set-cookie: SESSION=FOO;", description = "FOO = 서버의 세션", response = String.class)
 					}
+			),
+			@ApiResponse(
+					code = 400, message = "API에서 지정한 LoginType이 아닐 경우입니다"
 			),
 			@ApiResponse(code = 428, message = "register_session 정보가 Redis에 없거나 비정상적일 경우"),
 			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
