@@ -98,7 +98,7 @@ public class MemberServiceTest {
 
 				given(oauthServiceLocator.getOauthServiceByLoginType(anyString()))
 						.willReturn(oauthService);
-				given(oauthService.request(anyString()))
+				given(oauthService.getUserInfoByOauthToken(anyString()))
 						.willReturn(mockOauthId);
 				given(memberRepository.findByOauthId(mockOauthId))
 						.willReturn(mockMember);
@@ -119,7 +119,7 @@ public class MemberServiceTest {
 				// given
 				given(oauthServiceLocator.getOauthServiceByLoginType(anyString()))
 						.willReturn(oauthService);
-				given(oauthService.request(anyString()))
+				given(oauthService.getUserInfoByOauthToken(anyString()))
 						.willReturn(mockOauthId);
 				given(memberRepository.findByOauthId(mockOauthId))
 						.willReturn(Optional.empty());
