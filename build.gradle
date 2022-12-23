@@ -41,6 +41,9 @@ dependencies {
 
     // use static mock
     testImplementation 'org.mockito:mockito-inline:4.5.1'
+
+    // use ConfigurationProperties
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.named('test') {
