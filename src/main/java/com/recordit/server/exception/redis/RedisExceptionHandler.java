@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.recordit.server.exception.ErrorMessage;
-import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,8 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisExceptionHandler {
 
 	@ExceptionHandler(RedisParsingException.class)
-	public ResponseEntity<ErrorMessage> handleRedisParsingException(
-			NotFoundUserInfoInSessionException exception) {
+	public ResponseEntity<ErrorMessage> handleRedisParsingException(RedisParsingException exception) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
 	}

@@ -46,6 +46,7 @@ public class Member extends BaseEntity {
 	private LoginType loginType;
 
 	private Member(String username, String password, String nickname, String oauthId, LoginType loginType) {
+		this.username = username;
 		this.password = password;
 		this.nickname = nickname;
 		this.oauthId = oauthId;
