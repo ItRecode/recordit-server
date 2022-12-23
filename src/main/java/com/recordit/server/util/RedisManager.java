@@ -38,7 +38,7 @@ public class RedisManager {
 		}
 	}
 
-	public <T> Optional<T> get(@NonNull String key, Class<T> clazz) {
+	public <T> Optional<T> get(@NonNull String key, @NonNull Class<T> clazz) {
 		String jsonString = stringRedisTemplate.opsForValue().get(key);
 		if (!StringUtils.hasText(jsonString)) {
 			return Optional.empty();
