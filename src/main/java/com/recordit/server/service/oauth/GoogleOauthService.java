@@ -12,7 +12,7 @@ public class GoogleOauthService implements OauthService {
 	}
 
 	@Override
-	public String request(String oauthToken) {
+	public String getUserInfoByOauthToken(String oauthToken) {
 		return null;
 	}
 }

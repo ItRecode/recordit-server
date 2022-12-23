@@ -36,7 +36,7 @@ public class MemberService {
 	public Optional<RegisterSessionResponseDto> oauthLogin(String loginType, LoginRequestDto loginRequestDto) {
 		OauthService oauthService = oauthServiceLocator.getOauthServiceByLoginType(loginType);
 
-		String oauthId = oauthService.request(loginRequestDto.getOauthToken());
+		String oauthId = oauthService.getUserInfoByOauthToken(loginRequestDto.getOauthToken());
 		Optional<Member> findMember = memberRepository.findByOauthId(oauthId);
 
 		if (findMember.isPresent()) {
