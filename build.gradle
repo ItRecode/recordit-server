@@ -38,6 +38,9 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // use static mock
+    testImplementation 'org.mockito:mockito-inline:4.5.1'
 }
 
 tasks.named('test') {

@@ -45,14 +45,15 @@ public class Member extends BaseEntity {
 	@Enumerated(value = EnumType.STRING)
 	private LoginType loginType;
 
-	private Member(String password, String nickname, String oauthId, LoginType loginType) {
+	private Member(String username, String password, String nickname, String oauthId, LoginType loginType) {
+		this.username = username;
 		this.password = password;
 		this.nickname = nickname;
 		this.oauthId = oauthId;
 		this.loginType = loginType;
 	}
 
-	public static Member of(String password, String nickname, String oauthId, LoginType loginType) {
-		return new Member(password, nickname, oauthId, loginType);
+	public static Member of(String username, String password, String nickname, String oauthId, LoginType loginType) {
+		return new Member(username, password, nickname, oauthId, loginType);
 	}
 }

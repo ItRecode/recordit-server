@@ -32,5 +32,18 @@ public class MemberExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
+
+	@ExceptionHandler(DuplicateNicknameException.class)
+	public ResponseEntity<ErrorMessage> handleDuplicateNicknameException(DuplicateNicknameException exception) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ErrorMessage.of(exception, HttpStatus.CONFLICT));
+	}
+
+	@ExceptionHandler(NotFoundRegisterSessionException.class)
+	public ResponseEntity<ErrorMessage> handleNotFoundRegisterSessionException(
+			NotFoundRegisterSessionException exception) {
+		return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED)
+				.body(ErrorMessage.of(exception, HttpStatus.PRECONDITION_REQUIRED));
+	}
 }
 

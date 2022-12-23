@@ -6,5 +6,5 @@ public interface OauthService {
 
 	LoginType getLoginType();
 
-	void request();
+	String request(String oauthToken);
 }

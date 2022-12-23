@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -23,4 +24,9 @@ public class RegisterRequestDto {
 	@ApiModelProperty(notes = "사용자 닉네임", required = true)
 	private String nickname;
 
+	@Builder
+	public RegisterRequestDto(String registerSession, String nickname) {
+		this.registerSession = registerSession;
+		this.nickname = nickname;
+	}
 }
