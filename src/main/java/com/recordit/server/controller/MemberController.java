@@ -1,5 +1,7 @@
 package com.recordit.server.controller;
 
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +56,15 @@ public class MemberController {
 			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
 			@RequestBody LoginRequestDto loginRequestDto
 	) {
-		return new ResponseEntity(memberService.oauthLogin(loginType, loginRequestDto), HttpStatus.UNAUTHORIZED);
+
+		Optional<RegisterSessionResponseDto> registerSessionResponseDto = memberService.oauthLogin(
+				loginType,
+				loginRequestDto
+		);
+		if (registerSessionResponseDto.isEmpty()) {
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(registerSessionResponseDto.get());
 	}
 
 	@ApiOperation(
@@ -96,4 +106,5 @@ public class MemberController {
 		memberService.isDuplicateNickname(nickname);
 		return new ResponseEntity(HttpStatus.OK);
 	}
+
 }
