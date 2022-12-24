@@ -6,7 +6,8 @@ public enum OauthConstants {
 	CODE("code"),
 	GRANT_TYPE("grant_type"),
 	REDIRECT_URI("redirect_uri"),
-	ID_TOKEN("id_token");
+	ID_TOKEN("id_token"),
+	AUTHORIZATION("Authorization");
 
 	public final String key;
 
@@ -16,5 +17,9 @@ public enum OauthConstants {
 
 	public static String getFixGrantType() {
 		return "authorization_code";
+	}
+
+	public static String getFixPrefixJwt() {
+		return "Bearer ";
 	}
 }
