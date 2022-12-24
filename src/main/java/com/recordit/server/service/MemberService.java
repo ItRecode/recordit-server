@@ -70,6 +70,7 @@ public class MemberService {
 				)
 		);
 		sessionUtil.saveUserIdInSession(saveMember.getId());
+		// TODO RegisterSession을 읽어와서 가입까지 완료 했다면 RegisterSession을 삭제 해야함
 	}
 
 	@Transactional(readOnly = true)
