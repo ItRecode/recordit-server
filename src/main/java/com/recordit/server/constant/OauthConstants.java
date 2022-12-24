@@ -5,7 +5,8 @@ public enum OauthConstants {
 	CLIENT_SECRET("client_secret"),
 	CODE("code"),
 	GRANT_TYPE("grant_type"),
-	REDIRECT_URI("redirect_uri");
+	REDIRECT_URI("redirect_uri"),
+	ID_TOKEN("id_token");
 
 	public final String key;
 
