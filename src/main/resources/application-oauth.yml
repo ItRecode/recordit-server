@@ -15,4 +15,4 @@ oauth:
     client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:}
     redirect-url: ${OAUTH_GOOGLE_REDIRECT_URL:}
     token-request-url: https://oauth2.googleapis.com/token
-    user-info-request-url: https://www.googleapis.com/drive/v2/files
+    user-info-request-url: https://oauth2.googleapis.com/tokeninfo

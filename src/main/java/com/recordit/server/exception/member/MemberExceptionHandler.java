@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 
 import com.recordit.server.controller.MemberController;
 import com.recordit.server.exception.ErrorMessage;
@@ -44,6 +45,13 @@ public class MemberExceptionHandler {
 			NotFoundRegisterSessionException exception) {
 		return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED)
 				.body(ErrorMessage.of(exception, HttpStatus.PRECONDITION_REQUIRED));
+	}
+
+	@ExceptionHandler(RestClientException.class)
+	public ResponseEntity<ErrorMessage> handleRestClientException(
+			RestClientException exception) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 }
 

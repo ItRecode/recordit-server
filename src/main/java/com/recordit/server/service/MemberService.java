@@ -36,7 +36,7 @@ public class MemberService {
 	public Optional<RegisterSessionResponseDto> oauthLogin(String loginType, LoginRequestDto loginRequestDto) {
 		OauthService oauthService = oauthServiceLocator.getOauthServiceByLoginType(loginType);
 
-		String oauthId = oauthService.request(loginRequestDto.getOauthToken());
+		String oauthId = oauthService.getUserInfoByOauthToken(loginRequestDto.getOauthToken());
 		Optional<Member> findMember = memberRepository.findByOauthId(oauthId);
 
 		if (findMember.isPresent()) {
@@ -70,6 +70,7 @@ public class MemberService {
 				)
 		);
 		sessionUtil.saveUserIdInSession(saveMember.getId());
+		// TODO RegisterSession을 읽어와서 가입까지 완료 했다면 RegisterSession을 삭제 해야함
 	}
 
 	@Transactional(readOnly = true)
