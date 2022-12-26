@@ -21,8 +21,8 @@ public class RecordCategoryController {
 	private final RecordCategoryService recordCategoryService;
 
 	@ApiOperation(
-			value = "레코트 카테고리 전체 조회",
-			notes = "레코트 카테고리 전체를 조회합니다."
+			value = "레코드 카테고리 전체 조회",
+			notes = "레코드 카테고리 전체를 조회합니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
