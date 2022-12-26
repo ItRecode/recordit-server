@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recordit.server.dto.record.category.RecordCategoryResponseDto;
-import com.recordit.server.repository.RecordCategoryRepository;
+import com.recordit.server.service.RecordCategoryService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/record/category")
 public class RecordCategoryController {
 
-	private final RecordCategoryRepository recordCategoryRepository;
+	private final RecordCategoryService recordCategoryService;
 
 	@ApiOperation(
 			value = "레코트 카테고리 전체 조회",
