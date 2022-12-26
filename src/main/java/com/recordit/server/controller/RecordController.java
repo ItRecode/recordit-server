@@ -1,0 +1,74 @@
+package com.recordit.server.controller;
+
+import javax.validation.Valid;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.recordit.server.dto.record.RecordDetailResponseDto;
+import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.exception.ErrorMessage;
+import com.recordit.server.service.RecordService;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/record")
+public class RecordController {
+
+	private final RecordService recordService;
+
+	@ApiOperation(
+			value = "레코드 작성",
+			notes = "레코드를 작성합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 작성 성공"
+			),
+			@ApiResponse(
+					code = 400, message = "잘못된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+	public ResponseEntity<?> writeRecord(
+			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
+			@ApiParam @RequestPart MultipartFile file
+	) {
+		return null;
+	}
+
+	@ApiOperation(
+			value = "레코드 단건 조회",
+			notes = "레코드를 단건 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 조회 성공",
+					response = RecordDetailResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "레코드가 없는 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/{recordId}")
+	public ResponseEntity<RecordDetailResponseDto> getDetailRecord(
+			@PathVariable("recordId") Long recordId) {
+		return null;
+	}
+
+}
