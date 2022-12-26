@@ -1,7 +1,7 @@
 package com.recordit.server.dto.record.category;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -24,5 +24,5 @@ import lombok.ToString;
 @Builder
 public class RecordCategoryResponseDto {
 	@ApiModelProperty(notes = "레코드 카테고리 목록", required = true)
-	private HashMap<String, ArrayList<String>> recordCategory;
+	private Map<String, List<String>> recordCategory;
 }
