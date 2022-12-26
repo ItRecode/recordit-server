@@ -2,13 +2,13 @@ package com.recordit.server.util;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Objects;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.recordit.server.dummy.Foo;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomObjectMapperTest {
@@ -33,16 +33,54 @@ public class CustomObjectMapperTest {
 		@DisplayName("정상적인 경우 예외를 던지지 않는다")
 		void 정상적인_경우_예외를_던지지_않는다() throws Exception {
 			// given
-			Foo foo = new Foo("testField1", "testField2");
-			String fooToJsonString = "{\"field1\":\"testField1\",\"field2\":\"testField2\"}";
-			Class<Foo> fooClass = Foo.class;
+			MappingDummy mappingDummy = new MappingDummy("testField1", "testField2");
+			String mappingDummyToJsonString = "{\"field1\":\"testField1\",\"field2\":\"testField2\"}";
+			Class<MappingDummy> mappingDummyClass = MappingDummy.class;
 
 			// when, then
-			assertThatCode(() -> CustomObjectMapper.readValue(fooToJsonString, fooClass))
+			assertThatCode(() -> CustomObjectMapper.readValue(mappingDummyToJsonString, mappingDummyClass))
 					.doesNotThrowAnyException();
-			assertThat(foo).isEqualTo(CustomObjectMapper.readValue(fooToJsonString, fooClass));
+			assertThat(mappingDummy).isEqualTo(
+					CustomObjectMapper.readValue(mappingDummyToJsonString, mappingDummyClass));
 
 		}
 	}
 
+}
+
+class MappingDummy {
+	private String field1;
+	private String field2;
+
+	public MappingDummy(String field1, String field2) {
+		this.field1 = field1;
+		this.field2 = field2;
+	}
+
+	public MappingDummy() {
+	}
+
+	public String getField1() {
+		return field1;
+	}
+
+	public String getField2() {
+		return field2;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		MappingDummy mappingDummy = (MappingDummy)o;
+		return Objects.equals(getField1(), mappingDummy.getField1()) && Objects.equals(getField2(),
+				mappingDummy.getField2());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getField1(), getField2());
+	}
 }
