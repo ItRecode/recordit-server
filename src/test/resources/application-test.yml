@@ -25,3 +25,17 @@ springfox:
   documentation:
     swagger:
       use-model-v3: false
+
+oauth:
+  kakao:
+    client-id: ${OAUTH_KAKAO_CLIENT_ID:}
+    client-secret: ${OAUTH_KAKAO_CLIENT_SECRET:}
+    redirect-url: ${OAUTH_KAKAO_REDIRECT_URL:}
+    token-request-url: https://kauth.kakao.com/oauth/token
+    user-info-request-url: https://kapi.kakao.com/v2/user/me
+  google:
+    client-id: ${OAUTH_GOOGLE_CLIENT_ID:}
+    client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:}
+    redirect-url: ${OAUTH_GOOGLE_REDIRECT_URL:}
+    token-request-url: https://oauth2.googleapis.com/token
+    user-info-request-url: https://oauth2.googleapis.com/tokeninfo
