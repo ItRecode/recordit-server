@@ -39,3 +39,11 @@ oauth:
     redirect-url: ${OAUTH_GOOGLE_REDIRECT_URL:}
     token-request-url: https://oauth2.googleapis.com/token
     user-info-request-url: https://oauth2.googleapis.com/tokeninfo
+
+s3:
+  credentials:
+    access-key: ${S3_ACCESS_KEY:}
+    secret-key: ${S3_SECRET_ACCESS_KEY:}
+  bucket: ${S3_BUCKET_NAME:}
+  directory: ${S3_DIRECTORY_NAME:}
+  region: ap-northeast-2
