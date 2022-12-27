@@ -1,4 +1,4 @@
-package com.recordit.server.exception.imagefile;
+package com.recordit.server.exception.file;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
-public class ImageFileExceptionHandler {
+public class FileExceptionHandler {
 
 	@ExceptionHandler(FileInputStreamException.class)
 	public ResponseEntity<ErrorMessage> handleFileInputStreamException(FileInputStreamException exception) {

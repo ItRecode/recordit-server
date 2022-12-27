@@ -20,7 +20,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.recordit.server.environment.S3Properties;
-import com.recordit.server.exception.imagefile.FileInputStreamException;
+import com.recordit.server.exception.file.FileInputStreamException;
 
 @ExtendWith(MockitoExtension.class)
 class S3UploaderTest {

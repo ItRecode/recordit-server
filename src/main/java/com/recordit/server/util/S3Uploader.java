@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.recordit.server.environment.S3Properties;
-import com.recordit.server.exception.imagefile.FileInputStreamException;
+import com.recordit.server.exception.file.FileInputStreamException;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
