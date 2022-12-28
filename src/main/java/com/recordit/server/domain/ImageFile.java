@@ -88,7 +88,7 @@ public class ImageFile extends BaseEntity {
 				saveImageUrl,
 				multipartFile.getOriginalFilename(),
 				saveName,
-				multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".")),
+				multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".") + 1),
 				multipartFile.getSize()
 		);
 	}
