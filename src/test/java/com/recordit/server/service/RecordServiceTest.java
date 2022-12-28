@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.domain.Member;
+import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
@@ -71,6 +72,9 @@ class RecordServiceTest {
 
 	@Mock
 	private RecordIcon mockRecordIcon;
+
+	@Mock
+	private Record mockRecord;
 
 	@Nested
 	@DisplayName("레코드를 작성 할 때")
@@ -167,6 +171,44 @@ class RecordServiceTest {
 
 			// when, then
 			assertThatCode(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("레코드를 단건 조회 할 때")
+	class 레코드를_단건_조회_할_때 {
+		@Test
+		@DisplayName("레코드 정보를 찾을 수 없다면 예외를 던진다")
+		void 레코드_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(recordRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getDetailRecord(234L))
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("레코드 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("레코드 정보를 찾을 수 있다면 예외를 던지지 않는다")
+		void 레코드_정보를_찾을_수_있다면_예외를_던지지_않는다() {
+			// given
+			given(mockRecord.getWriter()).willReturn(mockMember);
+			given(mockMember.getNickname()).willReturn("히니");
+
+			given(mockRecord.getRecordColor()).willReturn(mockRecordColor);
+			given(mockRecordColor.getName()).willReturn("icon-pink");
+
+			given(mockRecord.getRecordIcon()).willReturn(mockRecordIcon);
+			given(mockRecordIcon.getName()).willReturn("umbrella");
+
+			given(recordRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+
+			// when, then
+			assertThatCode(() -> recordService.getDetailRecord(5421L))
 					.doesNotThrowAnyException();
 		}
 	}
