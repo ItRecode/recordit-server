@@ -12,6 +12,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.constant.RefType;
 
@@ -54,6 +55,41 @@ public class ImageFile extends BaseEntity {
 	private String extension;
 
 	@Column(name = "SIZE")
-	private Integer size;
+	private Long size;
 
+	private ImageFile(
+			RefType refType,
+			Long refId,
+			String downloadUrl,
+			String originalName,
+			String saveName,
+			String extension,
+			Long size
+	) {
+		this.refType = refType;
+		this.refId = refId;
+		this.downloadUrl = downloadUrl;
+		this.originalName = originalName;
+		this.saveName = saveName;
+		this.extension = extension;
+		this.size = size;
+	}
+
+	public static ImageFile of(
+			RefType refType,
+			Long refId,
+			MultipartFile multipartFile,
+			String saveName,
+			String saveImageUrl
+	) {
+		return new ImageFile(
+				refType,
+				refId,
+				saveImageUrl,
+				multipartFile.getOriginalFilename(),
+				saveName,
+				multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".")),
+				multipartFile.getSize()
+		);
+	}
 }
