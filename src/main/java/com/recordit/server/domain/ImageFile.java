@@ -56,10 +56,4 @@ public class ImageFile extends BaseEntity {
 	@Column(name = "SIZE")
 	private Integer size;
 
-	@Column(name = "REGISTER_IP")
-	private String registerIp;
-
-	@Column(name = "DOWNLOAD_COUNT")
-	private Integer downloadCount;
-
 }
