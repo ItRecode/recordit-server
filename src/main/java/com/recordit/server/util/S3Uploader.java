@@ -29,7 +29,7 @@ public class S3Uploader {
 			amazonS3.putObject(
 					new PutObjectRequest(
 							s3Properties.getBucket(),
-							fileName,
+							s3Properties.getDirectory() + "/" + fileName,
 							multipartFile.getInputStream(),
 							getObjectMetadataBy(multipartFile)
 					).withCannedAcl(CannedAccessControlList.PublicRead)
@@ -41,7 +41,7 @@ public class S3Uploader {
 	}
 
 	public String getUrlByFileName(String fileName) {
-		return amazonS3.getUrl(s3Properties.getBucket(), fileName).toString();
+		return amazonS3.getUrl(s3Properties.getBucket(), s3Properties.getDirectory() + "/" + fileName).toString();
 	}
 
 	private ObjectMetadata getObjectMetadataBy(@NonNull MultipartFile multipartFile) {
