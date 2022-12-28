@@ -18,4 +18,17 @@ public class FileExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ErrorMessage.of(exception, HttpStatus.UNPROCESSABLE_ENTITY));
 	}
+
+	@ExceptionHandler(EmptyFileException.class)
+	public ResponseEntity<ErrorMessage> handleEmptyFileException(EmptyFileException exception) {
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ErrorMessage.of(exception, HttpStatus.UNPROCESSABLE_ENTITY));
+	}
+
+	@ExceptionHandler(FileContentTypeNotAllowedException.class)
+	public ResponseEntity<ErrorMessage> handleFileContentTypeNotAllowedException(
+			FileContentTypeNotAllowedException exception) {
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ErrorMessage.of(exception, HttpStatus.UNPROCESSABLE_ENTITY));
+	}
 }
