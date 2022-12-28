@@ -91,82 +91,65 @@ class RecordServiceTest {
 				.iconName(iconName)
 				.build();
 
-		@Nested
-		@DisplayName("회원 정보를")
-		class 회원_정보를 {
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
 
-			@Test
-			@DisplayName("찾을 수 없다면 예외를 던진다")
-			void 찾을_수_없다면_예외를_던진다() {
-				// given
-				given(memberRepository.findById(anyLong()))
-						.willReturn(Optional.empty());
-
-				// when, then
-				assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
-						.isInstanceOf(MemberNotFoundException.class)
-						.hasMessage("회원 정보를 찾을 수 없습니다.");
-			}
+			// when, then
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
 
-		@Nested
-		@DisplayName("카테고리 정보를")
-		class 카테고리_정보를 {
-			@Test
-			@DisplayName("찾을 수 없다면 예외를 던진다")
-			void 찾을_수_없다면_예외를_던진다() {
-				given(memberRepository.findById(anyLong()))
-						.willReturn(Optional.of(mockMember));
-				given(recordCategoryRepository.findById(anyLong()))
-						.willReturn(Optional.empty());
+		@Test
+		@DisplayName("카테고리_정보를_찾을 수 없다면 예외를 던진다")
+		void 카테고리_정보를_찾을_수_없다면_예외를_던진다() {
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordCategoryRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
 
-				// when, then
-				assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
-						.isInstanceOf(RecordCategoryNotFoundException.class)
-						.hasMessage("카테고리 정보를 찾을 수 없습니다.");
-			}
+			// when, then
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+					.isInstanceOf(RecordCategoryNotFoundException.class)
+					.hasMessage("카테고리 정보를 찾을 수 없습니다.");
 		}
 
-		@Nested
-		@DisplayName("컬러 정보를")
-		class 컬러_정보를 {
-			@Test
-			@DisplayName("찾을 수 없다면 예외를 던진다")
-			void 찾을_수_없다면_예외를_던진다() {
-				given(memberRepository.findById(anyLong()))
-						.willReturn(Optional.of(mockMember));
-				given(recordCategoryRepository.findById(anyLong()))
-						.willReturn(Optional.of(mockRecordCategory));
-				given(recordColorRepository.findByName(anyString()))
-						.willReturn(Optional.empty());
+		@Test
+		@DisplayName("컬러_정보를_찾을 수 없다면 예외를 던진다")
+		void 컬러_정보를_찾을_수_없다면_예외를_던진다() {
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordCategoryRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockRecordCategory));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.empty());
 
-				// when, then
-				assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
-						.isInstanceOf(RecordColorNotFoundException.class)
-						.hasMessage("컬러 정보를 찾을 수 없습니다.");
-			}
+			// when, then
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+					.isInstanceOf(RecordColorNotFoundException.class)
+					.hasMessage("컬러 정보를 찾을 수 없습니다.");
 		}
 
-		@Nested
-		@DisplayName("아이콘 정보를")
-		class 아이콘_정보를 {
-			@Test
-			@DisplayName("찾을 수 없다면 예외를 던진다")
-			void 찾을_수_없다면_예외를_던진다() {
-				given(memberRepository.findById(anyLong()))
-						.willReturn(Optional.of(mockMember));
-				given(recordCategoryRepository.findById(anyLong()))
-						.willReturn(Optional.of(mockRecordCategory));
-				given(recordColorRepository.findByName(anyString()))
-						.willReturn(Optional.of(mockRecordColor));
-				given(recordIconRepository.findByName(anyString()))
-						.willReturn(Optional.empty());
+		@Test
+		@DisplayName("아이콘 정보를 찾을 수 없다면 예외를 던진다")
+		void 아이콘_정보를_찾을_수_없다면_예외를_던진다() {
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordCategoryRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockRecordCategory));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordColor));
+			given(recordIconRepository.findByName(anyString()))
+					.willReturn(Optional.empty());
 
-				// when, then
-				assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
-						.isInstanceOf(RecordIconNotFoundException.class)
-						.hasMessage("아이콘 정보를 찾을 수 없습니다.");
-			}
+			// when, then
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+					.isInstanceOf(RecordIconNotFoundException.class)
+					.hasMessage("아이콘 정보를 찾을 수 없습니다.");
 		}
 
 		@Test
