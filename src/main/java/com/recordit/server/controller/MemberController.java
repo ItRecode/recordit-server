@@ -2,6 +2,8 @@ package com.recordit.server.controller;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,7 +89,7 @@ public class MemberController {
 	@PostMapping("/oauth/register/{loginType}")
 	public ResponseEntity oauthRegister(
 			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
-			@RequestBody RegisterRequestDto registerRequestDto
+			@RequestBody @Valid RegisterRequestDto registerRequestDto
 	) {
 		memberService.oauthRegister(loginType, registerRequestDto);
 		return new ResponseEntity(HttpStatus.OK);
