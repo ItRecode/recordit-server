@@ -1,5 +1,7 @@
 package com.recordit.server.dto.member;
 
+import javax.validation.constraints.Pattern;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -22,6 +24,7 @@ public class RegisterRequestDto {
 	private String registerSession;
 
 	@ApiModelProperty(notes = "사용자 닉네임", required = true)
+	@Pattern(regexp = "[가-힣a-zA-z0-9]{2,10}")
 	private String nickname;
 
 	@Builder
