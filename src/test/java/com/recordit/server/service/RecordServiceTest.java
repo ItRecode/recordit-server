@@ -195,6 +195,15 @@ class RecordServiceTest {
 		@DisplayName("레코드 정보를 찾을 수 있다면 예외를 던지지 않는다")
 		void 레코드_정보를_찾을_수_있다면_예외를_던지지_않는다() {
 			// given
+			Long recordId = 5421L;
+			Long recordCategotyId = 5L;
+
+			given(mockRecord.getId()).willReturn(recordId);
+
+			given(mockRecord.getRecordCategory()).willReturn(mockRecordCategory);
+			given(mockRecordCategory.getId()).willReturn(recordCategotyId);
+			given(mockRecordCategory.getName()).willReturn("축하해주세요");
+
 			given(mockRecord.getWriter()).willReturn(mockMember);
 			given(mockMember.getNickname()).willReturn("히니");
 
@@ -208,7 +217,7 @@ class RecordServiceTest {
 					.willReturn(Optional.of(mockRecord));
 
 			// when, then
-			assertThatCode(() -> recordService.getDetailRecord(5421L))
+			assertThatCode(() -> recordService.getDetailRecord(recordId))
 					.doesNotThrowAnyException();
 		}
 	}
