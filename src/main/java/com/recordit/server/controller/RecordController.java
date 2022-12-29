@@ -52,10 +52,7 @@ public class RecordController {
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
 			@ApiParam @RequestPart(required = false) List<MultipartFile> files
 	) {
-		return new ResponseEntity<>(
-				recordService.writeRecord(writeRecordRequestDto, files),
-				HttpStatus.CREATED
-		);
+		return ResponseEntity.status(HttpStatus.CREATED).body(recordService.writeRecord(writeRecordRequestDto, files));
 	}
 
 	@ApiOperation(
