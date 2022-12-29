@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +25,7 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
+import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.ImageFileRepository;
 import com.recordit.server.repository.MemberRepository;
@@ -84,8 +85,7 @@ class RecordServiceTest {
 		private final String content = "오늘은 내 20번째 생일입니다. \n모두 축하와 선물을 준비해 주세요.";
 		private final String colorName = "icon-purple";
 		private final String iconName = "moon";
-		private MultipartFile emptyFile = new MockMultipartFile("비어있는 파일", new byte[0]);
-		private MultipartFile notEmptyFile = new MockMultipartFile("비어있지 않은 파일", new byte[10]);
+		private List<MultipartFile> files = List.of();
 
 		private final WriteRecordRequestDto writeRecordRequestDto = WriteRecordRequestDto.builder()
 				.recordCategoryId(recordCategoryId)
@@ -103,7 +103,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, files))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
@@ -117,7 +117,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, files))
 					.isInstanceOf(RecordCategoryNotFoundException.class)
 					.hasMessage("카테고리 정보를 찾을 수 없습니다.");
 		}
@@ -133,7 +133,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, files))
 					.isInstanceOf(RecordColorNotFoundException.class)
 					.hasMessage("컬러 정보를 찾을 수 없습니다.");
 		}
@@ -151,7 +151,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+			assertThatThrownBy(() -> recordService.writeRecord(writeRecordRequestDto, files))
 					.isInstanceOf(RecordIconNotFoundException.class)
 					.hasMessage("아이콘 정보를 찾을 수 없습니다.");
 		}
@@ -169,8 +169,11 @@ class RecordServiceTest {
 			given(recordIconRepository.findByName(anyString()))
 					.willReturn(Optional.of(mockRecordIcon));
 
+			given(recordRepository.save(any())).willReturn(mockRecord);
+			given(mockRecord.getId()).willReturn(2394L);
+
 			// when, then
-			assertThatCode(() -> recordService.writeRecord(writeRecordRequestDto, emptyFile))
+			assertThatCode(() -> recordService.writeRecord(writeRecordRequestDto, files))
 					.doesNotThrowAnyException();
 		}
 	}
