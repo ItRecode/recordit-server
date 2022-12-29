@@ -9,9 +9,9 @@ import org.springframework.web.client.RestClientException;
 import com.recordit.server.controller.MemberController;
 import com.recordit.server.exception.ErrorMessage;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
-@Slf4j
+@Log4j2
 @RestControllerAdvice(basePackageClasses = MemberController.class)
 public class MemberExceptionHandler {
 

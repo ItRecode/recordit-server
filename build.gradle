@@ -12,6 +12,10 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        // log4j2를 위해 logback 의존성 제거
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
 }
 
 repositories {
@@ -47,6 +51,10 @@ dependencies {
 
     // use s3
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.372'
+
+    // log4j2
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
 }
 
 tasks.named('test') {

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.recordit.server.exception.ErrorMessage;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
-@Slf4j
+@Log4j2
 @RestControllerAdvice
 public class RedisExceptionHandler {
 

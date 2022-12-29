@@ -9,9 +9,9 @@ import com.recordit.server.controller.RecordController;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.exception.member.MemberNotFoundException;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
-@Slf4j
+@Log4j2
 @RestControllerAdvice(basePackageClasses = RecordController.class)
 public class RecordExceptionHandler {
 	@ExceptionHandler(MemberNotFoundException.class)
