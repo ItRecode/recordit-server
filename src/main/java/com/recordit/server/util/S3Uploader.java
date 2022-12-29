@@ -40,6 +40,10 @@ public class S3Uploader {
 		return fileName;
 	}
 
+	public void delete(@NonNull String fileName) {
+		amazonS3.deleteObject(s3Properties.getBucket(), s3Properties.getDirectory() + "/" + fileName);
+	}
+
 	public String getUrlByFileName(String fileName) {
 		return amazonS3.getUrl(s3Properties.getBucket(), s3Properties.getDirectory() + "/" + fileName).toString();
 	}
