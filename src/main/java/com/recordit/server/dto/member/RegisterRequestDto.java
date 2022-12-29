@@ -24,7 +24,7 @@ public class RegisterRequestDto {
 	private String registerSession;
 
 	@ApiModelProperty(notes = "사용자 닉네임", required = true)
-	@Pattern(regexp = "[가-힣a-zA-z0-9]{2,10}")
+	@Pattern(regexp = "[가-힣a-zA-z0-9]{2,8}")
 	private String nickname;
 
 	@Builder
