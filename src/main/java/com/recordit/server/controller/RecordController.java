@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
 
@@ -47,12 +48,14 @@ public class RecordController {
 			)
 	})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<?> writeRecord(
+	public ResponseEntity<WriteRecordResponseDto> writeRecord(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
 			@ApiParam @RequestPart(required = false) List<MultipartFile> files
 	) {
-		recordService.writeRecord(writeRecordRequestDto, files);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(
+				recordService.writeRecord(writeRecordRequestDto, files),
+				HttpStatus.CREATED
+		);
 	}
 
 	@ApiOperation(

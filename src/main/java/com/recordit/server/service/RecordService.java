@@ -13,6 +13,7 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
@@ -40,7 +41,7 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 
 	@Transactional
-	public void writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
+	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
 		List<String> urls = List.of();
 		// if (!file.isEmpty()) { // 파일 데이터가 존재할 때
 		// 	/* todo
@@ -65,7 +66,12 @@ public class RecordService {
 
 		Record record = Record.of(writeRecordRequestDto, recordCategory, member,
 				urls.size(), recordColor, recordIcon);
-		recordRepository.save(record);
+
+		Long recordId = recordRepository.save(record).getId();
+
+		return WriteRecordResponseDto.builder()
+				.recordId(recordId)
+				.build();
 	}
 
 	@Transactional(readOnly = true)
