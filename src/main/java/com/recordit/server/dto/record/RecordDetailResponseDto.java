@@ -19,6 +19,9 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RecordDetailResponseDto {
+	private Long recordId;
+	private Long categoryId;
+	private String categoryName;
 	private String title;
 	private String content;
 	private String writer;
@@ -29,6 +32,9 @@ public class RecordDetailResponseDto {
 
 	@Builder
 	public RecordDetailResponseDto(
+			Long recordId,
+			Long categoryId,
+			String categoryName,
 			String title,
 			String content,
 			String writer,
@@ -37,6 +43,9 @@ public class RecordDetailResponseDto {
 			LocalDateTime createdAt,
 			List<String> imageUrls
 	) {
+		this.recordId = recordId;
+		this.categoryId = categoryId;
+		this.categoryName = categoryName;
 		this.title = title;
 		this.content = content;
 		this.writer = writer;

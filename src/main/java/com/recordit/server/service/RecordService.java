@@ -83,6 +83,9 @@ public class RecordService {
 		// List<String> urls = imageFileService.findByRecordId(record.getId(), record.getNumOfImage());
 
 		return RecordDetailResponseDto.builder()
+				.recordId(record.getId())
+				.categoryId(record.getRecordCategory().getId())
+				.categoryName(record.getRecordCategory().getName())
 				.title(record.getTitle())
 				.content(record.getContent())
 				.writer(record.getWriter().getNickname())
