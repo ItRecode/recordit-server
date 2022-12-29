@@ -1,6 +1,7 @@
 package com.recordit.server.dto.record;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -18,21 +19,39 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RecordDetailResponseDto {
+	private Long recordId;
+	private Long categoryId;
+	private String categoryName;
 	private String title;
 	private String content;
-	private String hex;
+	private String writer;
+	private String colorName;
 	private String iconName;
 	private LocalDateTime createdAt;
-	private String imageUrl;
+	private List<String> imageUrls;
 
 	@Builder
-	public RecordDetailResponseDto(String title, String content, String hex, String iconName, LocalDateTime createdAt,
-			String imageUrl) {
+	public RecordDetailResponseDto(
+			Long recordId,
+			Long categoryId,
+			String categoryName,
+			String title,
+			String content,
+			String writer,
+			String colorName,
+			String iconName,
+			LocalDateTime createdAt,
+			List<String> imageUrls
+	) {
+		this.recordId = recordId;
+		this.categoryId = categoryId;
+		this.categoryName = categoryName;
 		this.title = title;
 		this.content = content;
-		this.hex = hex;
+		this.writer = writer;
+		this.colorName = colorName;
 		this.iconName = iconName;
 		this.createdAt = createdAt;
-		this.imageUrl = imageUrl;
+		this.imageUrls = imageUrls;
 	}
 }

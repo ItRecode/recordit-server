@@ -2,7 +2,6 @@ package com.recordit.server.dto.record;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -32,18 +31,24 @@ public class WriteRecordRequestDto {
 	@NotBlank(message = "레코드 내용은 빈 값일 수 없습니다.")
 	private String content;
 
-	@Pattern(regexp = "^#[A-Z0-9]{6}", message = "'#FFBF00'의 형태로 입력해 주세요.")
-	private String hex;
+	@NotBlank(message = "컬러 이름은 빈 값일 수 없습니다.")
+	private String colorName;
 
-	@NotBlank(message = "아이콘이름은 빈 값일 수 없습니다.")
+	@NotBlank(message = "아이콘 이름은 빈 값일 수 없습니다.")
 	private String iconName;
 
 	@Builder
-	public WriteRecordRequestDto(Long recordCategoryId, String title, String content, String hex, String iconName) {
+	public WriteRecordRequestDto(
+			Long recordCategoryId,
+			String title,
+			String content,
+			String colorName,
+			String iconName
+	) {
 		this.recordCategoryId = recordCategoryId;
 		this.title = title;
 		this.content = content;
-		this.hex = hex;
+		this.colorName = colorName;
 		this.iconName = iconName;
 	}
 }

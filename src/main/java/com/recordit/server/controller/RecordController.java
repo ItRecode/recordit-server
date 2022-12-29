@@ -1,7 +1,10 @@
 package com.recordit.server.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
 
@@ -44,11 +48,11 @@ public class RecordController {
 			)
 	})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<?> writeRecord(
+	public ResponseEntity<WriteRecordResponseDto> writeRecord(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
-			@ApiParam @RequestPart MultipartFile file
+			@ApiParam @RequestPart(required = false) List<MultipartFile> files
 	) {
-		return null;
+		return ResponseEntity.status(HttpStatus.CREATED).body(recordService.writeRecord(writeRecordRequestDto, files));
 	}
 
 	@ApiOperation(
@@ -68,7 +72,7 @@ public class RecordController {
 	@GetMapping("/{recordId}")
 	public ResponseEntity<RecordDetailResponseDto> getDetailRecord(
 			@PathVariable("recordId") Long recordId) {
-		return null;
+		return ResponseEntity.ok().body(recordService.getDetailRecord(recordId));
 	}
 
 }
