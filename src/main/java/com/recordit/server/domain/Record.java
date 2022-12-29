@@ -13,6 +13,8 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import com.recordit.server.dto.record.WriteRecordRequestDto;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,4 +56,40 @@ public class Record extends BaseEntity {
 	@JoinColumn(name = "RECORD_ICON_ID")
 	private RecordIcon recordIcon;
 
+	private Record(
+			RecordCategory recordCategory,
+			Member writer,
+			String title,
+			String content,
+			Integer numOfImage,
+			RecordColor recordColor,
+			RecordIcon recordIcon
+	) {
+		this.recordCategory = recordCategory;
+		this.writer = writer;
+		this.title = title;
+		this.content = content;
+		this.numOfImage = numOfImage;
+		this.recordColor = recordColor;
+		this.recordIcon = recordIcon;
+	}
+
+	public static Record of(
+			WriteRecordRequestDto writeRecordRequestDto,
+			RecordCategory recordCategory,
+			Member member,
+			Integer numOfImage,
+			RecordColor recordColor,
+			RecordIcon recordIcon
+	) {
+		return new Record(
+				recordCategory,
+				member,
+				writeRecordRequestDto.getTitle(),
+				writeRecordRequestDto.getContent(),
+				numOfImage,
+				recordColor,
+				recordIcon
+		);
+	}
 }
