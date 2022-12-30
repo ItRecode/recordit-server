@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
+import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.service.MemberService;
 
 import io.swagger.annotations.ApiOperation;
@@ -100,13 +101,17 @@ public class MemberController {
 			notes = "닉네임을 받아 해당 닉네임이 중복되었는지 판별"
 	)
 	@ApiResponses({
-			@ApiResponse(code = 200, message = "닉네임이 사용 가능한 경우"),
-			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우")
+			@ApiResponse(code = 200, message = "닉네임이 사용 가능한 경우 true 반환", response = Boolean.class),
+			@ApiResponse(code = 409, message = "닉네임이 중복 된 경우 false 반환")
 	})
 	@GetMapping("/nickname")
 	public ResponseEntity duplicateNicknameCheck(@RequestParam String nickname) {
-		memberService.isDuplicateNickname(nickname);
-		return new ResponseEntity(HttpStatus.OK);
+		try {
+			memberService.isDuplicateNickname(nickname);
+		} catch (DuplicateNicknameException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(true);
 	}
 
 }
