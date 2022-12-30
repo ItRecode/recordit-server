@@ -1,10 +1,11 @@
 package com.recordit.server.dto.record.category;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.recordit.server.domain.RecordCategory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,11 +21,27 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RecordCategoryResponseDto {
-	@ApiModelProperty(notes = "레코드 카테고리 목록", required = true)
-	private Map<String, List<String>> recordCategory;
+
+	@ApiModelProperty(notes = "레코드 카테고리 ID", required = true)
+	private Long id;
+
+	@ApiModelProperty(notes = "레코드 카테고리 이름", required = true)
+	private String name;
+
+	@ApiModelProperty(notes = "하위 레코드 목록", required = true)
+	private List<RecordCategoryResponseDto> subcategories;
 
 	@Builder
-	public RecordCategoryResponseDto(Map<String, List<String>> recordCategory) {
-		this.recordCategory = recordCategory;
+	public RecordCategoryResponseDto(Long id, String name, List<RecordCategory> subcategories) {
+		this.id = id;
+		this.name = name;
+		this.subcategories = subcategories.stream().map(
+				subcategory -> RecordCategoryResponseDto.builder()
+						.id(subcategory.getId())
+						.name(subcategory.getName())
+						.subcategories(subcategory.getSubcategories())
+						.build()
+		).collect(Collectors.toList());
 	}
+
 }
