@@ -1,5 +1,7 @@
 package com.recordit.server.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,11 +29,12 @@ public class RecordCategoryController {
 	@ApiResponses({
 			@ApiResponse(
 					code = 200, message = "API 정상 작동 / 레코드 카테고리 목록 반환",
-					response = RecordCategoryResponseDto.class
+					response = RecordCategoryResponseDto.class, responseContainer = "List"
 			)
 	})
 	@GetMapping
-	public ResponseEntity<?> getAllRecordCategories() {
-		return null;
+	public ResponseEntity<List<RecordCategoryResponseDto>> getAllRecordCategories() {
+		return ResponseEntity.ok(recordCategoryService.getAllRecordCategories());
 	}
+
 }

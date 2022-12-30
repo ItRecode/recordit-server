@@ -1,5 +1,8 @@
 package com.recordit.server.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -34,4 +38,16 @@ public class RecordCategory extends BaseEntity {
 
 	@Column(name = "NAME")
 	private String name;
+
+	@OneToMany(mappedBy = "parentRecordCategory")
+	private List<RecordCategory> subcategories = new ArrayList<>();
+
+	private RecordCategory(RecordCategory parentRecordCategory, String name) {
+		this.parentRecordCategory = parentRecordCategory;
+		this.name = name;
+	}
+
+	public static RecordCategory of(RecordCategory parentRecordCategory, String name) {
+		return new RecordCategory(parentRecordCategory, name);
+	}
 }
