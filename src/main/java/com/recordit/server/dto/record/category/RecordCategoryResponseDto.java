@@ -1,7 +1,7 @@
 package com.recordit.server.dto.record.category;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -29,19 +29,12 @@ public class RecordCategoryResponseDto {
 	private String name;
 
 	@ApiModelProperty(notes = "하위 레코드 목록", required = true)
-	private List<RecordCategoryResponseDto> subcategories;
+	private List<RecordCategoryResponseDto> subcategories = new ArrayList<>();
 
 	@Builder
-	public RecordCategoryResponseDto(Long id, String name, List<RecordCategory> subcategories) {
-		this.id = id;
-		this.name = name;
-		this.subcategories = subcategories.stream().map(
-				subcategory -> RecordCategoryResponseDto.builder()
-						.id(subcategory.getId())
-						.name(subcategory.getName())
-						.subcategories(subcategory.getSubcategories())
-						.build()
-		).collect(Collectors.toList());
+	public RecordCategoryResponseDto(RecordCategory recordCategory, List<RecordCategoryResponseDto> children) {
+		this.id = recordCategory.getId();
+		this.name = recordCategory.getName();
+		this.subcategories = children;
 	}
-
 }
