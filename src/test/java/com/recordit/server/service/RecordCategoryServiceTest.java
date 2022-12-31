@@ -37,21 +37,21 @@ class RecordCategoryServiceTest {
 				.willReturn(1L);
 		given(recordCategory1.getName())
 				.willReturn("recordCategory1");
-		given(recordCategory1.getSubcategories())
-				.willReturn(List.of(recordCategory2));
 
 		given(recordCategory2.getId())
 				.willReturn(2L);
 		given(recordCategory2.getName())
 				.willReturn("recordCategory2");
+		given(recordCategory2.getParentRecordCategory())
+				.willReturn(recordCategory1);
 
 		given(recordCategory3.getId())
 				.willReturn(3L);
 		given(recordCategory3.getName())
 				.willReturn("recordCategory3");
 
-		given(recordCategoryRepository.findAll())
-				.willReturn(List.of(recordCategory1, recordCategory3));
+		given(recordCategoryRepository.findAllFetchDepthIsOne())
+				.willReturn(List.of(recordCategory1, recordCategory2, recordCategory3));
 		// when
 		List<RecordCategoryResponseDto> result = recordCategoryService.getAllRecordCategories();
 
