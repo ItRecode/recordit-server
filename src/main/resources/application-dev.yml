@@ -1,9 +1,3 @@
-server:
-  servlet:
-    session:
-      cookie:
-        secure: true
-        same-site: none
 spring:
   config:
     activate:
@@ -34,3 +28,9 @@ springfox:
       use-model-v3: false
 logging:
   config: classpath:log4j2-dev.xml
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        same-site: none
