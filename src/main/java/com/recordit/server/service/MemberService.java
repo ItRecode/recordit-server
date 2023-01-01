@@ -33,7 +33,7 @@ public class MemberService {
 	private final RedisManager redisManager;
 
 	@Transactional
-	public Optional<RegisterSessionResponseDto> oauthLogin(String loginType, LoginRequestDto loginRequestDto) {
+	public Optional<RegisterSessionResponseDto> oauthLogin(LoginType loginType, LoginRequestDto loginRequestDto) {
 		OauthService oauthService = oauthServiceLocator.getOauthServiceByLoginType(loginType);
 
 		String oauthId = oauthService.getUserInfoByOauthToken(loginRequestDto.getOauthToken());
@@ -51,7 +51,7 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void oauthRegister(String loginType, RegisterRequestDto registerRequestDto) {
+	public void oauthRegister(LoginType loginType, RegisterRequestDto registerRequestDto) {
 		Optional<String> oauthId = redisManager.get(
 				PREFIX_REGISTER_SESSION + registerRequestDto.getRegisterSession(),
 				String.class);
@@ -66,7 +66,7 @@ public class MemberService {
 						null,
 						registerRequestDto.getNickname(),
 						oauthId.get(),
-						LoginType.findByString(loginType)
+						loginType
 				)
 		);
 		sessionUtil.saveUserIdInSession(saveMember.getId());

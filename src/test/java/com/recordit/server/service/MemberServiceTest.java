@@ -54,9 +54,9 @@ public class MemberServiceTest {
 
 	private MockedStatic<UUID> mockUUID;
 
-	private final String loginType = Arrays.stream(LoginType.values())
+	private final LoginType loginType = Arrays.stream(LoginType.values())
 			.findFirst()
-			.get().name();
+			.get();
 
 	private final UUID testUUID = UUID.randomUUID();
 
@@ -96,7 +96,7 @@ public class MemberServiceTest {
 				// given
 				Optional<Member> mockMember = Optional.of(MemberServiceTest.this.mockMember);
 
-				given(oauthServiceLocator.getOauthServiceByLoginType(anyString()))
+				given(oauthServiceLocator.getOauthServiceByLoginType(any()))
 						.willReturn(oauthService);
 				given(oauthService.getUserInfoByOauthToken(anyString()))
 						.willReturn(mockOauthId);
@@ -117,7 +117,7 @@ public class MemberServiceTest {
 			@DisplayName("없으면 registerSessionUUID를 반환한다")
 			void 없으면_registerSessionUUID를_반환한다() {
 				// given
-				given(oauthServiceLocator.getOauthServiceByLoginType(anyString()))
+				given(oauthServiceLocator.getOauthServiceByLoginType(any()))
 						.willReturn(oauthService);
 				given(oauthService.getUserInfoByOauthToken(anyString()))
 						.willReturn(mockOauthId);
