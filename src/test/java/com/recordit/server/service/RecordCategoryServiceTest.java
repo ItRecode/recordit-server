@@ -26,8 +26,8 @@ class RecordCategoryServiceTest {
 	private RecordCategoryRepository recordCategoryRepository;
 
 	@Test
-	@DisplayName("레코드 전제 조회를 테스트한다")
-	void 레코드_전제_조회를_테스트한다() {
+	@DisplayName("레코드 카테고리 전체 조회를 테스트한다")
+	void 레코드_카테고리_전체_조회를_테스트한다() {
 		// given
 		RecordCategory recordCategory1 = mock(RecordCategory.class);
 		RecordCategory recordCategory2 = mock(RecordCategory.class);
