@@ -28,3 +28,9 @@ springfox:
       use-model-v3: false
 logging:
   config: classpath:log4j2-dev.xml
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
