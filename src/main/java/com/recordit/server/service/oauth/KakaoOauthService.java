@@ -18,7 +18,9 @@ import com.recordit.server.environment.KakaoOauthProperties;
 import com.recordit.server.util.CustomObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoOauthService implements OauthService {
@@ -48,6 +50,7 @@ public class KakaoOauthService implements OauthService {
 				.queryParam(REDIRECT_URI.key, kakaoOauthProperties.getRedirectUrl())
 				.queryParam(GRANT_TYPE.key, getFixGrantType())
 				.toUriString();
+		log.info("카카오 Oauth AccessToken 요청 : {}", params);
 
 		ResponseEntity<String> exchange = new RestTemplate().exchange(
 				params,
@@ -55,6 +58,7 @@ public class KakaoOauthService implements OauthService {
 				null,
 				String.class
 		);
+		log.info("카카오 Oauth AccessToken 응답 : {}", exchange);
 
 		return CustomObjectMapper.readValue(exchange.getBody(), KakaoAccessTokenResponseDto.class);
 	}
@@ -63,6 +67,7 @@ public class KakaoOauthService implements OauthService {
 	protected KakaoUserInfoResponseDto requestUserInfo(KakaoAccessTokenResponseDto kakaoAccessTokenResponseDto) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add(AUTHORIZATION.key, getFixPrefixJwt() + kakaoAccessTokenResponseDto.getAccessToken());
+		log.info("카카오 Oauth UserInfo 요청 : {}", httpHeaders);
 
 		ResponseEntity<String> exchange = new RestTemplate().exchange(
 				kakaoOauthProperties.getUserInfoRequestUrl(),
@@ -70,6 +75,7 @@ public class KakaoOauthService implements OauthService {
 				new HttpEntity(httpHeaders),
 				String.class
 		);
+		log.info("카카오 Oauth UserInfo 응답 : {}", exchange);
 
 		return CustomObjectMapper.readValue(exchange.getBody(), KakaoUserInfoResponseDto.class);
 	}

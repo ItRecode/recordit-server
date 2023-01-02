@@ -20,7 +20,9 @@ import com.recordit.server.util.S3Uploader;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageFileService {
@@ -41,7 +43,9 @@ public class ImageFileService {
 			validateImageContentType(multipartFile);
 
 			String saveFileName = s3Uploader.upload(multipartFile);
+			log.info("S3에 저장한 파일 이름 : {}", saveFileName);
 			String saveFileUrl = s3Uploader.getUrlByFileName(saveFileName);
+			log.info("S3에 저장한 URL : {}", saveFileUrl);
 			applicationEventPublisher.publishEvent(S3ImageRollbackEvent.from(saveFileName));
 
 			imageFileRepository.save(
@@ -54,6 +58,7 @@ public class ImageFileService {
 					)
 			);
 			imageUrls.add(saveFileUrl);
+			log.info("이미지 파일 저장 성공 및 URL : {}", saveFileUrl);
 		}
 
 		return imageUrls;
@@ -61,6 +66,7 @@ public class ImageFileService {
 
 	@TransactionalEventListener(classes = S3ImageRollbackEvent.class, phase = TransactionPhase.AFTER_ROLLBACK)
 	public void handleRollback(S3ImageRollbackEvent event) {
+		log.warn("S3에 업로드한 이미지 파일 롤백 : {}", event);
 		s3Uploader.delete(event.getRollbackFileName());
 	}
 
@@ -68,6 +74,7 @@ public class ImageFileService {
 	public void deleteAttachmentFiles(List<String> attachmentFileNames) {
 		for (String attachmentFileName : attachmentFileNames) {
 			s3Uploader.delete(attachmentFileName);
+			log.info("저장한 이미지 파일 삭제 : {}", attachmentFileName);
 		}
 	}
 
@@ -79,6 +86,7 @@ public class ImageFileService {
 
 	private void validateImageContentType(MultipartFile multipartFile) {
 		if (!multipartFile.getContentType().startsWith("image")) {
+			log.warn("요청 파일 ContentType : {}", multipartFile.getContentType());
 			throw new FileContentTypeNotAllowedException("이미지 파일이 아닙니다.");
 		}
 	}
