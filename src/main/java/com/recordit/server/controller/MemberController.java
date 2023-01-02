@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.recordit.server.constant.LoginType;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
@@ -56,7 +57,7 @@ public class MemberController {
 	})
 	@PostMapping("/oauth/login/{loginType}")
 	public ResponseEntity oauthLogin(
-			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
+			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") LoginType loginType,
 			@RequestBody LoginRequestDto loginRequestDto
 	) {
 
@@ -89,7 +90,7 @@ public class MemberController {
 	})
 	@PostMapping("/oauth/register/{loginType}")
 	public ResponseEntity oauthRegister(
-			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") String loginType,
+			@ApiParam(allowableValues = "KAKAO, GOOGLE", required = true) @PathVariable("loginType") LoginType loginType,
 			@RequestBody @Valid RegisterRequestDto registerRequestDto
 	) {
 		memberService.oauthRegister(loginType, registerRequestDto);
