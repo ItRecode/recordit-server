@@ -19,6 +19,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 				.allowedMethods("*")
 				.allowedHeaders("*")
 				.allowCredentials(true)
+				.exposedHeaders("Set-Cookie")
 				.maxAge(MAX_AGE_SECS);
 	}
 
