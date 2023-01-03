@@ -34,5 +34,5 @@ server:
       cookie:
         secure: true
         same-site: none
-        domain: record-it-test.netlify.app
+        domain: .record-it-test.netlify.app
 #    application-display-name: itsmeDisplay
