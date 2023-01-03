@@ -109,6 +109,7 @@ public class HTTPLogFilter implements Filter {
 				ContentCachingResponseWrapper.class
 		);
 		if (wrapper != null) {
+			wrapper.setCharacterEncoding("UTF-8");
 			byte[] buf = wrapper.getContentAsByteArray();
 			if (buf.length > 0) {
 				payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
