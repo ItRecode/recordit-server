@@ -15,11 +15,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-				.allowedOriginPatterns("*")
+				.allowedOriginPatterns("http://localhost:3000", "https://record-it-test.netlify.app")
 				.allowedMethods("*")
 				.allowedHeaders("*")
 				.allowCredentials(true)
-				.exposedHeaders("Set-Cookie")
+				.exposedHeaders("set-cookie")
 				.maxAge(MAX_AGE_SECS);
 	}
 
