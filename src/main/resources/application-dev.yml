@@ -34,5 +34,5 @@ server:
       cookie:
         secure: true
         same-site: none
-        domain: itsmeDomain
-    application-display-name: itsmeDisplay
+#        domain: itsmeDomain
+#    application-display-name: itsmeDisplay
