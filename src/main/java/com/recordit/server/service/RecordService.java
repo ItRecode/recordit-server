@@ -28,7 +28,9 @@ import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.util.SessionUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecordService {
@@ -52,6 +54,8 @@ public class RecordService {
 		// }
 		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
@@ -64,10 +68,17 @@ public class RecordService {
 		RecordIcon recordIcon = recordIconRepository.findByName(writeRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
-		Record record = Record.of(writeRecordRequestDto, recordCategory, member,
-				urls.size(), recordColor, recordIcon);
+		Record record = Record.of(
+				writeRecordRequestDto,
+				recordCategory,
+				member,
+				urls.size(),
+				recordColor,
+				recordIcon
+		);
 
 		Long recordId = recordRepository.save(record).getId();
+		log.info("저장한 레코드 ID : ", record);
 
 		return WriteRecordResponseDto.builder()
 				.recordId(recordId)

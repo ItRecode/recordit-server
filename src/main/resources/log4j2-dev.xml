@@ -7,14 +7,15 @@
 
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative] [%highlight{%-5level}] %logger{35} - %msg%n" />
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative] [%highlight{%-5level}] [%equals{%X{trace_id}}{}{system}] [%t] %logger{35} - %msg%n"/>
         </Console>
 
-        <RollingFile name ="FILE">
+        <RollingFile name="FILE">
             <FileName>${LOGS_PATH}/${LOGS_NAME}.log</FileName>
             <FilePattern>${LOGS_PATH}/${LOGS_NAME}.%d{yyyy-MM-dd}.%i.log</FilePattern>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %5p [%c] %m%n</Pattern>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %5p [%equals{%X{trace_id}}{}{system}] [%c] %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <SizeBasedTriggeringPolicy size="10MB"/>
@@ -25,7 +26,7 @@
             <FileName>${LOGS_PATH}/ERROR/${LOGS_NAME}_ERROR.log</FileName>
             <FilePattern>${LOGS_PATH}/ERROR/${LOGS_NAME}_ERROR.%d{yyyy-MM-dd}.%i.log</FilePattern>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %5p [%c] %m%n</Pattern>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %5p [%equals{%X{trace_id}}{}{system}] [%c] %m%n</Pattern>
             </PatternLayout>
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
@@ -36,9 +37,9 @@
 
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="CONSOLE" />
-            <AppenderRef ref="FILE" />
-            <AppenderRef ref="ERROR" />
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="FILE"/>
+            <AppenderRef ref="ERROR"/>
         </Root>
     </Loggers>
 </Configuration>

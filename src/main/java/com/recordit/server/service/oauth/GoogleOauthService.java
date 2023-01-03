@@ -16,7 +16,9 @@ import com.recordit.server.environment.GoogleOauthProperties;
 import com.recordit.server.util.CustomObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleOauthService implements OauthService {
@@ -46,6 +48,7 @@ public class GoogleOauthService implements OauthService {
 				.queryParam(REDIRECT_URI.key, googleOauthProperties.getRedirectUrl())
 				.queryParam(GRANT_TYPE.key, getFixGrantType())
 				.toUriString();
+		log.info("구글 Oauth AccessToken 요청 : {}", params);
 
 		ResponseEntity<String> exchange = new RestTemplate().exchange(
 				params,
@@ -53,6 +56,7 @@ public class GoogleOauthService implements OauthService {
 				null,
 				String.class
 		);
+		log.info("구글 Oauth AccessToken 응답 : {}", exchange);
 
 		return CustomObjectMapper.readValue(exchange.getBody(), GoogleAccessTokenResponseDto.class);
 	}
@@ -62,6 +66,7 @@ public class GoogleOauthService implements OauthService {
 		String uri = UriComponentsBuilder.fromUriString(googleOauthProperties.getUserInfoRequestUrl())
 				.queryParam(ID_TOKEN.key, googleAccessTokenResponseDto.getIdToken())
 				.toUriString();
+		log.info("구글 Oauth UserInfo 요청 : {}", uri);
 
 		ResponseEntity<String> exchange = new RestTemplate().exchange(
 				uri,
@@ -69,6 +74,7 @@ public class GoogleOauthService implements OauthService {
 				null,
 				String.class
 		);
+		log.info("구글 Oauth UserInfo 응답 : {}", exchange);
 
 		return CustomObjectMapper.readValue(exchange.getBody(), GoogleUserInfoResponseDto.class);
 	}

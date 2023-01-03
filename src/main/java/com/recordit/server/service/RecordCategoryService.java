@@ -2,10 +2,11 @@ package com.recordit.server.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +22,16 @@ public class RecordCategoryService {
 	private final RecordCategoryRepository recordCategoryRepository;
 
 	@Transactional(readOnly = true)
+	@Cacheable(value = "Categories")
 	public List<RecordCategoryResponseDto> getAllRecordCategories() {
 		List<RecordCategory> findRecordCategories = recordCategoryRepository.findAllFetchDepthIsOne();
 
+		LinkedHashMap<RecordCategory, List<RecordCategory>> parentToChildren = new LinkedHashMap<>();
+
 		// 부모이면서 자식이 null이 아닌 Map 생성
-		Map<RecordCategory, List<RecordCategory>> parentToChildren = findRecordCategories.stream()
+		parentToChildren.putAll(findRecordCategories.stream()
 				.filter(recordCategory -> recordCategory.getParentRecordCategory() != null)
-				.collect(Collectors.groupingBy(RecordCategory::getParentRecordCategory));
+				.collect(Collectors.groupingBy(RecordCategory::getParentRecordCategory)));
 
 		// 부모이면서 자식이 null인 객체 Map에 추가
 		findRecordCategories.stream()
