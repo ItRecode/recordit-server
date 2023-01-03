@@ -28,8 +28,8 @@ public class TestController {
 						.sameSite("None")
 						.domain("record-it-test.netlify.app")
 						.path("/")
+						.httpOnly(false)
 						.build().toString()
-
 		);
 		return "굳!";
 	}

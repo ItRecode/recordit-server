@@ -35,4 +35,5 @@ server:
         secure: true
         same-site: none
         domain: record-it-test.netlify.app
+        http-only: false
 #    application-display-name: itsmeDisplay
