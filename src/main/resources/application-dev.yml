@@ -34,6 +34,6 @@ server:
       cookie:
         secure: true
         same-site: none
-        domain: record-it-test.netlify.app
+        domain: nginx-nginxtest-883524lbvylaj6.gksl2.cloudtype.app
         http-only: false
 #    application-display-name: itsmeDisplay
