@@ -47,3 +47,6 @@ s3:
   bucket: ${S3_BUCKET_NAME:}
   directory: ${S3_DIRECTORY_NAME:}
   region: ap-northeast-2
+
+cors:
+  origin: ${CORS_ORIGIN_NAME:}
