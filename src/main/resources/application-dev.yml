@@ -32,8 +32,5 @@ server:
   servlet:
     session:
       cookie:
-        secure: true
-        same-site: none
-        domain: nginx-nginxtest-883524lbvylaj6.gksl2.cloudtype.app
-        http-only: false
+        domain: nginx-nginxtest-883524lbvylaj6.gksl2.cloudtype.app/
 #    application-display-name: itsmeDisplay
