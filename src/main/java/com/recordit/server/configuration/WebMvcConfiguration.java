@@ -1,5 +1,6 @@
 package com.recordit.server.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -11,11 +12,13 @@ import com.recordit.server.converter.LoginTypeConverter;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
 	private final long MAX_AGE_SECS = 3000;
+	@Value("${cors.origin}")
+	private String originPattern;
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-				.allowedOriginPatterns("*")
+				.allowedOriginPatterns(originPattern)
 				.allowedMethods("*")
 				.allowedHeaders("*")
 				.allowCredentials(true)
