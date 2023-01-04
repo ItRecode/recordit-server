@@ -17,7 +17,7 @@ public class TestController {
 	private final SessionUtil sessionUtil;
 	private final HttpServletResponse httpServletResponse;
 
-	@GetMapping("/test")
+	@GetMapping("api/test")
 	public String test() {
 		sessionUtil.saveUserIdInSession(1L);
 		// httpServletResponse.setHeader(
