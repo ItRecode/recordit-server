@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/record/category")
+@RequestMapping("/api/record/category")
 public class RecordCategoryController {
 
 	private final RecordCategoryService recordCategoryService;
