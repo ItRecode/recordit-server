@@ -52,7 +52,7 @@ public class RecordService {
 		// 		3.numOfImage에 file 개수 대입 (개발 초기 단계에는 1개만 가능)
 		// 	 */
 		// }
-		sessionUtil.saveUserIdInSession(1L);
+
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
