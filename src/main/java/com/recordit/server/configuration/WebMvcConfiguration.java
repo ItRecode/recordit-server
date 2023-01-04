@@ -15,7 +15,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-				.allowedOriginPatterns("*")
+				.allowedOriginPatterns("https://nginx-nginxtest-883524lbvylaj6.gksl2.cloudtype.app/")
 				.allowedMethods("*")
 				.allowedHeaders("*")
 				.allowCredentials(true)
