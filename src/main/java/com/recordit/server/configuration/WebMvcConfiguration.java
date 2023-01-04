@@ -12,8 +12,14 @@ import com.recordit.server.converter.LoginTypeConverter;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
 	private final long MAX_AGE_SECS = 3000;
-	@Value("${cors.origin}")
-	private String originPattern;
+
+	private final String originPattern;
+
+	public WebMvcConfiguration(
+			@Value("${cors.origin}") String originPattern
+	) {
+		this.originPattern = originPattern;
+	}
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
