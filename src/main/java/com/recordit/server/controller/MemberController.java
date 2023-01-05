@@ -110,9 +110,9 @@ public class MemberController {
 		try {
 			memberService.isDuplicateNickname(nickname);
 		} catch (DuplicateNicknameException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(false);
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(true);
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(true);
+		return ResponseEntity.status(HttpStatus.OK).body(false);
 	}
 
 }
