@@ -1,11 +1,13 @@
 package com.recordit.server.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.constant.RefType;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
@@ -41,17 +43,23 @@ public class RecordService {
 	private final RecordColorRepository recordColorRepository;
 	private final RecordIconRepository recordIconRepository;
 	private final RecordRepository recordRepository;
+	private final ImageFileService imageFileService;
 
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
 		List<String> urls = List.of();
-		// if (!file.isEmpty()) { // 파일 데이터가 존재할 때
-		// 	/* todo
-		// 		1.이미지 저장 후 url 가져오기
-		// 		2.imageFileRepository에 save
-		// 		3.numOfImage에 file 개수 대입 (개발 초기 단계에는 1개만 가능)
-		// 	 */
-		// }
+
+		if (!files.isEmpty()) {
+			Optional<Long> optionalLong = recordRepository.findLatestRecordId();
+			Long recordId = 1L;
+
+			if (!optionalLong.isEmpty()) {
+				log.info("가장 최신의 레코드 ID : {} ", optionalLong.get());
+				recordId = optionalLong.get() + 1;
+			}
+
+			urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+		}
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -91,7 +99,11 @@ public class RecordService {
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
 		List<String> imageUrls = List.of();
-		// List<String> urls = imageFileService.findByRecordId(record.getId(), record.getNumOfImage());
+
+		Optional<List<String>> optionalStrings = imageFileRepository.findDownloadUrls(recordId);
+		if (!optionalStrings.isEmpty()) {
+			imageUrls = optionalStrings.get();
+		}
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
