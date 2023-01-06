@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
+import com.recordit.server.dto.comment.WriteCommentResponseDto;
+import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.CommentService;
 
 import io.swagger.annotations.ApiOperation;
@@ -36,15 +38,18 @@ public class CommentController {
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "API 정상 작동"
+					code = 200, message = "API 정상 작동", response = WriteCommentResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "잘못된 요청", response = ErrorMessage.class
 			)
 	})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity<?> writeComment(
+	public ResponseEntity<WriteCommentResponseDto> writeComment(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteCommentRequestDto writeCommentRequestDto,
-			@ApiParam @RequestPart MultipartFile file
+			@ApiParam @RequestPart MultipartFile attachment
 	) {
-		return null;
+		return ResponseEntity.ok(commentService.writeComment(writeCommentRequestDto, attachment));
 	}
 
 	@ApiOperation(
