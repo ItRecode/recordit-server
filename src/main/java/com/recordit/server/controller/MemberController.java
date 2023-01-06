@@ -119,8 +119,8 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).body(false);
 	}
 
-	@GetMapping("/logincheck")
-	public ResponseEntity loginCheck() {
+	@GetMapping("/login")
+	public ResponseEntity checkLogin() {
 		sessionUtil.isCorrectSession();
 		log.info("정상적으로 로그인 되어있습니다.");
 		return ResponseEntity.ok().build();
