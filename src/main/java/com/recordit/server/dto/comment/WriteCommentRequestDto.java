@@ -1,5 +1,6 @@
 package com.recordit.server.dto.comment;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -18,14 +19,16 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WriteCommentRequestDto {
+
 	@ApiModelProperty(notes = "레코드의 id", required = true)
+	@NotNull(message = "레코드 ID를 지정해야 합니다")
 	private Long recordId;
 
 	@ApiModelProperty(notes = "자식 댓글일 경우 부모 댓글의 id")
 	private Long parentId;
 
 	@ApiModelProperty(notes = "댓글 내용", required = true)
-	@Size(max = 200)
+	@Size(max = 200, message = "댓글 내용은 200자를 넘길 수 없습니다")
 	private String comment;
 
 }
