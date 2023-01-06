@@ -25,8 +25,8 @@ public class SessionUtil {
 	public Long findUserIdBySession() {
 		Long userId = (Long)httpSession.getAttribute(PREFIX_USER_ID);
 		if (userId == null) {
-			invalidateSession();
 			log.info("세션에 사용자 정보가 저장되어 있지 않습니다");
+			invalidateSession();
 			throw new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다");
 		}
 		return userId;
