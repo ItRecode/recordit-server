@@ -20,6 +20,7 @@ import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.service.MemberService;
+import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,13 +28,16 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/member")
+@Slf4j
 public class MemberController {
 
 	private final MemberService memberService;
+	private final SessionUtil sessionUtil;
 
 	@ApiOperation(
 			value = "Oauth 로그인",
@@ -113,6 +117,13 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(true);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(false);
+	}
+
+	@GetMapping("/login")
+	public ResponseEntity checkLogin() {
+		sessionUtil.isCorrectSession();
+		log.info("정상적으로 로그인 되어있습니다.");
+		return ResponseEntity.ok().build();
 	}
 
 }
