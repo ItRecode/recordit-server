@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -31,4 +32,10 @@ public class WriteCommentRequestDto {
 	@Size(max = 100, message = "댓글 내용은 200자를 넘길 수 없습니다")
 	private String comment;
 
+	@Builder
+	public WriteCommentRequestDto(Long recordId, Long parentId, String comment) {
+		this.recordId = recordId;
+		this.parentId = parentId;
+		this.comment = comment;
+	}
 }
