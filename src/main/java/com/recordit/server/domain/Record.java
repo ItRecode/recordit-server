@@ -45,9 +45,6 @@ public class Record extends BaseEntity {
 	@Column(name = "CONTENT")
 	private String content;
 
-	@Column(name = "NUM_OF_IMAGE")
-	private Integer numOfImage;
-
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "RECORD_COLOR_ID")
 	private RecordColor recordColor;
@@ -61,7 +58,6 @@ public class Record extends BaseEntity {
 			Member writer,
 			String title,
 			String content,
-			Integer numOfImage,
 			RecordColor recordColor,
 			RecordIcon recordIcon
 	) {
@@ -69,7 +65,6 @@ public class Record extends BaseEntity {
 		this.writer = writer;
 		this.title = title;
 		this.content = content;
-		this.numOfImage = numOfImage;
 		this.recordColor = recordColor;
 		this.recordIcon = recordIcon;
 	}
@@ -78,7 +73,6 @@ public class Record extends BaseEntity {
 			WriteRecordRequestDto writeRecordRequestDto,
 			RecordCategory recordCategory,
 			Member member,
-			Integer numOfImage,
 			RecordColor recordColor,
 			RecordIcon recordIcon
 	) {
@@ -87,7 +81,6 @@ public class Record extends BaseEntity {
 				member,
 				writeRecordRequestDto.getTitle(),
 				writeRecordRequestDto.getContent(),
-				numOfImage,
 				recordColor,
 				recordIcon
 		);
