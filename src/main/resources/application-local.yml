@@ -26,6 +26,8 @@ springfox:
   documentation:
     swagger:
       use-model-v3: false
+    swagger-ui:
+      base-url: /api
 logging:
   config: classpath:log4j2-local.xml
 cors:
