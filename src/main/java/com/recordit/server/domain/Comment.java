@@ -35,6 +35,4 @@ public class Comment extends BaseEntity {
 	@Column(name = "CONTENT")
 	private String content;
 
-	@Column(name = "NUM_OF_IMAGE")
-	private Integer numOfImage;
 }

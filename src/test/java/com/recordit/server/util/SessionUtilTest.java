@@ -42,14 +42,14 @@ public class SessionUtilTest {
 		@DisplayName("세션에 userId가 있으면 값이 찾아와진다")
 		void 세션에_정상적으로_userId를_저장하고_있으면_정상적으로_값이_찾아와진다() {
 			// given
-			long userId = 1L;
+			Integer userId = 1; // Session Serializer 때문에 원래 Long을 넣어야 하지만 테스트에서 Integer를 사용
 			mockHttpSession.setAttribute("LOGIN_USER_ID", userId);
 
 			// when
 			Long userIdBySession = sessionUtil.findUserIdBySession();
 
 			// then
-			assertThat(userIdBySession.longValue()).isEqualTo(userId);
+			assertThat(userIdBySession.longValue()).isEqualTo(1L);
 			assertThatCode(() -> sessionUtil.findUserIdBySession()).doesNotThrowAnyException();
 		}
 
