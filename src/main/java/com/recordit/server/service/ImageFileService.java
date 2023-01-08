@@ -1,7 +1,7 @@
 package com.recordit.server.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -32,36 +32,42 @@ public class ImageFileService {
 	private final ApplicationEventPublisher applicationEventPublisher;
 
 	@Transactional
+	public String saveAttachmentFile(
+			@NonNull RefType refType,
+			@NonNull Long refId,
+			@NonNull MultipartFile attachment
+	) {
+		validateEmptyFile(attachment);
+		validateImageContentType(attachment);
+
+		String saveFileName = s3Uploader.upload(attachment);
+		log.info("S3에 저장한 파일 이름 : {}", saveFileName);
+		String saveFileUrl = s3Uploader.getUrlByFileName(saveFileName);
+		log.info("S3에 저장한 URL : {}", saveFileUrl);
+		applicationEventPublisher.publishEvent(S3ImageRollbackEvent.from(saveFileName));
+
+		imageFileRepository.save(
+				ImageFile.of(
+						refType,
+						refId,
+						saveFileUrl,
+						saveFileName,
+						attachment
+				)
+		);
+
+		return saveFileUrl;
+	}
+
+	@Transactional
 	public List<String> saveAttachmentFiles(
 			@NonNull RefType refType,
 			@NonNull Long refId,
 			@NonNull List<MultipartFile> attachments
 	) {
-		List<String> imageUrls = new ArrayList<>();
-		for (MultipartFile multipartFile : attachments) {
-			validateEmptyFile(multipartFile);
-			validateImageContentType(multipartFile);
-
-			String saveFileName = s3Uploader.upload(multipartFile);
-			log.info("S3에 저장한 파일 이름 : {}", saveFileName);
-			String saveFileUrl = s3Uploader.getUrlByFileName(saveFileName);
-			log.info("S3에 저장한 URL : {}", saveFileUrl);
-			applicationEventPublisher.publishEvent(S3ImageRollbackEvent.from(saveFileName));
-
-			imageFileRepository.save(
-					ImageFile.of(
-							refType,
-							refId,
-							saveFileUrl,
-							saveFileName,
-							multipartFile
-					)
-			);
-			imageUrls.add(saveFileUrl);
-			log.info("이미지 파일 저장 성공 및 URL : {}", saveFileUrl);
-		}
-
-		return imageUrls;
+		return attachments.stream()
+				.map(attachment -> saveAttachmentFile(refType, refId, attachment))
+				.collect(Collectors.toList());
 	}
 
 	@TransactionalEventListener(classes = S3ImageRollbackEvent.class, phase = TransactionPhase.AFTER_ROLLBACK)
