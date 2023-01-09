@@ -21,7 +21,6 @@ import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
-import com.recordit.server.exception.record.RecordImageNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.ImageFileRepository;
@@ -50,19 +49,6 @@ public class RecordService {
 
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
-		List<String> urls = List.of();
-
-		if (!files.isEmpty()) {
-			Optional<Long> optionalLong = recordRepository.findLatestRecordId();
-			Long recordId = 1L;
-
-			if (!optionalLong.isEmpty()) {
-				log.info("가장 최신의 레코드 ID : {} ", optionalLong.get());
-				recordId = optionalLong.get() + 1;
-			}
-
-			urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
-		}
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -90,6 +76,11 @@ public class RecordService {
 		Long recordId = recordRepository.save(record).getId();
 		log.info("저장한 레코드 ID : ", record);
 
+		if (files != null) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+			log.info("저장된 이미지 urls : {}", urls);
+		}
+
 		return WriteRecordResponseDto.builder()
 				.recordId(recordId)
 				.build();
@@ -102,23 +93,19 @@ public class RecordService {
 
 		List<String> imageUrls = List.of();
 
-		List<ImageFile> imageFileList = imageFileRepository
-				.findByRefIdAndRefType(recordId, RefType.RECORD)
-				.orElseThrow(() -> new RecordImageNotFoundException("레코드의 이미지가 존재하지 않습니다."));
+		Optional<List<ImageFile>> optionalImageFileList = imageFileRepository.findByRefIdAndRefType(recordId,
+				RefType.RECORD);
 
-		List<String> foundImageUrlList = new ArrayList<>();
-		imageFileList.stream().forEach(
-				(imageFile) -> {
-					foundImageUrlList.add(imageFile.getDownloadUrl());
-				}
-		);
-
-		imageUrls = foundImageUrlList;
-
-
-		/*if (!optionalStrings.isEmpty()) {
-			imageUrls = optionalStrings.get();
-		}*/
+		if (!optionalImageFileList.isEmpty()) {
+			List<String> foundImageUrlList = new ArrayList<>();
+			optionalImageFileList.get().stream()
+					.forEach(
+							(imageFile) -> {
+								foundImageUrlList.add(imageFile.getDownloadUrl());
+							}
+					);
+			imageUrls = foundImageUrlList;
+		}
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
