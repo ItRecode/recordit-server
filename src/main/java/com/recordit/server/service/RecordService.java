@@ -72,7 +72,6 @@ public class RecordService {
 				writeRecordRequestDto,
 				recordCategory,
 				member,
-				urls.size(),
 				recordColor,
 				recordIcon
 		);
