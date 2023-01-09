@@ -50,5 +50,13 @@ public class MemberExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
 	}
+
+	@ExceptionHandler(SessionAuthenticationException.class)
+	public ResponseEntity<ErrorMessage> handleSessionAuthenticationException(
+			SessionAuthenticationException exception) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
+	}
+
 }
 

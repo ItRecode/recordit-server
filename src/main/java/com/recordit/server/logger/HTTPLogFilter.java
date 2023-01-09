@@ -39,8 +39,12 @@ public class HTTPLogFilter implements Filter {
 		);
 
 		long start = System.currentTimeMillis();
-		chain.doFilter(requestWrapper, responseWrapper);
+		chain.doFilter(request, response);
 		long end = System.currentTimeMillis();
+
+		if (isInExcludeURIForLog(request)) {
+			return;
+		}
 
 		log.info("\n" +
 						"[REQUEST] {} - {} {} - {}ms\n" +
@@ -56,6 +60,16 @@ public class HTTPLogFilter implements Filter {
 				getRequestParameter(requestWrapper),
 				getRequestBody(requestWrapper),
 				getResponseBody(responseWrapper));
+	}
+
+	private boolean isInExcludeURIForLog(ServletRequest request) {
+		if (((HttpServletRequest)request).getRequestURI().contains("/api/swagger")) {
+			return true;
+		}
+		if ("/v2/api-docs".equals(((HttpServletRequest)request).getRequestURI())) {
+			return true;
+		}
+		return false;
 	}
 
 	private Map getHeaders(HttpServletRequest request) {
