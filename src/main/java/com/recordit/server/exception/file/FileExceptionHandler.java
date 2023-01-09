@@ -31,4 +31,12 @@ public class FileExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ErrorMessage.of(exception, HttpStatus.UNPROCESSABLE_ENTITY));
 	}
+
+	@ExceptionHandler(FileExtensionNotAllowedException.class)
+	public ResponseEntity<ErrorMessage> handleFileExtensionNotAllowedException(
+			FileExtensionNotAllowedException exception
+	) {
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ErrorMessage.of(exception, HttpStatus.UNPROCESSABLE_ENTITY));
+	}
 }
