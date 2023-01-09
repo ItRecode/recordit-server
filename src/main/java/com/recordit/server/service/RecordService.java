@@ -1,5 +1,6 @@
 package com.recordit.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.constant.RefType;
+import com.recordit.server.domain.ImageFile;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
@@ -19,6 +21,7 @@ import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
+import com.recordit.server.exception.record.RecordImageNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.ImageFileRepository;
@@ -100,10 +103,23 @@ public class RecordService {
 
 		List<String> imageUrls = List.of();
 
-		Optional<List<String>> optionalStrings = imageFileRepository.findDownloadUrls(recordId);
-		if (!optionalStrings.isEmpty()) {
+		List<ImageFile> imageFileList = imageFileRepository
+				.findByRefIdAndRefType(recordId, RefType.RECORD)
+				.orElseThrow(() -> new RecordImageNotFoundException("레코드의 이미지가 존재하지 않습니다."));
+
+		List<String> foundImageUrlList = new ArrayList<>();
+		imageFileList.stream().forEach(
+				(imageFile) -> {
+					foundImageUrlList.add(imageFile.getDownloadUrl());
+				}
+		);
+
+		imageUrls = foundImageUrlList;
+
+
+		/*if (!optionalStrings.isEmpty()) {
 			imageUrls = optionalStrings.get();
-		}
+		}*/
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
