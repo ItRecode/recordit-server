@@ -1,11 +1,15 @@
 package com.recordit.server.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.constant.RefType;
+import com.recordit.server.domain.ImageFile;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
@@ -41,17 +45,10 @@ public class RecordService {
 	private final RecordColorRepository recordColorRepository;
 	private final RecordIconRepository recordIconRepository;
 	private final RecordRepository recordRepository;
+	private final ImageFileService imageFileService;
 
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
-		List<String> urls = List.of();
-		// if (!file.isEmpty()) { // 파일 데이터가 존재할 때
-		// 	/* todo
-		// 		1.이미지 저장 후 url 가져오기
-		// 		2.imageFileRepository에 save
-		// 		3.numOfImage에 file 개수 대입 (개발 초기 단계에는 1개만 가능)
-		// 	 */
-		// }
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -77,7 +74,12 @@ public class RecordService {
 		);
 
 		Long recordId = recordRepository.save(record).getId();
-		log.info("저장한 레코드 ID : ", record);
+		log.info("저장한 레코드 ID : ", recordId);
+
+		if (files != null) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+			log.info("저장된 이미지 urls : {}", urls);
+		}
 
 		return WriteRecordResponseDto.builder()
 				.recordId(recordId)
@@ -89,8 +91,21 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> imageUrls = List.of();
-		// List<String> urls = imageFileService.findByRecordId(record.getId(), record.getNumOfImage());
+		List<String> imageUrls = Collections.emptyList();
+
+		Optional<List<ImageFile>> optionalImageFileList = imageFileRepository.findByRefIdAndRefType(recordId,
+				RefType.RECORD);
+
+		if (!optionalImageFileList.isEmpty()) {
+
+			optionalImageFileList.get().stream()
+					.forEach(
+							(imageFile) -> {
+								imageUrls.add(imageFile.getDownloadUrl());
+							}
+					);
+
+		}
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
