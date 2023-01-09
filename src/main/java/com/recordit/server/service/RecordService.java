@@ -93,8 +93,12 @@ public class RecordService {
 
 		List<String> imageUrls = Collections.emptyList();
 
-		Optional<List<ImageFile>> optionalImageFileList = imageFileRepository.findByRefIdAndRefType(recordId,
-				RefType.RECORD);
+		Optional<List<ImageFile>> optionalImageFileList = Optional.of(
+				imageFileRepository.findAllByRefTypeAndRefId(
+						RefType.RECORD,
+						recordId
+				)
+		);
 
 		if (!optionalImageFileList.isEmpty()) {
 

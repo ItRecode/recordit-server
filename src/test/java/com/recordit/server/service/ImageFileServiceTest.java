@@ -17,8 +17,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.constant.RefType;
-import com.recordit.server.exception.file.EmptyFileException;
 import com.recordit.server.exception.file.FileContentTypeNotAllowedException;
+import com.recordit.server.exception.file.FileExtensionNotAllowedException;
 import com.recordit.server.repository.ImageFileRepository;
 import com.recordit.server.util.S3Uploader;
 
@@ -47,15 +47,17 @@ class ImageFileServiceTest {
 		private final List<MultipartFile> mockMultipartFiles = List.of(mock);
 
 		@Test
-		@DisplayName("빈 파일이 넘어오면 예외를 던진다")
+		@DisplayName("빈 파일이 넘어오면 null을 응답한다")
 		void 빈_파일이_넘어오면_예외를_던진다() {
 			// given
 			given(mock.isEmpty())
 					.willReturn(true);
 
-			// when, then
-			assertThatThrownBy(() -> imageFileService.saveAttachmentFiles(refType, refId, mockMultipartFiles))
-					.isInstanceOf(EmptyFileException.class);
+			// when
+			List<String> result = imageFileService.saveAttachmentFiles(refType, refId, mockMultipartFiles);
+
+			// then
+			assertThat(result.isEmpty()).isTrue();
 		}
 
 		@Test
@@ -70,6 +72,22 @@ class ImageFileServiceTest {
 			// when, then
 			assertThatThrownBy(() -> imageFileService.saveAttachmentFiles(refType, refId, mockMultipartFiles))
 					.isInstanceOf(FileContentTypeNotAllowedException.class);
+		}
+
+		@Test
+		@DisplayName("규정한 이미지 파일 확장자가 아니면 예외를 던진다")
+		void 규정한_이미지_파일_확장자가_아니면_예외를_던진다() {
+			// given
+			given(mock.isEmpty())
+					.willReturn(false);
+			given(mock.getContentType())
+					.willReturn("image/jpg");
+			given(mock.getOriginalFilename())
+					.willReturn("test.xlsx");
+
+			// when, then
+			assertThatThrownBy(() -> imageFileService.saveAttachmentFiles(refType, refId, mockMultipartFiles))
+					.isInstanceOf(FileExtensionNotAllowedException.class);
 		}
 
 		@Test

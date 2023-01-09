@@ -1,6 +1,8 @@
 package com.recordit.server.service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -10,11 +12,12 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.constant.ImageFileExtension;
 import com.recordit.server.constant.RefType;
 import com.recordit.server.domain.ImageFile;
 import com.recordit.server.event.S3ImageRollbackEvent;
-import com.recordit.server.exception.file.EmptyFileException;
 import com.recordit.server.exception.file.FileContentTypeNotAllowedException;
+import com.recordit.server.exception.file.FileExtensionNotAllowedException;
 import com.recordit.server.repository.ImageFileRepository;
 import com.recordit.server.util.S3Uploader;
 
@@ -37,8 +40,11 @@ public class ImageFileService {
 			@NonNull Long refId,
 			@NonNull MultipartFile attachment
 	) {
-		validateEmptyFile(attachment);
+		if (attachment.isEmpty()) {
+			return null;
+		}
 		validateImageContentType(attachment);
+		validateFileExtension(attachment);
 
 		String saveFileName = s3Uploader.upload(attachment);
 		log.info("S3에 저장한 파일 이름 : {}", saveFileName);
@@ -67,6 +73,7 @@ public class ImageFileService {
 	) {
 		return attachments.stream()
 				.map(attachment -> saveAttachmentFile(refType, refId, attachment))
+				.filter(saveUrl -> saveUrl != null)
 				.collect(Collectors.toList());
 	}
 
@@ -74,6 +81,28 @@ public class ImageFileService {
 	public void handleRollback(S3ImageRollbackEvent event) {
 		log.warn("S3에 업로드한 이미지 파일 롤백 : {}", event);
 		s3Uploader.delete(event.getRollbackFileName());
+	}
+
+	@Transactional(readOnly = true)
+	public String getImageFile(
+			@NonNull RefType refType,
+			@NonNull Long refId
+	) {
+		Optional<ImageFile> findImageFile = imageFileRepository.findByRefTypeAndRefId(refType, refId);
+		if (findImageFile.isPresent()) {
+			return findImageFile.get().getDownloadUrl();
+		}
+		return null;
+	}
+
+	@Transactional(readOnly = true)
+	public List<String> getImageFiles(
+			@NonNull RefType refType,
+			@NonNull Long refId
+	) {
+		return imageFileRepository.findAllByRefTypeAndRefId(refType, refId).stream()
+				.map(ImageFile::getDownloadUrl)
+				.collect(Collectors.toList());
 	}
 
 	@Transactional
@@ -84,17 +113,21 @@ public class ImageFileService {
 		}
 	}
 
-	private void validateEmptyFile(MultipartFile multipartFile) {
-		if (multipartFile.isEmpty()) {
-			throw new EmptyFileException("요청한 파일이 비어있습니다.");
-		}
-	}
-
 	private void validateImageContentType(MultipartFile multipartFile) {
 		if (!multipartFile.getContentType().startsWith("image")) {
 			log.warn("요청 파일 ContentType : {}", multipartFile.getContentType());
 			throw new FileContentTypeNotAllowedException("이미지 파일이 아닙니다.");
 		}
+	}
+
+	private void validateFileExtension(MultipartFile multipartFile) {
+		String extension = multipartFile
+				.getOriginalFilename()
+				.substring(multipartFile.getOriginalFilename().lastIndexOf(".") + 1);
+		Arrays.stream(ImageFileExtension.values())
+				.filter(imageFileExtension -> imageFileExtension.name().equals(extension))
+				.findFirst()
+				.orElseThrow(() -> new FileExtensionNotAllowedException("지원하지 않은 파일 확장자입니다."));
 	}
 
 }
