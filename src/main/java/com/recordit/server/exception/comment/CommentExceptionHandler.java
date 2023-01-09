@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.recordit.server.controller.CommentController;
 import com.recordit.server.exception.ErrorMessage;
+import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,5 +32,11 @@ public class CommentExceptionHandler {
 	public ResponseEntity<ErrorMessage> handleCommentNotFoundException(CommentNotFoundException exception) {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
+
+	@ExceptionHandler(MemberNotFoundException.class)
+	public ResponseEntity<ErrorMessage> handleMemberNotFoundException(MemberNotFoundException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 }
