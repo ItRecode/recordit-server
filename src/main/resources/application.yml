@@ -4,4 +4,4 @@ spring:
       "test": "test"
       "local": "local, datasource, redis, oauth, s3"
       "dev": "dev, datasource, redis, oauth, s3"
-      "prod": "prod"
+      "prod": "prod, datasource, redis, oauth, s3"
