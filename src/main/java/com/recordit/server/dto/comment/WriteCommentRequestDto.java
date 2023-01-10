@@ -29,7 +29,7 @@ public class WriteCommentRequestDto {
 	private Long parentId;
 
 	@ApiModelProperty(notes = "댓글 내용", required = true)
-	@Size(max = 200, message = "댓글 내용은 100자를 넘길 수 없습니다")
+	@Size(max = 100, message = "댓글 내용은 100자를 넘길 수 없습니다")
 	private String comment;
 
 	@Builder
