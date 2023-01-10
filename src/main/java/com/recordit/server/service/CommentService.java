@@ -42,12 +42,7 @@ public class CommentService {
 	) {
 		validateEmptyContent(writeCommentRequestDto, attachment);
 
-		Member writer = null;
-		try {
-			writer = memberRepository.findById(sessionUtil.findUserIdBySession())
-					.orElseThrow(() -> new MemberNotFoundException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
-		} catch (NotFoundUserInfoInSessionException e) {
-		}
+		Member writer = findWriterIfPresent();
 
 		Record record = recordRepository.findById(writeCommentRequestDto.getRecordId())
 				.orElseThrow(() -> new RecordNotFoundException("댓글을 작성할 레코드가 존재하지 않습니다."));
@@ -80,6 +75,16 @@ public class CommentService {
 	) {
 		if (attachment.isEmpty() && !StringUtils.hasText(writeCommentRequestDto.getComment())) {
 			throw new EmptyContentException("댓글 내용과 이미지 파일 모두 비어있을 수 없습니다.");
+		}
+	}
+
+	private Member findWriterIfPresent() {
+		try {
+			Long userIdInSession = sessionUtil.findUserIdBySession();
+			return memberRepository.findById(userIdInSession)
+					.orElseThrow(() -> new MemberNotFoundException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
+		} catch (NotFoundUserInfoInSessionException e) {
+			return null;
 		}
 	}
 }
