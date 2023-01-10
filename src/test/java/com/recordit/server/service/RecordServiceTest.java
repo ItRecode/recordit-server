@@ -45,6 +45,9 @@ class RecordServiceTest {
 	private ImageFileRepository imageFileRepository;
 
 	@Mock
+	private ImageFileService imageFileService;
+
+	@Mock
 	private SessionUtil sessionUtil;
 
 	@Mock
