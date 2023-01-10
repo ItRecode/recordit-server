@@ -110,7 +110,7 @@ public class CommentServiceTest {
 			given(multipartFile.isEmpty())
 					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.empty());
 
@@ -134,7 +134,7 @@ public class CommentServiceTest {
 			given(multipartFile.isEmpty())
 					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
@@ -160,7 +160,7 @@ public class CommentServiceTest {
 			Comment saveComment = mock(Comment.class);
 
 			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
