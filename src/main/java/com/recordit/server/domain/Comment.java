@@ -28,6 +28,14 @@ public class Comment extends BaseEntity {
 	@Column(name = "COMMENT_ID")
 	private Long id;
 
+	@ManyToOne
+	@JoinColumn(name = "MEMBER_ID")
+	private Member writer;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "RECORD_ID")
+	private Record record;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PARENT_COMMENT_ID")
 	private Comment parentComment;
@@ -35,4 +43,14 @@ public class Comment extends BaseEntity {
 	@Column(name = "CONTENT")
 	private String content;
 
+	private Comment(Member writer, Record record, Comment parentComment, String content) {
+		this.writer = writer;
+		this.record = record;
+		this.parentComment = parentComment;
+		this.content = content;
+	}
+
+	public static Comment of(Member writer, Record record, Comment parentComment, String content) {
+		return new Comment(writer, record, parentComment, content);
+	}
 }
