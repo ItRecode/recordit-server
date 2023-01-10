@@ -23,13 +23,13 @@ public class SessionUtil {
 	}
 
 	public Long findUserIdBySession() {
-		Long userId = Long.valueOf(httpSession.getAttribute(PREFIX_USER_ID).toString());
+		Object userId = httpSession.getAttribute(PREFIX_USER_ID);
 		if (userId == null) {
 			log.info("세션에 사용자 정보가 저장되어 있지 않습니다");
 			invalidateSession();
 			throw new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다");
 		}
-		return userId.longValue();
+		return Long.valueOf(userId.toString());
 	}
 
 	public void isCorrectSession() {
