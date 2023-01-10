@@ -109,10 +109,10 @@ public class CommentServiceTest {
 
 			given(multipartFile.isEmpty())
 					.willReturn(false);
+			given(sessionUtil.findUserIdBySession())
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.empty());
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException(""));
 
 			// when, then
 			assertThatThrownBy(() -> commentService.writeComment(writeCommentRequestDto, multipartFile))
@@ -133,12 +133,12 @@ public class CommentServiceTest {
 
 			given(multipartFile.isEmpty())
 					.willReturn(false);
+			given(sessionUtil.findUserIdBySession())
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
 					.willReturn(Optional.empty());
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException(""));
 
 			// when, then
 			assertThatThrownBy(() -> commentService.writeComment(writeCommentRequestDto, multipartFile))
@@ -159,14 +159,14 @@ public class CommentServiceTest {
 			Comment parentComment = mock(Comment.class);
 			Comment saveComment = mock(Comment.class);
 
+			given(sessionUtil.findUserIdBySession())
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
 					.willReturn(Optional.of(parentComment));
 			given(commentRepository.save(any()))
 					.willReturn(saveComment);
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException(""));
 			given(saveComment.getId())
 					.willReturn(2L);
 
@@ -178,6 +178,10 @@ public class CommentServiceTest {
 
 			// then
 			assertThat(result.getCommentId()).isEqualTo(2L);
+			assertThatCode(() -> commentService.writeComment(
+					writeCommentRequestDto,
+					multipartFile
+			)).doesNotThrowAnyException();
 		}
 	}
 
