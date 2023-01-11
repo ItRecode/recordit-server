@@ -15,6 +15,7 @@ import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
+import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.service.oauth.OauthService;
@@ -88,5 +89,12 @@ public class MemberService {
 			log.warn("중복된 닉네임이 존재함 : {}", nickname);
 			throw new DuplicateNicknameException("중복된 닉네임이 존재합니다.");
 		}
+	}
+
+	public String findNicknameIfPresent() {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+		return member.getNickname();
 	}
 }
