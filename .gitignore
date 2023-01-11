@@ -38,3 +38,4 @@ out/
 
 ### Custom ###
 logs/
+*.pem
