@@ -91,6 +91,7 @@ public class MemberService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public String findNicknameIfPresent() {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		Member member = memberRepository.findById(userIdBySession)
