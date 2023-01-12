@@ -3,8 +3,6 @@ package com.recordit.server.dto.record.category;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.recordit.server.domain.RecordCategory;
 
 import io.swagger.annotations.ApiModel;
@@ -19,7 +17,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RecordCategoryResponseDto {
 
 	@ApiModelProperty(notes = "레코드 카테고리 ID", required = true)

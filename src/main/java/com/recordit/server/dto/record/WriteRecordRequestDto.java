@@ -4,9 +4,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +15,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WriteRecordRequestDto {
 	@NotNull
 	private Long recordCategoryId;
