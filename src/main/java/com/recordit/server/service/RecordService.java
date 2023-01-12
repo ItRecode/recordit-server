@@ -1,6 +1,6 @@
 package com.recordit.server.service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,7 +91,7 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> imageUrls = Collections.emptyList();
+		List<String> imageUrls = new ArrayList<>();
 
 		Optional<List<ImageFile>> optionalImageFileList = Optional.of(
 				imageFileRepository.findAllByRefTypeAndRefId(
