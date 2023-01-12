@@ -11,6 +11,6 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 logging:
-  config: classpath:log4j2-prod.xml
+  config: classpath:log4j2/log4j2-prod.xml
 cors:
   origin: ${CORS_ORIGIN_NAME:}

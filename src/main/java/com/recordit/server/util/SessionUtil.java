@@ -5,7 +5,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
-import com.recordit.server.exception.member.SessionAuthenticationException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +29,6 @@ public class SessionUtil {
 			throw new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다");
 		}
 		return Long.valueOf(userId.toString());
-	}
-
-	public void isCorrectSession() {
-		if (httpSession.getAttribute(PREFIX_USER_ID) == null) {
-			log.info("로그인이 되어있지 않아 접근이 거부되었습니다.");
-			invalidateSession();
-			throw new SessionAuthenticationException("로그인이 되어있지 않아 접근이 거부되었습니다.");
-		}
 	}
 
 	public void invalidateSession() {

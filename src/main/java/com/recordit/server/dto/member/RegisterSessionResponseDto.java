@@ -1,8 +1,5 @@
 package com.recordit.server.dto.member;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -15,7 +12,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RegisterSessionResponseDto {
 
 	@ApiModelProperty(notes = "회원가입시 필요한 임시 Session", required = true)

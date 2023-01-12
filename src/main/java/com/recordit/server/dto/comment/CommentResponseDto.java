@@ -21,7 +21,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CommentResponseDto {
 
 	@ApiModelProperty(notes = "요청 댓글의 전체 페이지 개수", required = true)

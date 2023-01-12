@@ -1,10 +1,7 @@
 package com.recordit.server.dto.comment;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.recordit.server.domain.Comment;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +15,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CommentDto {
 
 	@ApiModelProperty(notes = "댓글 ID", required = true)

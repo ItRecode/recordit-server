@@ -24,7 +24,9 @@ import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
+import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
+import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.service.oauth.OauthService;
 import com.recordit.server.service.oauth.OauthServiceLocator;
@@ -211,6 +213,53 @@ public class MemberServiceTest {
 
 			// when, then
 			assertThatCode(() -> memberService.isDuplicateNickname(nickname))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("로그인 된 사용자의 닉네임을 응답하는 기능에서")
+	class 로그인_된_사용자의_닉네임을_응답하는_기능에서 {
+
+		@Test
+		@DisplayName("로그인이 되어있지 않다면 예외를 던진다")
+		void 로그인이_되어있지_않으면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
+
+			// when, then
+			assertThatThrownBy(() -> memberService.findNicknameIfPresent())
+					.isInstanceOf(NotFoundUserInfoInSessionException.class);
+		}
+
+		@Test
+		@DisplayName("세션에 회원의 아이디는 존재하지만 테이블에 없다면 예외를 던진다")
+		void 세션에_회원의_아이디는_존재하지만_테이블에_없다면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(1L);
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> memberService.findNicknameIfPresent())
+					.isInstanceOf(MemberNotFoundException.class);
+		}
+
+		@Test
+		@DisplayName("정상적으로 로그인되어있고 테이블에도 정보가 있는 경우엔 예외를 던지지 않는다")
+		void 정상적으로_로그인되어있고_테이블에도_정보가_있는_경우엔_예외를_던지지_않는다() {
+			//given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(1L);
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(mockMember.getNickname())
+					.willReturn(nickname);
+
+			// when, then
+			assertThatCode(() -> memberService.findNicknameIfPresent())
 					.doesNotThrowAnyException();
 		}
 	}
