@@ -29,6 +29,6 @@ springfox:
     swagger-ui:
       base-url: /api
 logging:
-  config: classpath:log4j2-dev.xml
+  config: classpath:log4j2/log4j2-dev.xml
 cors:
   origin: ${CORS_ORIGIN_NAME:}
