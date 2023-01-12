@@ -42,7 +42,7 @@ public class CommentDto {
 	@Builder
 	public CommentDto(Comment comment, String imageUrl) {
 		this.commentId = comment.getId();
-		this.writer = comment.getWriter().getNickname();
+		this.writer = (comment.getWriter() != null) ? comment.getWriter().getNickname() : null;
 		this.content = comment.getContent();
 		this.imageUrl = imageUrl;
 		this.createdAt = comment.getCreatedAt();
