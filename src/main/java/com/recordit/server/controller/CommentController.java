@@ -54,16 +54,24 @@ public class CommentController {
 
 	@ApiOperation(
 			value = "레코드의 댓글을 조회",
-			notes = "레코드의 댓글을 조회합니다"
+			notes = "레코드의 댓글을 조회합니다\t\n\t\n"
+					+ "레코드 ID는 필수 지정해야 합니다.\t\n"
+					+ "부모 댓글 ID의 경우 지정하지 않으면 레코드의 Depth가 0인 댓글들을 조회하고, "
+					+ "ID를 지정하면 해당 부모의 대댓글인 Depth가 1인 댓글들을 조회합니다.\t\n\t\n"
+					+ "댓글 조회의 정렬 기준은 댓글 생성 시간으로 오름차순입니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "API 정상 작동 / 댓글 조회 완료",
-					response = CommentResponseDto.class
+					code = 200,
+					message = "API 정상 작동 / 댓글 조회 완료", response = CommentResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "잘못된 요청",
+					response = ErrorMessage.class
 			)
 	})
 	@GetMapping
-	public ResponseEntity<?> getComment(@Valid @RequestBody CommentRequestDto commentRequestDto) {
-		return null;
+	public ResponseEntity<CommentResponseDto> getComment(@Valid @RequestBody CommentRequestDto commentRequestDto) {
+		return ResponseEntity.ok(commentService.getCommentsBy(commentRequestDto));
 	}
 }
