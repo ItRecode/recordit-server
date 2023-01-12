@@ -121,7 +121,7 @@ public class CommentService {
 	}
 
 	private void validateParentHasParent(Comment parentComment) {
-		if (parentComment.getParentComment() != null) {
+		if (parentComment != null && parentComment.getParentComment() != null) {
 			throw new IllegalStateException("자식 댓글을 기준으로 조회 불가능합니다.");
 		}
 	}
