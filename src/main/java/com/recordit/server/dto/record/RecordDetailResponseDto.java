@@ -3,9 +3,6 @@ package com.recordit.server.dto.record;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,7 +14,6 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RecordDetailResponseDto {
 	private Long recordId;
 	private Long categoryId;
