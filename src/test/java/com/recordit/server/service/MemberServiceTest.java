@@ -226,7 +226,7 @@ public class MemberServiceTest {
 		void 로그인이_되어있지_않으면_예외를_던진다() {
 			// given
 			given(sessionUtil.findUserIdBySession())
-					.willReturn(null);
+					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 
 			// when, then
 			assertThatThrownBy(() -> memberService.findNicknameIfPresent())
