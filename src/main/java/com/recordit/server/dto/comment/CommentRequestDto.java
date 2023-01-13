@@ -14,16 +14,19 @@ import lombok.ToString;
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentRequestDto {
-	@ApiModelProperty(notes = "레코드의 id", required = true)
+
+	@ApiModelProperty(notes = "레코드 ID", required = true)
 	@NotNull
 	private Long recordId;
 
-	@ApiModelProperty(notes = "자식 댓글을 조회하는 경우 부모 댓글의 id")
+	@ApiModelProperty(notes = "자식 댓글을 조회하는 경우 부모 댓글의 ID")
 	private Long parentId;
 
-	@ApiModelProperty(notes = "댓글 리스트의 현재 페이지", required = true)
+	@ApiModelProperty(notes = "댓글 리스트의 요청 페이지 !주의: 0부터 시작", required = true)
+	@NotNull
 	private int page;
 
 	@ApiModelProperty(notes = "댓글 리스트의 사이즈", required = true)
+	@NotNull
 	private int size;
 }
