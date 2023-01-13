@@ -30,18 +30,22 @@ public class CommentDto {
 	@ApiModelProperty(notes = "첨부 이미지 URL", required = true)
 	private String imageUrl;
 
-	@ApiModelProperty(notes = "생성 일자")
+	@ApiModelProperty(notes = "하위 댓글 개수", required = false)
+	private Long numOfSubComment;
+
+	@ApiModelProperty(notes = "생성 일자", required = true)
 	private LocalDateTime createdAt;
 
-	@ApiModelProperty(notes = "수정 일자")
+	@ApiModelProperty(notes = "수정 일자", required = false)
 	private LocalDateTime modifiedAt;
 
 	@Builder
-	public CommentDto(Comment comment, String imageUrl) {
+	public CommentDto(Comment comment, String imageUrl, Long numOfSubComment) {
 		this.commentId = comment.getId();
 		this.writer = (comment.getWriter() != null) ? comment.getWriter().getNickname() : null;
 		this.content = comment.getContent();
 		this.imageUrl = imageUrl;
+		this.numOfSubComment = numOfSubComment;
 		this.createdAt = comment.getCreatedAt();
 		this.modifiedAt = comment.getModifiedAt();
 	}
