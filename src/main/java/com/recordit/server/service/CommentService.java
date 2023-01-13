@@ -84,7 +84,7 @@ public class CommentService {
 		PageRequest pageRequest = PageRequest.of(
 				commentRequestDto.getPage(),
 				commentRequestDto.getSize(),
-				Sort.Direction.ASC,
+				Sort.Direction.DESC,
 				"createdAt"
 		);
 
@@ -101,6 +101,10 @@ public class CommentService {
 			findComments = commentRepository.findAllByParentComment(parentComment, pageRequest);
 		}
 
+		List<Long> numOfSubComments = findComments.stream()
+				.map(comment -> commentRepository.countAllByParentComment(comment))
+				.collect(Collectors.toList());
+
 		List<String> imageFileUrls = findComments.stream()
 				.map(comment -> imageFileService.getImageFile(RefType.COMMENT, comment.getId()))
 				.collect(Collectors.toList());
@@ -108,6 +112,7 @@ public class CommentService {
 		return CommentResponseDto.builder()
 				.comments(findComments)
 				.imageFileUrls(imageFileUrls)
+				.numOfSubComments(numOfSubComments)
 				.build();
 	}
 
@@ -122,7 +127,7 @@ public class CommentService {
 
 	private void validateParentHasParent(Comment parentComment) {
 		if (parentComment != null && parentComment.getParentComment() != null) {
-			throw new IllegalStateException("자식 댓글을 기준으로 조회 불가능합니다.");
+			throw new IllegalStateException("부모 댓글은 부모를 가질 수 없습니다.");
 		}
 	}
 
