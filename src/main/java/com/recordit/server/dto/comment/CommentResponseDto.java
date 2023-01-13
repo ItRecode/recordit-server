@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.recordit.server.domain.Comment;
 
 import io.swagger.annotations.ApiModel;
@@ -33,7 +31,7 @@ public class CommentResponseDto {
 	private List<CommentDto> commentList;
 
 	@Builder
-	public CommentResponseDto(Page<Comment> comments, List<String> imageFileUrls) {
+	public CommentResponseDto(Page<Comment> comments, List<String> imageFileUrls, List<Long> numOfSubComments) {
 		this.totalPage = comments.getTotalPages();
 		this.totalCount = comments.getTotalElements();
 		this.commentList = new ArrayList<>();
@@ -42,6 +40,7 @@ public class CommentResponseDto {
 					CommentDto.builder()
 							.comment(comments.getContent().get(i))
 							.imageUrl(imageFileUrls.get(i))
+							.numOfSubComment(numOfSubComments.get(i))
 							.build()
 			);
 		}
