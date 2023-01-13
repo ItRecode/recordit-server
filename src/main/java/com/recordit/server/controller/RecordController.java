@@ -21,7 +21,6 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
-import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 public class RecordController {
 
 	private final RecordService recordService;
-	private final SessionUtil sessionUtil;
 
 	@ApiOperation(
 			value = "레코드 작성",
