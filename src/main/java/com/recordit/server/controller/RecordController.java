@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.RecordDetailResponseDto;
+import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
+import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -33,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class RecordController {
 
 	private final RecordService recordService;
+	private final SessionUtil sessionUtil;
 
 	@ApiOperation(
 			value = "레코드 작성",
@@ -73,6 +76,26 @@ public class RecordController {
 	public ResponseEntity<RecordDetailResponseDto> getDetailRecord(
 			@PathVariable("recordId") Long recordId) {
 		return ResponseEntity.ok().body(recordService.getDetailRecord(recordId));
+	}
+
+	@ApiOperation(
+			value = "오늘 작성한 가장 최신의 레코드 단건 조회",
+			notes = "오늘 작성한 가장 최신의 레코드 단건 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "오늘 작성한 가장 최신의 레코드 조회 성공",
+					response = TodayWriteRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "회원 정보를 찾을 수 없는 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/today-write")
+	public ResponseEntity<TodayWriteRecordResponseDto> getTodayWriteRecord() {
+
+		return ResponseEntity.ok().body(recordService.getTodayWriteRecord());
 	}
 
 }
