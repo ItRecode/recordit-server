@@ -13,10 +13,12 @@ import com.recordit.server.domain.Record;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	@EntityGraph(attributePaths = {"writer"})
-	@Query("select c from COMMENT c left join c.writer where c.record = :record")
+	@Query("select c from COMMENT c left join c.writer where c.record = :record and c.parentComment is null")
 	Page<Comment> findAllByRecordWithPagination(@Param("record") Record record, Pageable pageable);
 
 	@EntityGraph(attributePaths = "writer")
 	@Query("select c from COMMENT c left join c.writer where c.parentComment = :parentComment")
 	Page<Comment> findAllByParentComment(@Param("parentComment") Comment parentComment, Pageable pageable);
+
+	Long countAllByParentComment(Comment parentComment);
 }
