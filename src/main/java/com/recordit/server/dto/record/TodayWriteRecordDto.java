@@ -25,8 +25,11 @@ public class TodayWriteRecordDto {
 	private Long commentCount;
 	@ApiModelProperty(notes = "레코드의 아이콘 이름")
 	private String iconName;
-	@ApiModelProperty(notes = "레코드의 색상")
+	@ApiModelProperty(notes = "레코드의 색상 이름")
 	private String colorName;
+
+	@ApiModelProperty(notes = "레코드의 색상 HEX_CODE 값")
+	private String colorHexCode;
 
 	@Builder
 	public TodayWriteRecordDto(
@@ -35,7 +38,8 @@ public class TodayWriteRecordDto {
 			String title,
 			Long commentCount,
 			String iconName,
-			String colorName
+			String colorName,
+			String colorHexCode
 	) {
 		this.createdAt = createdAt;
 		this.categoryName = categoryName;
@@ -43,5 +47,6 @@ public class TodayWriteRecordDto {
 		this.commentCount = commentCount;
 		this.iconName = iconName;
 		this.colorName = colorName;
+		this.colorHexCode = colorHexCode;
 	}
 }

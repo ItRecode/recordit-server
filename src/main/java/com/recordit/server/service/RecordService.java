@@ -162,6 +162,7 @@ public class RecordService {
 						.title(findRecord.getTitle())
 						.createdAt(findRecord.getCreatedAt())
 						.colorName(findRecord.getRecordColor().getName())
+						.colorHexCode(findRecord.getRecordColor().getHexCode())
 						.iconName(findRecord.getRecordIcon().getName())
 						.build())
 				.build();
