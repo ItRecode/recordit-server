@@ -47,7 +47,7 @@ public class CommentController {
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<WriteCommentResponseDto> writeComment(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteCommentRequestDto writeCommentRequestDto,
-			@ApiParam @RequestPart MultipartFile attachment
+			@ApiParam @RequestPart(required = false) MultipartFile attachment
 	) {
 		return ResponseEntity.ok(commentService.writeComment(writeCommentRequestDto, attachment));
 	}

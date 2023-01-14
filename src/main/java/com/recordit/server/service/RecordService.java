@@ -76,7 +76,7 @@ public class RecordService {
 		Long recordId = recordRepository.save(record).getId();
 		log.info("저장한 레코드 ID : ", recordId);
 
-		if (files != null) {
+		if (!imageFileService.isEmptyFile(files)) {
 			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
