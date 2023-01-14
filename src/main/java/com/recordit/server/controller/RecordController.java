@@ -89,11 +89,11 @@ public class RecordController {
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "파라미터로 받은 날짜의 가장 최신의 레코드 조회 성공",
+					code = 200, message = "마이 레코드 조회 성공",
 					response = TodayWriteRecordResponseDto.class
 			),
 			@ApiResponse(
-					code = 400, message = "회원 정보를 찾을 수 없는 경우, 잘못된 포맷의 날짜 파라미터를 넘겼을경우",
+					code = 400, message = "잘못된 요청입니다.",
 					response = ErrorMessage.class
 			)
 	})
