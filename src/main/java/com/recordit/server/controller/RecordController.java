@@ -84,25 +84,25 @@ public class RecordController {
 	}
 
 	@ApiOperation(
-			value = "오늘 작성한 가장 최신의 레코드 단건 조회",
-			notes = "오늘 작성한 가장 최신의 레코드 단건 조회합니다."
+			value = "파라미터로 받은 날짜의 가장 최신의 레코드 단건 조회",
+			notes = "파라미터로 받은 날짜의 가장 최신의 레코드 단건 조회합니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "오늘 작성한 가장 최신의 레코드 조회 성공",
+					code = 200, message = "파라미터로 받은 날짜의 가장 최신의 레코드 조회 성공",
 					response = TodayWriteRecordResponseDto.class
 			),
 			@ApiResponse(
-					code = 400, message = "회원 정보를 찾을 수 없는 경우",
-					response = ErrorMessage.class
-			),
-			@ApiResponse(
-					code = 400, message = "잘못된 포맷의 날짜 파라미터를 넘겼을경우",
+					code = 400, message = "회원 정보를 찾을 수 없는 경우, 잘못된 포맷의 날짜 파라미터를 넘겼을경우",
 					response = ErrorMessage.class
 			)
 	})
 	@GetMapping("/write")
 	public ResponseEntity<TodayWriteRecordResponseDto> getTodayWriteRecord(
+			@ApiParam(
+					required = true,
+					example = "2023-01-14"
+			)
 			@RequestParam String date) {
 		try {
 			LocalDateTime startDateTime = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
