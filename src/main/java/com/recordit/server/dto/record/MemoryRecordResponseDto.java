@@ -23,6 +23,7 @@ public class MemoryRecordResponseDto {
 
 	@ApiModelProperty(notes = "마지막 페이지 인지 여부")
 	private Boolean isLastPage;
+
 	@ApiModelProperty(notes = "추억 레코드 리스트")
 	private List<MemoryRecordDto> memoryRecordList;
 
