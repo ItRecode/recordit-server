@@ -1,8 +1,6 @@
 package com.recordit.server.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -133,8 +131,7 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public TodayWriteRecordResponseDto getTodayWriteRecord() {
-
+	public TodayWriteRecordResponseDto getTodayWriteRecord(LocalDateTime startDate, LocalDateTime endDate) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -142,8 +139,7 @@ public class RecordService {
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
 		Optional<Record> optionalRecord = recordRepository.findTopByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
-				member, LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
-				LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
+				member, startDate, endDate);
 
 		if (!optionalRecord.isPresent()) {
 			return TodayWriteRecordResponseDto.builder().build();
@@ -162,11 +158,8 @@ public class RecordService {
 						.title(findRecord.getTitle())
 						.createdAt(findRecord.getCreatedAt())
 						.colorName(findRecord.getRecordColor().getName())
-						.colorHexCode(findRecord.getRecordColor().getHexCode())
 						.iconName(findRecord.getRecordIcon().getName())
 						.build())
 				.build();
-
 	}
-
 }

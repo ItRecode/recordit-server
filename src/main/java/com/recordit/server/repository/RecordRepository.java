@@ -15,5 +15,4 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
 	Optional<Record> findTopByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(Member writer, LocalDateTime startTime,
 			LocalDateTime endTime);
-
 }

@@ -17,19 +17,21 @@ import lombok.ToString;
 public class TodayWriteRecordDto {
 	@ApiModelProperty(notes = "레코드 작성 시각")
 	private LocalDateTime createdAt;
+
 	@ApiModelProperty(notes = "레코드의 카테고리 이름")
 	private String categoryName;
+
 	@ApiModelProperty(notes = "레코드의 제목")
 	private String title;
+
 	@ApiModelProperty(notes = "레코드에 달린 댓글 갯수")
 	private Long commentCount;
+
 	@ApiModelProperty(notes = "레코드의 아이콘 이름")
 	private String iconName;
+
 	@ApiModelProperty(notes = "레코드의 색상 이름")
 	private String colorName;
-
-	@ApiModelProperty(notes = "레코드의 색상 HEX_CODE 값")
-	private String colorHexCode;
 
 	@Builder
 	public TodayWriteRecordDto(
@@ -38,8 +40,7 @@ public class TodayWriteRecordDto {
 			String title,
 			Long commentCount,
 			String iconName,
-			String colorName,
-			String colorHexCode
+			String colorName
 	) {
 		this.createdAt = createdAt;
 		this.categoryName = categoryName;
@@ -47,6 +48,5 @@ public class TodayWriteRecordDto {
 		this.commentCount = commentCount;
 		this.iconName = iconName;
 		this.colorName = colorName;
-		this.colorHexCode = colorHexCode;
 	}
 }

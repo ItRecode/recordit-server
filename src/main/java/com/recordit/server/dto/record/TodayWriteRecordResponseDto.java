@@ -18,5 +18,4 @@ public class TodayWriteRecordResponseDto {
 	public TodayWriteRecordResponseDto(TodayWriteRecordDto todayWriteRecordDto) {
 		this.todayWriteRecord = todayWriteRecordDto;
 	}
-
 }

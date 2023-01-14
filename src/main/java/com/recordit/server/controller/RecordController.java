@@ -1,5 +1,10 @@
 package com.recordit.server.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +26,7 @@ import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
+import com.recordit.server.exception.record.DateFormatException;
 import com.recordit.server.service.RecordService;
 
 import io.swagger.annotations.ApiOperation;
@@ -88,12 +95,25 @@ public class RecordController {
 			@ApiResponse(
 					code = 400, message = "회원 정보를 찾을 수 없는 경우",
 					response = ErrorMessage.class
+			),
+			@ApiResponse(
+					code = 400, message = "잘못된 포맷의 날짜 파라미터를 넘겼을경우",
+					response = ErrorMessage.class
 			)
 	})
-	@GetMapping("/today-write")
-	public ResponseEntity<TodayWriteRecordResponseDto> getTodayWriteRecord() {
+	@GetMapping("/write")
+	public ResponseEntity<TodayWriteRecordResponseDto> getTodayWriteRecord(
+			@RequestParam String date) {
+		try {
+			LocalDateTime startDateTime = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+					.atTime(LocalTime.MIN);
 
-		return ResponseEntity.ok().body(recordService.getTodayWriteRecord());
+			LocalDateTime endDatetime = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+					.atTime(LocalTime.MAX);
+
+			return ResponseEntity.ok().body(recordService.getTodayWriteRecord(startDateTime, endDatetime));
+		} catch (DateTimeParseException e) {
+			throw new DateFormatException("유효하지 않은 날짜 형식입니다, 날짜 파라미터는 yyyy-MM-dd 형식으로 전달해주세요.");
+		}
 	}
-
 }

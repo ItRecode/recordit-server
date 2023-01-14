@@ -34,5 +34,11 @@ public class RecordExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
-}
 
+	@ExceptionHandler(DateFormatException.class)
+	public ResponseEntity<ErrorMessage> handleDateFormatException(
+			DateFormatException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
+}
