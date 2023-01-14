@@ -88,15 +88,15 @@ public class RecordController {
 					response = RecordDetailResponseDto.class
 			),
 			@ApiResponse(
-					code = 400, message = "페이지 파라미터가 음수일 경우",
+					code = 400, message = "페이지 파라미터가 음수, 실수, 숫자가 아닌경우 조회 실패",
 					response = ErrorMessage.class
 			)
 	})
 	@GetMapping("memory-list")
 	public ResponseEntity<MemoryRecordResponseDto> getMemoryRecordList(
 			@RequestParam String pageNum) {
-		if (Integer.parseInt(pageNum) < 0) {
-			throw new InvalidPageParameterException("페이지 파라미터는 음수일 수 없습니다.");
+		if (!pageNum.matches("\\d+")) {
+			throw new InvalidPageParameterException("페이지 파라미터는 음수, 실수, 숫자가 아닌 문자열일 수 없습니다.");
 		}
 		return ResponseEntity.ok().body(recordService.getMemoryRecordList(Integer.parseInt(pageNum)));
 	}
