@@ -134,6 +134,7 @@ public class RecordService {
 				.build();
 	}
 
+	@Transactional(readOnly = true)
 	public MemoryRecordResponseDto getMemoryRecordList(Integer pageNum) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
