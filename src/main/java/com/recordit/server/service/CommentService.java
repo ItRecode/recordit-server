@@ -69,7 +69,9 @@ public class CommentService {
 				)
 		);
 
-		imageFileService.saveAttachmentFile(RefType.COMMENT, saveComment.getId(), attachment);
+		if (!imageFileService.isEmptyFile(attachment)) {
+			imageFileService.saveAttachmentFile(RefType.COMMENT, saveComment.getId(), attachment);
+		}
 
 		log.info("저장한 댓글 ID : {}", saveComment.getId());
 
@@ -120,7 +122,7 @@ public class CommentService {
 			WriteCommentRequestDto writeCommentRequestDto,
 			MultipartFile attachment
 	) {
-		if (attachment.isEmpty() && !StringUtils.hasText(writeCommentRequestDto.getComment())) {
+		if (imageFileService.isEmptyFile(attachment) && !StringUtils.hasText(writeCommentRequestDto.getComment())) {
 			throw new EmptyContentException("댓글 내용과 이미지 파일 모두 비어있을 수 없습니다.");
 		}
 	}
