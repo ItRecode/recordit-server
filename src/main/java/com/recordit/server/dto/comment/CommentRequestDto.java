@@ -2,31 +2,29 @@ package com.recordit.server.dto.comment;
 
 import javax.validation.constraints.NotNull;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
-@ApiModel
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentRequestDto {
 
-	@ApiModelProperty(notes = "레코드 ID", required = true)
+	@ApiParam(value = "레코드 ID", required = true, example = "0")
 	@NotNull
 	private Long recordId;
 
-	@ApiModelProperty(notes = "자식 댓글을 조회하는 경우 부모 댓글의 ID")
+	@ApiParam(value = "자식 댓글을 조회하는 경우 부모 댓글의 ID", example = "0")
 	private Long parentId;
 
-	@ApiModelProperty(notes = "댓글 리스트의 요청 페이지 !주의: 0부터 시작", required = true)
+	@ApiParam(value = "댓글 리스트의 요청 페이지 !주의: 0부터 시작", required = true, example = "0")
 	@NotNull
-	private int page;
+	private Integer page;
 
-	@ApiModelProperty(notes = "댓글 리스트의 사이즈", required = true)
+	@ApiParam(value = "댓글 리스트의 사이즈", required = true, example = "10")
 	@NotNull
-	private int size;
+	private Integer size;
 }
