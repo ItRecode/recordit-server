@@ -1,9 +1,15 @@
 package com.recordit.server.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +21,8 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.MemoryRecordDto;
+import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
@@ -46,6 +54,7 @@ public class RecordService {
 	private final RecordIconRepository recordIconRepository;
 	private final RecordRepository recordRepository;
 	private final ImageFileService imageFileService;
+	private final Integer FIX_PAGE_SIZE = 7;
 
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
@@ -122,6 +131,47 @@ public class RecordService {
 				.iconName(record.getRecordIcon().getName())
 				.createdAt(record.getCreatedAt())
 				.imageUrls(imageUrls)
+				.build();
+	}
+
+	public MemoryRecordResponseDto getMemoryRecordList(Integer pageNum) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		PageRequest pageRequest = PageRequest.of(pageNum, FIX_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+		Slice<Record> recordSlice = recordRepository.findByWriterAndCreatedAtBefore(member, LocalDateTime.of(
+				LocalDate.now(), LocalTime.MIN), pageRequest);
+
+		List<MemoryRecordDto> memoryRecordDtoList = new ArrayList<>();
+
+		if (!recordSlice.hasContent()) {
+			return MemoryRecordResponseDto.builder()
+					.hasNextPage(recordSlice.hasNext())
+					.isFirstPage(recordSlice.isFirst())
+					.isLastPage(recordSlice.isLast())
+					.myRecordList(memoryRecordDtoList)
+					.build();
+		}
+
+		for (Record record : recordSlice) {
+			memoryRecordDtoList.add(
+					MemoryRecordDto.builder()
+							.title(record.getTitle())
+							.recordId(record.getId())
+							.iconName(record.getRecordIcon().getName())
+							.build()
+			);
+		}
+
+		return MemoryRecordResponseDto.builder()
+				.hasNextPage(recordSlice.hasNext())
+				.isFirstPage(recordSlice.isFirst())
+				.isLastPage(recordSlice.isLast())
+				.myRecordList(memoryRecordDtoList)
 				.build();
 	}
 }

@@ -34,5 +34,11 @@ public class RecordExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
-}
 
+	@ExceptionHandler(InvalidPageParameterException.class)
+	public ResponseEntity<ErrorMessage> handleInvalidPageParameterException(
+			InvalidPageParameterException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
+}
