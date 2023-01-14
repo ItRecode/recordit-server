@@ -38,6 +38,10 @@ public class RedisManager {
 		}
 	}
 
+	public void delete(@NonNull String key) {
+		stringRedisTemplate.delete(key);
+	}
+
 	public <T> Optional<T> get(@NonNull String key, @NonNull Class<T> clazz) {
 		String jsonString = stringRedisTemplate.opsForValue().get(key);
 		if (!StringUtils.hasText(jsonString)) {
