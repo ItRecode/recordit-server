@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Record;
@@ -66,7 +67,7 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
+			given(imageFileService.isEmptyFile(any(MultipartFile.class)))
 					.willReturn(true);
 
 			// when, then
@@ -85,8 +86,6 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willReturn(1L);
 			given(memberRepository.findById(1L))
@@ -109,8 +108,6 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
@@ -133,8 +130,6 @@ public class CommentServiceTest {
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 			Record record = mock(Record.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
@@ -257,7 +252,7 @@ public class CommentServiceTest {
 						.willReturn(Optional.of(parentComment));
 				given(parentComment.getParentComment())
 						.willReturn(grandParentComment);
-				
+
 				// when, then
 				assertThatThrownBy(() -> commentService.getCommentsBy(commentRequestDto))
 						.isInstanceOf(IllegalStateException.class);
