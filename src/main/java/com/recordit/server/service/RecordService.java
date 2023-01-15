@@ -48,7 +48,8 @@ public class RecordService {
 	private final ImageFileService imageFileService;
 
 	@Transactional
-	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
+	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
+			List<MultipartFile> attachments) {
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -76,8 +77,8 @@ public class RecordService {
 		Long recordId = recordRepository.save(record).getId();
 		log.info("저장한 레코드 ID : ", recordId);
 
-		if (!imageFileService.isEmptyFile(files)) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+		if (!imageFileService.isEmptyFile(attachments)) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
