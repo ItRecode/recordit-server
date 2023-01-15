@@ -12,7 +12,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   servlet:
     multipart:
-      max-request-size: 5MB
+      max-request-size: 15MB
       max-file-size: 5MB
 logging:
   config: classpath:log4j2/log4j2-prod.xml
