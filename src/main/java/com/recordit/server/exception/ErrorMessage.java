@@ -15,14 +15,25 @@ public class ErrorMessage {
 	private String msg;
 	private LocalDateTime timestamp;
 
+	public ErrorMessage(Exception exception, HttpStatus httpStatus, String message) {
+		this.code = httpStatus.value();
+		this.errorSimpleName = exception.getClass().getSimpleName();
+		this.msg = message;
+		this.timestamp = LocalDateTime.now();
+	}
+
 	public ErrorMessage(Exception exception, HttpStatus httpStatus) {
 		this.code = httpStatus.value();
 		this.errorSimpleName = exception.getClass().getSimpleName();
-		this.msg = exception.getLocalizedMessage();
+		this.msg = exception.getMessage();
 		this.timestamp = LocalDateTime.now();
 	}
 
 	public static ErrorMessage of(Exception exception, HttpStatus httpStatus) {
 		return new ErrorMessage(exception, httpStatus);
+	}
+
+	public static ErrorMessage of(Exception exception, HttpStatus httpStatus, String message) {
+		return new ErrorMessage(exception, httpStatus, message);
 	}
 }
