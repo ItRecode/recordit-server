@@ -4,13 +4,17 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = 'com.recodeit'
+group = 'com.recordit'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+    all {
+        // log4j2를 위해 logback 의존성 제거
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
 }
 
@@ -24,14 +28,39 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+
+    // embedded redis
+    implementation('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // use static mock
+    testImplementation 'org.mockito:mockito-inline:4.5.1'
+
+    // use ConfigurationProperties
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    // use s3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.372'
+
+    // log4j2
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar {
+    enabled = false
 }

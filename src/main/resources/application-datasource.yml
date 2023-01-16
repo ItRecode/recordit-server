@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: "datasource"
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${DATASOURCE_HOST:localhost}:${DATASOURCE_PORT:3306}/RecordIt?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: ${DATASOURCE_USERNAME:root}
+    password: ${DATASOURCE_PASSWORD:}
+

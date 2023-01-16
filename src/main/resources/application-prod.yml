@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  servlet:
+    multipart:
+      max-request-size: 15MB
+      max-file-size: 5MB
+logging:
+  config: classpath:log4j2/log4j2-prod.xml
+cors:
+  origin: ${CORS_ORIGIN_NAME:}
+springfox:
+  documentation:
+    enabled: false
+    swagger-ui:
+      enabled: false
+    open-api:
+      enabled: false
+    swagger:
+      v2:
+        enabled: false

@@ -1,0 +1,38 @@
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  output:
+    ansi:
+      enabled: always
+  logging:
+    level:
+      '[org.springframework.web]': DEBUG
+      '[org.hibernate]': DEBUG
+  servlet:
+    multipart:
+      max-request-size: 15MB
+      max-file-size: 5MB
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false
+    swagger-ui:
+      base-url: /api
+logging:
+  config: classpath:log4j2/log4j2-dev.xml
+cors:
+  origin: ${CORS_ORIGIN_NAME:}
