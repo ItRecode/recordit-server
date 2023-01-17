@@ -1,8 +1,7 @@
 package com.recordit.server.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,24 +65,24 @@ public class RecordService {
 		RecordIcon recordIcon = recordIconRepository.findByName(writeRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
-		Record record = Record.of(
-				writeRecordRequestDto,
-				recordCategory,
-				member,
-				recordColor,
-				recordIcon
+		Record saveRecord = recordRepository.save(
+				Record.of(
+						writeRecordRequestDto,
+						recordCategory,
+						member,
+						recordColor,
+						recordIcon
+				)
 		);
-
-		Long recordId = recordRepository.save(record).getId();
-		log.info("저장한 레코드 ID : ", recordId);
+		log.info("저장한 레코드 ID : {}", saveRecord.getId());
 
 		if (!imageFileService.isEmptyFile(attachments)) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, attachments);
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, saveRecord.getId(), attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
 		return WriteRecordResponseDto.builder()
-				.recordId(recordId)
+				.recordId(saveRecord.getId())
 				.build();
 	}
 
@@ -92,25 +91,13 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> imageUrls = new ArrayList<>();
-
-		Optional<List<ImageFile>> optionalImageFileList = Optional.of(
-				imageFileRepository.findAllByRefTypeAndRefId(
+		List<String> findImageFileUrls = imageFileRepository.findAllByRefTypeAndRefId(
 						RefType.RECORD,
 						recordId
-				)
-		);
-
-		if (!optionalImageFileList.isEmpty()) {
-
-			optionalImageFileList.get().stream()
-					.forEach(
-							(imageFile) -> {
-								imageUrls.add(imageFile.getDownloadUrl());
-							}
-					);
-
-		}
+				).stream()
+				.map(ImageFile::getDownloadUrl)
+				.collect(Collectors.toList());
+		log.info("조회한 이미지 파일 URL : {}", findImageFileUrls);
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
@@ -122,7 +109,7 @@ public class RecordService {
 				.colorName(record.getRecordColor().getName())
 				.iconName(record.getRecordIcon().getName())
 				.createdAt(record.getCreatedAt())
-				.imageUrls(imageUrls)
+				.imageUrls(findImageFileUrls)
 				.build();
 	}
 }
