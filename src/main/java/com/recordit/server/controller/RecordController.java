@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,6 +75,28 @@ public class RecordController {
 	public ResponseEntity<RecordDetailResponseDto> getDetailRecord(
 			@PathVariable("recordId") Long recordId) {
 		return ResponseEntity.ok().body(recordService.getDetailRecord(recordId));
+	}
+
+	@ApiOperation(
+			value = "레코드 단건 조회",
+			notes = "레코드를 단건 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 조회 성공",
+					response = RecordDetailResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "레코드가 없는 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@DeleteMapping("/{recordId}")
+	public ResponseEntity deleteRecord(
+			@PathVariable("recordId") Long recordId
+	) {
+		recordService.deleteRecord(recordId);
+		return ResponseEntity.ok().build();
 	}
 
 }
