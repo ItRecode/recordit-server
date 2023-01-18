@@ -35,9 +35,9 @@ public class RecordExceptionHandler {
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
 
-	@ExceptionHandler(NotMatchLoginUserWithRecordWriter.class)
+	@ExceptionHandler(NotMatchLoginUserWithRecordWriterException.class)
 	public ResponseEntity<ErrorMessage> handleNotMatchLoginUserWithRecordWriter(
-			NotMatchLoginUserWithRecordWriter exception) {
+			NotMatchLoginUserWithRecordWriterException exception) {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
 	}
