@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -57,7 +57,8 @@ public class RecordService {
 	private final Integer FIX_PAGE_SIZE = 7;
 
 	@Transactional
-	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
+	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
+			List<MultipartFile> attachments) {
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -74,24 +75,24 @@ public class RecordService {
 		RecordIcon recordIcon = recordIconRepository.findByName(writeRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
-		Record record = Record.of(
-				writeRecordRequestDto,
-				recordCategory,
-				member,
-				recordColor,
-				recordIcon
+		Record saveRecord = recordRepository.save(
+				Record.of(
+						writeRecordRequestDto,
+						recordCategory,
+						member,
+						recordColor,
+						recordIcon
+				)
 		);
+		log.info("저장한 레코드 ID : {}", saveRecord.getId());
 
-		Long recordId = recordRepository.save(record).getId();
-		log.info("저장한 레코드 ID : ", recordId);
-
-		if (files != null) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+		if (!imageFileService.isEmptyFile(attachments)) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, saveRecord.getId(), attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
 		return WriteRecordResponseDto.builder()
-				.recordId(recordId)
+				.recordId(saveRecord.getId())
 				.build();
 	}
 
@@ -100,25 +101,13 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> imageUrls = new ArrayList<>();
-
-		Optional<List<ImageFile>> optionalImageFileList = Optional.of(
-				imageFileRepository.findAllByRefTypeAndRefId(
+		List<String> findImageFileUrls = imageFileRepository.findAllByRefTypeAndRefId(
 						RefType.RECORD,
 						recordId
-				)
-		);
-
-		if (!optionalImageFileList.isEmpty()) {
-
-			optionalImageFileList.get().stream()
-					.forEach(
-							(imageFile) -> {
-								imageUrls.add(imageFile.getDownloadUrl());
-							}
-					);
-
-		}
+				).stream()
+				.map(ImageFile::getDownloadUrl)
+				.collect(Collectors.toList());
+		log.info("조회한 이미지 파일 URL : {}", findImageFileUrls);
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
@@ -130,7 +119,7 @@ public class RecordService {
 				.colorName(record.getRecordColor().getName())
 				.iconName(record.getRecordIcon().getName())
 				.createdAt(record.getCreatedAt())
-				.imageUrls(imageUrls)
+				.imageUrls(findImageFileUrls)
 				.build();
 	}
 

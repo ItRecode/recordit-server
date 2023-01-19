@@ -53,9 +53,10 @@ public class RecordController {
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<WriteRecordResponseDto> writeRecord(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
-			@ApiParam @RequestPart(required = false) List<MultipartFile> files
+			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(recordService.writeRecord(writeRecordRequestDto, files));
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(recordService.writeRecord(writeRecordRequestDto, attachments));
 	}
 
 	@ApiOperation(

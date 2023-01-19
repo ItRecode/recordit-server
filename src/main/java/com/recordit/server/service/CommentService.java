@@ -1,5 +1,11 @@
 package com.recordit.server.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -9,6 +15,8 @@ import com.recordit.server.constant.RefType;
 import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
+import com.recordit.server.dto.comment.CommentRequestDto;
+import com.recordit.server.dto.comment.CommentResponseDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -50,6 +58,7 @@ public class CommentService {
 		Comment parentComment = (writeCommentRequestDto.getParentId() == null) ? null :
 				commentRepository.findById(writeCommentRequestDto.getParentId())
 						.orElseThrow(() -> new CommentNotFoundException("지정한 부모 댓글이 존재하지 않습니다."));
+		validateParentHasParent(parentComment);
 
 		Comment saveComment = commentRepository.save(
 				Comment.of(
@@ -60,7 +69,9 @@ public class CommentService {
 				)
 		);
 
-		imageFileService.saveAttachmentFile(RefType.COMMENT, saveComment.getId(), attachment);
+		if (!imageFileService.isEmptyFile(attachment)) {
+			imageFileService.saveAttachmentFile(RefType.COMMENT, saveComment.getId(), attachment);
+		}
 
 		log.info("저장한 댓글 ID : {}", saveComment.getId());
 
@@ -69,12 +80,56 @@ public class CommentService {
 				.build();
 	}
 
+	@Transactional(readOnly = true)
+	public CommentResponseDto getCommentsBy(CommentRequestDto commentRequestDto) {
+		Page<Comment> findComments;
+		PageRequest pageRequest = PageRequest.of(
+				commentRequestDto.getPage(),
+				commentRequestDto.getSize(),
+				Sort.Direction.DESC,
+				"createdAt"
+		);
+
+		if (commentRequestDto.getParentId() == null) {
+			Record findRecord = recordRepository.findById(commentRequestDto.getRecordId())
+					.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+
+			findComments = commentRepository.findAllByRecordWithPagination(findRecord, pageRequest);
+		} else {
+			Comment parentComment = commentRepository.findById(commentRequestDto.getParentId())
+					.orElseThrow(() -> new CommentNotFoundException("지정한 부모 댓글이 존재하지 않습니다."));
+			validateParentHasParent(parentComment);
+
+			findComments = commentRepository.findAllByParentComment(parentComment, pageRequest);
+		}
+
+		List<Long> numOfSubComments = findComments.stream()
+				.map(comment -> commentRepository.countAllByParentComment(comment))
+				.collect(Collectors.toList());
+
+		List<String> imageFileUrls = findComments.stream()
+				.map(comment -> imageFileService.getImageFile(RefType.COMMENT, comment.getId()))
+				.collect(Collectors.toList());
+
+		return CommentResponseDto.builder()
+				.comments(findComments)
+				.imageFileUrls(imageFileUrls)
+				.numOfSubComments(numOfSubComments)
+				.build();
+	}
+
 	private void validateEmptyContent(
 			WriteCommentRequestDto writeCommentRequestDto,
 			MultipartFile attachment
 	) {
-		if (attachment.isEmpty() && !StringUtils.hasText(writeCommentRequestDto.getComment())) {
+		if (imageFileService.isEmptyFile(attachment) && !StringUtils.hasText(writeCommentRequestDto.getComment())) {
 			throw new EmptyContentException("댓글 내용과 이미지 파일 모두 비어있을 수 없습니다.");
+		}
+	}
+
+	private void validateParentHasParent(Comment parentComment) {
+		if (parentComment != null && parentComment.getParentComment() != null) {
+			throw new IllegalStateException("부모 댓글은 부모를 가질 수 없습니다.");
 		}
 	}
 
