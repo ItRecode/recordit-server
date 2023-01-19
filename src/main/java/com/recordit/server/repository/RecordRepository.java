@@ -14,5 +14,9 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 	// 		+ " where r.id = :id")
 	// Optional<Record> findById(Long id);
 
-	Slice<Record> findByWriterAndCreatedAtBefore(Member writer, LocalDateTime dateTime, Pageable pageable);
+	Slice<Record> findByWriterAndCreatedAtBefore(
+			Member writer,
+			LocalDateTime dateTime,
+			Pageable pageable
+	);
 }

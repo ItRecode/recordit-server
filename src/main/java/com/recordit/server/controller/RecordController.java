@@ -3,10 +3,13 @@ package com.recordit.server.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +24,8 @@ import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
-import com.recordit.server.exception.record.InvalidPageParameterException;
 import com.recordit.server.service.RecordService;
+import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/record")
 public class RecordController {
 
@@ -95,10 +99,11 @@ public class RecordController {
 	})
 	@GetMapping("memory-list")
 	public ResponseEntity<MemoryRecordResponseDto> getMemoryRecordList(
-			@RequestParam String pageNum) {
-		if (!pageNum.matches("\\d+")) {
-			throw new InvalidPageParameterException("페이지 파라미터는 음수, 실수, 숫자가 아닌 문자열일 수 없습니다.");
-		}
+			@RequestParam(required = false)
+			@NotBlank(message = "페이지 파라미터는 빈값이거나 빈문자열일 수 없습니다.")
+			@Pattern(regexp = "\\d+", message = "페이지 파라미터는 음수, 실수, 숫자가 아닌 문자열일 수 없습니다.")
+			String pageNum
+	) {
 		return ResponseEntity.ok().body(recordService.getMemoryRecordList(Integer.parseInt(pageNum)));
 	}
 }

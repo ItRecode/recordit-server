@@ -1,6 +1,12 @@
 package com.recordit.server.dto.record;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.domain.Slice;
+
+import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Record;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,14 +35,24 @@ public class MemoryRecordResponseDto {
 
 	@Builder
 	public MemoryRecordResponseDto(
-			Boolean hasNextPage,
-			Boolean isFirstPage,
-			Boolean isLastPage,
-			List<MemoryRecordDto> myRecordList
+			Slice<Record> memoryRecordSlice,
+			List<List<Comment>> commentList
 	) {
-		this.hasNextPage = hasNextPage;
-		this.isFirstPage = isFirstPage;
-		this.isLastPage = isLastPage;
-		this.memoryRecordList = myRecordList;
+		this.hasNextPage = memoryRecordSlice.hasNext();
+		this.isFirstPage = memoryRecordSlice.isFirst();
+		this.isLastPage = memoryRecordSlice.isLast();
+		this.memoryRecordList = new ArrayList<>();
+
+		for (int i = 0; i < memoryRecordSlice.getContent().size(); i++) {
+			memoryRecordList.add(
+					MemoryRecordDto.builder()
+							.recordId(memoryRecordSlice.getContent().get(i).getId())
+							.title(memoryRecordSlice.getContent().get(i).getTitle())
+							.iconColor(memoryRecordSlice.getContent().get(i).getRecordColor().getName())
+							.iconName(memoryRecordSlice.getContent().get(i).getRecordIcon().getName())
+							.commentList(MemoryRecordCommentDto.asMemoryRecordCommentDtoList(commentList.get(i)))
+							.build()
+			);
+		}
 	}
 }
