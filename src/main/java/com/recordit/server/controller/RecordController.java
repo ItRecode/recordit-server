@@ -26,7 +26,6 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
-import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -92,7 +91,7 @@ public class RecordController {
 	@ApiResponses({
 			@ApiResponse(
 					code = 200, message = "추억레코드 리스트 조회 성공",
-					response = RecordDetailResponseDto.class
+					response = MemoryRecordResponseDto.class
 			),
 			@ApiResponse(
 					code = 400, message = "페이지 파라미터가 음수, 실수, 숫자가 아닌경우 조회 실패",
