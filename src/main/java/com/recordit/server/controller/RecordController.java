@@ -78,16 +78,16 @@ public class RecordController {
 	}
 
 	@ApiOperation(
-			value = "레코드 단건 조회",
-			notes = "레코드를 단건 조회합니다."
+			value = "레코드 삭제",
+			notes = "레코드를 삭제합니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "레코드 조회 성공",
-					response = RecordDetailResponseDto.class
+					code = 200, message = "레코드 삭제 성공"
 			),
 			@ApiResponse(
-					code = 400, message = "레코드가 없는 경우",
+					code = 400,
+					message = "로그인이 안되어있거나, 레코드가 없거나, 로그인 한 사용자와 글 작성자가 불일치 한 경우",
 					response = ErrorMessage.class
 			)
 	})

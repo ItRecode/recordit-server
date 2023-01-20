@@ -50,7 +50,6 @@ public class RecordService {
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
 			List<MultipartFile> attachments) {
-		sessionUtil.saveUserIdInSession(1L);
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -117,7 +116,6 @@ public class RecordService {
 
 	@Transactional
 	public void deleteRecord(Long recordId) {
-		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
