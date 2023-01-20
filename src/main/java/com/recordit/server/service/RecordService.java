@@ -18,6 +18,7 @@ import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -111,5 +112,23 @@ public class RecordService {
 				.createdAt(record.getCreatedAt())
 				.imageUrls(findImageFileUrls)
 				.build();
+	}
+
+	@Transactional
+	public void deleteRecord(Long recordId) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Record record = recordRepository.findByIdFetchWriter(recordId)
+				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+
+		if (record.getWriter().getId() != member.getId()) {
+			throw new NotMatchLoginUserWithRecordWriterException("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		recordRepository.delete(record);
 	}
 }
