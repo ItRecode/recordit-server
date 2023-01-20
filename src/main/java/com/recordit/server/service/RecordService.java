@@ -161,10 +161,16 @@ public class RecordService {
 				.memoryRecordSlice(recordSlice)
 				.commentList(commentList)
 				.build();
-    }
-    
-  @Transactional
-  public void deleteRecord(Long recordId) {
+	}
+
+	@Transactional
+	public void deleteRecord(Long recordId) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
 		Record record = recordRepository.findByIdFetchWriter(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
