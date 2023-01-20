@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,6 +85,7 @@ public class RecordController {
 	}
 
 	@ApiOperation(
+
 			value = "추억레코드 리스트를 내림차순으로 7개씩 조회",
 			notes = "추억레코드 리스트를 내림차순으로 7개씩 조회합니다."
 	)
@@ -105,5 +107,27 @@ public class RecordController {
 			String pageNum
 	) {
 		return ResponseEntity.ok().body(recordService.getMemoryRecordList(Integer.parseInt(pageNum)));
+	}
+
+	@ApiOperation(
+			value = "레코드 삭제",
+			notes = "레코드를 삭제합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 삭제 성공"
+			),
+			@ApiResponse(
+					code = 400,
+					message = "로그인이 안되어있거나, 레코드가 없거나, 로그인 한 사용자와 글 작성자가 불일치 한 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@DeleteMapping("/{recordId}")
+	public ResponseEntity deleteRecord(
+			@PathVariable("recordId") Long recordId
+	) {
+		recordService.deleteRecord(recordId);
+		return ResponseEntity.ok().build();
 	}
 }

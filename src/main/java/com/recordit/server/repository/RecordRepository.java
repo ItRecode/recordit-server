@@ -1,10 +1,11 @@
 package com.recordit.server.repository;
 
 import java.time.LocalDateTime;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
@@ -19,4 +20,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			LocalDateTime dateTime,
 			Pageable pageable
 	);
+
+	@Query("select r from RECORD r join fetch r.writer where r.id = :id")
+	Optional<Record> findByIdFetchWriter(Long id);
 }

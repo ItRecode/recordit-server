@@ -35,6 +35,13 @@ public class RecordExceptionHandler {
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
 
+	@ExceptionHandler(NotMatchLoginUserWithRecordWriterException.class)
+	public ResponseEntity<ErrorMessage> handleNotMatchLoginUserWithRecordWriter(
+			NotMatchLoginUserWithRecordWriterException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
+	}
+
 	@ExceptionHandler(InvalidPageParameterException.class)
 	public ResponseEntity<ErrorMessage> handleInvalidPageParameterException(
 			InvalidPageParameterException exception) {

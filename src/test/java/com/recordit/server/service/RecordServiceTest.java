@@ -23,6 +23,7 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -224,6 +225,83 @@ class RecordServiceTest {
 
 			// when, then
 			assertThatCode(() -> recordService.getDetailRecord(recordId))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("레코드를 삭제 할 때")
+	class 레코드를_삭제_할_때 {
+		@Mock
+		private Member otherMockMember;
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.deleteRecord(231L))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("레코드 정보를 찾을 수 없다면 예외를 던진다")
+		void 레코드_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.deleteRecord(542L))
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("레코드 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("로그인 한 사용자와 글 작성자가 다르다면 예외를 던진다")
+		void 로그인_한_사용자와_글_작성자가_다르다면_예외를_던진다() {
+			// given
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(mockRecord.getWriter())
+					.willReturn(otherMockMember);
+			given(otherMockMember.getId())
+					.willReturn(1L);
+			given(mockMember.getId())
+					.willReturn(23L);
+
+			// when, then
+			assertThatThrownBy(() -> recordService.deleteRecord(42L))
+					.isInstanceOf(NotMatchLoginUserWithRecordWriterException.class)
+					.hasMessage("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(mockRecord.getWriter())
+					.willReturn(otherMockMember);
+			given(otherMockMember.getId())
+					.willReturn(1L);
+			given(mockMember.getId())
+					.willReturn(1L);
+
+			// when, then
+			assertThatCode(() -> recordService.deleteRecord(214L))
 					.doesNotThrowAnyException();
 		}
 	}
