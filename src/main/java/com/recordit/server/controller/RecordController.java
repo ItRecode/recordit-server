@@ -3,24 +3,30 @@ package com.recordit.server.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
+import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/record")
 public class RecordController {
 
@@ -78,6 +85,31 @@ public class RecordController {
 	}
 
 	@ApiOperation(
+
+			value = "추억레코드 리스트를 내림차순으로 7개씩 조회",
+			notes = "추억레코드 리스트를 내림차순으로 7개씩 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "추억레코드 리스트 조회 성공",
+					response = RecordDetailResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "페이지 파라미터가 음수, 실수, 숫자가 아닌경우 조회 실패",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("memory-list")
+	public ResponseEntity<MemoryRecordResponseDto> getMemoryRecordList(
+			@RequestParam(required = false)
+			@NotBlank(message = "페이지 파라미터는 빈값이거나 빈문자열일 수 없습니다.")
+			@Pattern(regexp = "\\d+", message = "페이지 파라미터는 음수, 실수, 숫자가 아닌 문자열일 수 없습니다.")
+			String pageNum
+	) {
+		return ResponseEntity.ok().body(recordService.getMemoryRecordList(Integer.parseInt(pageNum)));
+	}
+
+	@ApiOperation(
 			value = "레코드 삭제",
 			notes = "레코드를 삭제합니다."
 	)
@@ -98,5 +130,4 @@ public class RecordController {
 		recordService.deleteRecord(recordId);
 		return ResponseEntity.ok().build();
 	}
-
 }

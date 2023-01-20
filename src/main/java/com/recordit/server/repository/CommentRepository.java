@@ -1,5 +1,7 @@
 package com.recordit.server.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -21,4 +23,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	Page<Comment> findAllByParentComment(@Param("parentComment") Comment parentComment, Pageable pageable);
 
 	Long countAllByParentComment(Comment parentComment);
+
+	List<Comment> findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(Record record);
 }
