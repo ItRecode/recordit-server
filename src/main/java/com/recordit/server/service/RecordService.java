@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -145,13 +144,6 @@ public class RecordService {
 				LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
 				pageRequest
 		);
-
-		if (!recordSlice.hasContent()) {
-			return MemoryRecordResponseDto.builder()
-					.memoryRecordSlice(recordSlice)
-					.commentList(Collections.emptyList())
-					.build();
-		}
 
 		List<List<Comment>> commentList = new ArrayList<>();
 
