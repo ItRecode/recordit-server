@@ -139,20 +139,22 @@ public class RecordService {
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
+		List<List<Comment>> commentList = new ArrayList<>();
+
 		Slice<Record> recordSlice = recordRepository.findByWriterAndCreatedAtBefore(
 				member,
 				LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
 				pageRequest
+		).map(
+				record -> {
+					List<Comment> list = commentRepository
+							.findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(record);
+
+					commentList.add(list);
+
+					return record;
+				}
 		);
-
-		List<List<Comment>> commentList = new ArrayList<>();
-
-		for (Record record : recordSlice) {
-			List<Comment> findCommentList = commentRepository
-					.findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(record);
-
-			commentList.add(findCommentList);
-		}
 
 		return MemoryRecordResponseDto.builder()
 				.memoryRecordSlice(recordSlice)
