@@ -17,6 +17,9 @@ import lombok.ToString;
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TodayWriteRecordDto {
+	@ApiModelProperty(notes = "레코드 아이디")
+	private Long recordId;
+
 	@ApiModelProperty(notes = "레코드 작성 시각")
 	private LocalDateTime createdAt;
 
@@ -40,6 +43,7 @@ public class TodayWriteRecordDto {
 			Record record,
 			Long commentCount
 	) {
+		this.recordId = record.getId();
 		this.createdAt = record.getCreatedAt();
 		this.categoryName = record.getRecordCategory().getName();
 		this.title = record.getTitle();
