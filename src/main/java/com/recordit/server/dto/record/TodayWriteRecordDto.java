@@ -2,6 +2,8 @@ package com.recordit.server.dto.record;
 
 import java.time.LocalDateTime;
 
+import com.recordit.server.domain.Record;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -35,18 +37,14 @@ public class TodayWriteRecordDto {
 
 	@Builder
 	public TodayWriteRecordDto(
-			LocalDateTime createdAt,
-			String categoryName,
-			String title,
-			Long commentCount,
-			String iconName,
-			String colorName
+			Record record,
+			Long commentCount
 	) {
-		this.createdAt = createdAt;
-		this.categoryName = categoryName;
-		this.title = title;
+		this.createdAt = record.getCreatedAt();
+		this.categoryName = record.getRecordCategory().getName();
+		this.title = record.getTitle();
 		this.commentCount = commentCount;
-		this.iconName = iconName;
-		this.colorName = colorName;
+		this.iconName = record.getRecordIcon().getName();
+		this.colorName = record.getRecordColor().getName();
 	}
 }

@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -130,7 +131,7 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public TodayWriteRecordResponseDto getTodayWriteRecord(LocalDateTime startDate, LocalDateTime endDate) {
+	public TodayWriteRecordResponseDto getTodayWriteRecord(String date) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -138,28 +139,27 @@ public class RecordService {
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
 		Optional<Record> optionalRecord = recordRepository.findTopByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
-				member, startDate, endDate);
+				member,
+				LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(LocalTime.MIN),
+				LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(LocalTime.MAX)
+		);
 
 		if (!optionalRecord.isPresent()) {
 			return TodayWriteRecordResponseDto.builder().build();
 		}
 
-		Record findRecord = optionalRecord.get();
-		Long commentCount = commentRepository.countByWriter(member);
+		Long commentCount = commentRepository.countByRecordAndParentCommentIsNull(optionalRecord.get());
 
-		log.info("오늘 작성한 가장 최신의 레코드 : {}", findRecord.getTitle());
+		log.info("오늘 작성한 가장 최신의 레코드 : {}", optionalRecord.get().getTitle());
 		log.info("오늘 작성한 가장 최신 레코드의 댓글 갯수 : {}", commentCount);
 
 		return TodayWriteRecordResponseDto.builder()
-				.todayWriteRecordDto(TodayWriteRecordDto.builder()
-						.commentCount(commentCount)
-						.categoryName(findRecord.getRecordCategory().getName())
-						.title(findRecord.getTitle())
-						.createdAt(findRecord.getCreatedAt())
-						.colorName(findRecord.getRecordColor().getName())
-						.iconName(findRecord.getRecordIcon().getName())
-						.build())
-				.build();
+				.todayWriteRecordDto(
+						TodayWriteRecordDto.builder()
+								.record(optionalRecord.get())
+								.commentCount(commentCount)
+								.build()
+				).build();
 	}
 
 	@Transactional(readOnly = true)

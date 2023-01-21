@@ -1,10 +1,5 @@
 package com.recordit.server.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -31,7 +26,6 @@ import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
-import com.recordit.server.exception.record.DateFormatException;
 import com.recordit.server.service.RecordService;
 
 import io.swagger.annotations.ApiOperation;
@@ -110,19 +104,13 @@ public class RecordController {
 					required = true,
 					example = "2023-01-14"
 			)
+			@NotBlank(message = "date 파라미터는 빈값이거나 빈 문자열일 수 없습니다.")
+			@Pattern(
+					regexp = "^(19|20)\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+					message = "날짜 파라미터는 yyyy-MM-dd 형식입니다."
+			)
 			@RequestParam String date) {
-		try {
-			LocalDateTime startDateTime = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-					.atTime(LocalTime.MIN);
-
-			LocalDateTime endDatetime = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-					.atTime(LocalTime.MAX);
-
-			return ResponseEntity.ok().body(recordService.getTodayWriteRecord(startDateTime, endDatetime));
-		} catch (DateTimeParseException e) {
-			throw new DateFormatException("유효하지 않은 날짜 형식입니다, 날짜 파라미터는 yyyy-MM-dd 형식으로 전달해주세요.");
-		}
-
+		return ResponseEntity.ok().body(recordService.getTodayWriteRecord(date));
 	}
 
 	@ApiOperation(
