@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Record;
+import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -64,7 +67,7 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
+			given(imageFileService.isEmptyFile(any(MultipartFile.class)))
 					.willReturn(true);
 
 			// when, then
@@ -83,8 +86,6 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willReturn(1L);
 			given(memberRepository.findById(1L))
@@ -107,8 +108,6 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
@@ -131,8 +130,6 @@ public class CommentServiceTest {
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 			Record record = mock(Record.class);
 
-			given(multipartFile.isEmpty())
-					.willReturn(false);
 			given(sessionUtil.findUserIdBySession())
 					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
@@ -183,6 +180,86 @@ public class CommentServiceTest {
 					multipartFile
 			)).doesNotThrowAnyException();
 		}
+	}
+
+	@Nested
+	@DisplayName("댓글을 조회시")
+	class 댓글을_조회_할_때 {
+
+		private CommentRequestDto commentRequestDto = mock(CommentRequestDto.class);
+
+		@BeforeEach
+		void init() {
+			given(commentRequestDto.getPage())
+					.willReturn(0);
+			given(commentRequestDto.getSize())
+					.willReturn(1);
+		}
+
+		@Nested
+		@DisplayName("조회하려는 부모 댓글 ID가 null일 때")
+		class 조회하려는_부모_댓글_ID가_null일_때 {
+
+			@BeforeEach
+			void init() {
+				given(commentRequestDto.getParentId())
+						.willReturn(null);
+			}
+
+			@Test
+			@DisplayName("지정한 레코드 ID가 존재하지 않으면 예외를 던진다")
+			void 지정한_레코드_ID가_존재하지_않으면_예외를_던진다() {
+				// given
+				given(recordRepository.findById(any()))
+						.willReturn(Optional.empty());
+
+				// when, then
+				assertThatThrownBy(() -> commentService.getCommentsBy(commentRequestDto))
+						.isInstanceOf(RecordNotFoundException.class);
+			}
+
+		}
+
+		@Nested
+		@DisplayName("조회하려는 부모 댓글 ID가 null이 아닐 때")
+		class 조회하려는_부모_댓글_ID가_null이_아닐_때 {
+
+			@BeforeEach
+			void init() {
+				given(commentRequestDto.getParentId())
+						.willReturn(1L);
+			}
+
+			@Test
+			@DisplayName("지정한 부모 댓글이 존재하지 않으면 예외를 던진다")
+			void 지정한_부모_댓글이_존재하지_않으면_예외를_던진다() {
+				// given
+				given(commentRepository.findById(commentRequestDto.getParentId()))
+						.willReturn(Optional.empty());
+
+				// when, then
+				assertThatThrownBy(() -> commentService.getCommentsBy(commentRequestDto))
+						.isInstanceOf(CommentNotFoundException.class);
+			}
+
+			@Test
+			@DisplayName("부모가 부모를 가질 때 예외를 던진다")
+			void 부모가_부모를_가질_때_예외를_던진다() {
+				// given
+				Comment parentComment = mock(Comment.class);
+				Comment grandParentComment = mock(Comment.class);
+				given(commentRepository.findById(commentRequestDto.getParentId()))
+						.willReturn(Optional.of(parentComment));
+				given(parentComment.getParentComment())
+						.willReturn(grandParentComment);
+
+				// when, then
+				assertThatThrownBy(() -> commentService.getCommentsBy(commentRequestDto))
+						.isInstanceOf(IllegalStateException.class);
+			}
+
+		}
+
 	}
 
 }

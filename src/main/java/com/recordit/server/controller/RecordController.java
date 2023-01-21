@@ -8,10 +8,14 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
@@ -37,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/record")
 public class RecordController {
 
@@ -58,9 +64,10 @@ public class RecordController {
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<WriteRecordResponseDto> writeRecord(
 			@ApiParam(required = true) @RequestPart(required = true) @Valid WriteRecordRequestDto writeRecordRequestDto,
-			@ApiParam @RequestPart(required = false) List<MultipartFile> files
+			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(recordService.writeRecord(writeRecordRequestDto, files));
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(recordService.writeRecord(writeRecordRequestDto, attachments));
 	}
 
 	@ApiOperation(
@@ -115,5 +122,52 @@ public class RecordController {
 		} catch (DateTimeParseException e) {
 			throw new DateFormatException("유효하지 않은 날짜 형식입니다, 날짜 파라미터는 yyyy-MM-dd 형식으로 전달해주세요.");
 		}
+
+	}
+
+	@ApiOperation(
+			value = "추억레코드 리스트를 내림차순으로 7개씩 조회",
+			notes = "추억레코드 리스트를 내림차순으로 7개씩 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "추억레코드 리스트 조회 성공",
+					response = MemoryRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "페이지 파라미터가 음수, 실수, 숫자가 아닌경우 조회 실패",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("memory-list")
+	public ResponseEntity<MemoryRecordResponseDto> getMemoryRecordList(
+			@RequestParam(required = false)
+			@NotBlank(message = "페이지 파라미터는 빈값이거나 빈문자열일 수 없습니다.")
+			@Pattern(regexp = "\\d+", message = "페이지 파라미터는 음수, 실수, 숫자가 아닌 문자열일 수 없습니다.")
+			String pageNum
+	) {
+		return ResponseEntity.ok().body(recordService.getMemoryRecordList(Integer.parseInt(pageNum)));
+	}
+
+	@ApiOperation(
+			value = "레코드 삭제",
+			notes = "레코드를 삭제합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 삭제 성공"
+			),
+			@ApiResponse(
+					code = 400,
+					message = "로그인이 안되어있거나, 레코드가 없거나, 로그인 한 사용자와 글 작성자가 불일치 한 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@DeleteMapping("/{recordId}")
+	public ResponseEntity deleteRecord(
+			@PathVariable("recordId") Long recordId
+	) {
+		recordService.deleteRecord(recordId);
+		return ResponseEntity.ok().build();
 	}
 }

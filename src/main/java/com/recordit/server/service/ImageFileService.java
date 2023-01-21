@@ -130,4 +130,23 @@ public class ImageFileService {
 				.orElseThrow(() -> new FileExtensionNotAllowedException("지원하지 않은 파일 확장자입니다."));
 	}
 
+	public boolean isEmptyFile(MultipartFile multipartFile) {
+		if (multipartFile == null || multipartFile.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isEmptyFile(List<MultipartFile> multipartFiles) {
+		if (multipartFiles == null) {
+			return true;
+		}
+		for (MultipartFile multipartFile : multipartFiles) {
+			if (isEmptyFile(multipartFile)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

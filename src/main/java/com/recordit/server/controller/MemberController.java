@@ -119,6 +119,14 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).body(false);
 	}
 
+	@ApiOperation(
+			value = "세션을 통해 닉네임 조회",
+			notes = "로그인 된 회원의 닉네임을 반환합니다"
+	)
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "로그인 된 회원의 닉네임 반환", response = String.class),
+			@ApiResponse(code = 400, message = "세션에 사용자 정보가 저장되어 있지 않을 때")
+	})
 	@GetMapping("/auth")
 	public ResponseEntity<String> findNicknameIfPresent() {
 		return ResponseEntity.status(HttpStatus.OK).body(memberService.findNicknameIfPresent());

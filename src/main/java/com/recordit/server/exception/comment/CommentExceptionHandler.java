@@ -36,7 +36,13 @@ public class CommentExceptionHandler {
 
 	@ExceptionHandler(MemberNotFoundException.class)
 	public ResponseEntity<ErrorMessage> handleMemberNotFoundException(MemberNotFoundException exception) {
-		return ResponseEntity.badRequest()
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalStateException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
 }

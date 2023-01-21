@@ -1,27 +1,36 @@
 package com.recordit.server.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.constant.RefType;
+import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.ImageFile;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.TodayWriteRecordDto;
 import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -42,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
+	private final Integer FIX_MEMORY_RECORD_SIZE = 7;
 	private final ImageFileRepository imageFileRepository;
 	private final SessionUtil sessionUtil;
 	private final MemberRepository memberRepository;
@@ -53,7 +63,8 @@ public class RecordService {
 	private final CommentRepository commentRepository;
 
 	@Transactional
-	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto, List<MultipartFile> files) {
+	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
+			List<MultipartFile> attachments) {
 
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -70,24 +81,24 @@ public class RecordService {
 		RecordIcon recordIcon = recordIconRepository.findByName(writeRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
-		Record record = Record.of(
-				writeRecordRequestDto,
-				recordCategory,
-				member,
-				recordColor,
-				recordIcon
+		Record saveRecord = recordRepository.save(
+				Record.of(
+						writeRecordRequestDto,
+						recordCategory,
+						member,
+						recordColor,
+						recordIcon
+				)
 		);
+		log.info("저장한 레코드 ID : {}", saveRecord.getId());
 
-		Long recordId = recordRepository.save(record).getId();
-		log.info("저장한 레코드 ID : ", recordId);
-
-		if (files != null) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, recordId, files);
+		if (!imageFileService.isEmptyFile(attachments)) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, saveRecord.getId(), attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
 		return WriteRecordResponseDto.builder()
-				.recordId(recordId)
+				.recordId(saveRecord.getId())
 				.build();
 	}
 
@@ -96,25 +107,13 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> imageUrls = new ArrayList<>();
-
-		Optional<List<ImageFile>> optionalImageFileList = Optional.of(
-				imageFileRepository.findAllByRefTypeAndRefId(
+		List<String> findImageFileUrls = imageFileRepository.findAllByRefTypeAndRefId(
 						RefType.RECORD,
 						recordId
-				)
-		);
-
-		if (!optionalImageFileList.isEmpty()) {
-
-			optionalImageFileList.get().stream()
-					.forEach(
-							(imageFile) -> {
-								imageUrls.add(imageFile.getDownloadUrl());
-							}
-					);
-
-		}
+				).stream()
+				.map(ImageFile::getDownloadUrl)
+				.collect(Collectors.toList());
+		log.info("조회한 이미지 파일 URL : {}", findImageFileUrls);
 
 		return RecordDetailResponseDto.builder()
 				.recordId(record.getId())
@@ -126,7 +125,7 @@ public class RecordService {
 				.colorName(record.getRecordColor().getName())
 				.iconName(record.getRecordIcon().getName())
 				.createdAt(record.getCreatedAt())
-				.imageUrls(imageUrls)
+				.imageUrls(findImageFileUrls)
 				.build();
 	}
 
@@ -161,5 +160,60 @@ public class RecordService {
 						.iconName(findRecord.getRecordIcon().getName())
 						.build())
 				.build();
+	}
+
+	@Transactional(readOnly = true)
+	public MemoryRecordResponseDto getMemoryRecordList(Integer pageNum) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		PageRequest pageRequest = PageRequest.of(
+				pageNum,
+				FIX_MEMORY_RECORD_SIZE,
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		);
+
+		List<List<Comment>> commentList = new ArrayList<>();
+
+		Slice<Record> recordSlice = recordRepository.findByWriterAndCreatedAtBefore(
+				member,
+				LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
+				pageRequest
+		).map(
+				record -> {
+					List<Comment> list = commentRepository
+							.findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(record);
+
+					commentList.add(list);
+
+					return record;
+				}
+		);
+
+		return MemoryRecordResponseDto.builder()
+				.memoryRecordSlice(recordSlice)
+				.commentList(commentList)
+				.build();
+	}
+
+	@Transactional
+	public void deleteRecord(Long recordId) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Record record = recordRepository.findByIdFetchWriter(recordId)
+				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+
+		if (record.getWriter().getId() != member.getId()) {
+			throw new NotMatchLoginUserWithRecordWriterException("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		recordRepository.delete(record);
 	}
 }

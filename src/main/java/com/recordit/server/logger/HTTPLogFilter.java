@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
-import org.springframework.web.util.WebUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,10 +38,11 @@ public class HTTPLogFilter implements Filter {
 		);
 
 		long start = System.currentTimeMillis();
-		chain.doFilter(request, response);
+		chain.doFilter(requestWrapper, responseWrapper);
 		long end = System.currentTimeMillis();
 
-		if (isInExcludeURIForLog(request)) {
+		if (isInExcludeURIForLog(requestWrapper)) {
+			responseWrapper.copyBodyToResponse();
 			return;
 		}
 
@@ -56,35 +56,35 @@ public class HTTPLogFilter implements Filter {
 				((HttpServletRequest)request).getRequestURI(),
 				responseWrapper.getStatus(),
 				(end - start),
-				getHeaders((HttpServletRequest)request),
+				getHeaders(requestWrapper),
 				getRequestParameter(requestWrapper),
 				getRequestBody(requestWrapper),
 				getResponseBody(responseWrapper));
 	}
 
-	private boolean isInExcludeURIForLog(ServletRequest request) {
-		if (((HttpServletRequest)request).getRequestURI().contains("/api/swagger")) {
+	private boolean isInExcludeURIForLog(ContentCachingRequestWrapper requestWrapper) {
+		if ((requestWrapper.getRequestURI().contains("/api/swagger"))) {
 			return true;
 		}
-		if ("/v2/api-docs".equals(((HttpServletRequest)request).getRequestURI())) {
+		if ("/v2/api-docs".equals(requestWrapper.getRequestURI())) {
 			return true;
 		}
 		return false;
 	}
 
-	private Map getHeaders(HttpServletRequest request) {
+	private Map getHeaders(ContentCachingRequestWrapper requestWrapper) {
 		Map headerMap = new HashMap<>();
 
-		Enumeration headerArray = request.getHeaderNames();
+		Enumeration headerArray = requestWrapper.getHeaderNames();
 		while (headerArray.hasMoreElements()) {
 			String headerName = (String)headerArray.nextElement();
-			headerMap.put(headerName, request.getHeader(headerName));
+			headerMap.put(headerName, requestWrapper.getHeader(headerName));
 		}
 		return headerMap;
 	}
 
-	private String getRequestParameter(ContentCachingRequestWrapper request) {
-		Map<String, String[]> parameterMap = request.getParameterMap();
+	private String getRequestParameter(ContentCachingRequestWrapper requestWrapper) {
+		Map<String, String[]> parameterMap = requestWrapper.getParameterMap();
 		if (parameterMap.size() == 0) {
 			return "-";
 		}
@@ -101,13 +101,12 @@ public class HTTPLogFilter implements Filter {
 		return sb.toString();
 	}
 
-	private String getRequestBody(ContentCachingRequestWrapper request) {
-		ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
-		if (wrapper != null) {
-			byte[] buf = wrapper.getContentAsByteArray();
+	private String getRequestBody(ContentCachingRequestWrapper requestWrapper) {
+		if (requestWrapper != null) {
+			byte[] buf = requestWrapper.getContentAsByteArray();
 			if (buf.length > 0) {
 				try {
-					return new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
+					return new String(buf, 0, buf.length, requestWrapper.getCharacterEncoding());
 				} catch (UnsupportedEncodingException e) {
 					return " - ";
 				}
@@ -116,18 +115,14 @@ public class HTTPLogFilter implements Filter {
 		return " - ";
 	}
 
-	private String getResponseBody(final HttpServletResponse response) throws IOException {
+	private String getResponseBody(ContentCachingResponseWrapper responseWrapper) throws IOException {
 		String payload = null;
-		ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(
-				response,
-				ContentCachingResponseWrapper.class
-		);
-		if (wrapper != null) {
-			wrapper.setCharacterEncoding("UTF-8");
-			byte[] buf = wrapper.getContentAsByteArray();
+		if (responseWrapper != null) {
+			responseWrapper.setCharacterEncoding("UTF-8");
+			byte[] buf = responseWrapper.getContentAsByteArray();
 			if (buf.length > 0) {
-				payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
-				wrapper.copyBodyToResponse();
+				payload = new String(buf, 0, buf.length, responseWrapper.getCharacterEncoding());
+				responseWrapper.copyBodyToResponse();
 			}
 		}
 		return null == payload ? " - " : payload;
