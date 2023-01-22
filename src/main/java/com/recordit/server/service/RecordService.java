@@ -50,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordService {
 
 	private final int FIRST_PAGE = 0;
-	private final int COMMENT_SIZE_OF_MEMORY_RECORD = 5;
 
 	private final ImageFileRepository imageFileRepository;
 	private final SessionUtil sessionUtil;
