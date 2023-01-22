@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
-import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
@@ -85,32 +87,24 @@ public class RecordController {
 	}
 
 	@ApiOperation(
-			value = "파라미터로 받은 날짜의 가장 최신의 레코드 단건 조회",
-			notes = "파라미터로 받은 날짜의 가장 최신의 레코드 단건 조회합니다."
+			value = "날짜로 작성한 레코드 조회",
+			notes = "날짜로 작성한 레코드를 조회합니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "마이 레코드 조회 성공",
-					response = TodayWriteRecordResponseDto.class
+					code = 200, message = "날짜로 작성한 레코드 조회 성공",
+					response = RecordByDateResponseDto.class
 			),
 			@ApiResponse(
 					code = 400, message = "잘못된 요청입니다.",
 					response = ErrorMessage.class
 			)
 	})
-	@GetMapping("/write")
-	public ResponseEntity<TodayWriteRecordResponseDto> getTodayWriteRecord(
-			@ApiParam(
-					required = true,
-					example = "2023-01-14"
-			)
-			@NotBlank(message = "date 파라미터는 빈값이거나 빈 문자열일 수 없습니다.")
-			@Pattern(
-					regexp = "^(19|20)\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
-					message = "날짜 파라미터는 yyyy-MM-dd 형식입니다."
-			)
-			@RequestParam String date) {
-		return ResponseEntity.ok().body(recordService.getTodayWriteRecord(date));
+	@GetMapping
+	public ResponseEntity<RecordByDateResponseDto> getTodayWriteRecord(
+			@ModelAttribute RecordByDateRequestDto recordByDateRequestDto
+	) {
+		return ResponseEntity.ok().body(recordService.getRecordBy(recordByDateRequestDto));
 	}
 
 	@ApiOperation(

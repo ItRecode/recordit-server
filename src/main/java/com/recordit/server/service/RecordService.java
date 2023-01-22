@@ -3,12 +3,12 @@ package com.recordit.server.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -25,9 +25,9 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
-import com.recordit.server.dto.record.TodayWriteRecordDto;
-import com.recordit.server.dto.record.TodayWriteRecordResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -43,6 +43,7 @@ import com.recordit.server.repository.RecordCategoryRepository;
 import com.recordit.server.repository.RecordColorRepository;
 import com.recordit.server.repository.RecordIconRepository;
 import com.recordit.server.repository.RecordRepository;
+import com.recordit.server.util.DateTimeUtil;
 import com.recordit.server.util.SessionUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -131,35 +132,39 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public TodayWriteRecordResponseDto getTodayWriteRecord(String date) {
+	public RecordByDateResponseDto getRecordBy(RecordByDateRequestDto recordByDateRequestDto) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		Optional<Record> optionalRecord = recordRepository.findTopByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 				member,
-				LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(LocalTime.MIN),
-				LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atTime(LocalTime.MAX)
+				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
+				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
+				PageRequest.of(
+						recordByDateRequestDto.getPage(),
+						recordByDateRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
 		);
 
-		if (!optionalRecord.isPresent()) {
-			return TodayWriteRecordResponseDto.builder().build();
+		LinkedHashMap<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
+		for (Record record : findRecords) {
+			recordToNumOfComment.put(
+					// key
+					record,
+					// value
+					commentRepository.countByRecordAndParentCommentIsNull(record)
+			);
 		}
 
-		Long commentCount = commentRepository.countByRecordAndParentCommentIsNull(optionalRecord.get());
-
-		log.info("오늘 작성한 가장 최신의 레코드 : {}", optionalRecord.get().getTitle());
-		log.info("오늘 작성한 가장 최신 레코드의 댓글 갯수 : {}", commentCount);
-
-		return TodayWriteRecordResponseDto.builder()
-				.todayWriteRecordDto(
-						TodayWriteRecordDto.builder()
-								.record(optionalRecord.get())
-								.commentCount(commentCount)
-								.build()
-				).build();
+		return RecordByDateResponseDto.builder()
+				.records(findRecords)
+				.recordToNumOfComments(recordToNumOfComment)
+				.build();
 	}
 
 	@Transactional(readOnly = true)
