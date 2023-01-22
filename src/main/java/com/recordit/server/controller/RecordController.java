@@ -138,7 +138,8 @@ public class RecordController {
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "레코드 수정 성공"
+					code = 200, message = "레코드 수정 성공",
+					response = Long.class
 			),
 			@ApiResponse(
 					code = 400,
