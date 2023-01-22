@@ -21,6 +21,7 @@ import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
 import com.recordit.server.exception.comment.EmptyContentException;
+import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -116,6 +117,25 @@ public class CommentService {
 				.imageFileUrls(imageFileUrls)
 				.numOfSubComments(numOfSubComments)
 				.build();
+	}
+
+	@Transactional
+	public void deleteComment(Long commentId) {
+		sessionUtil.saveUserIdInSession(1L);
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Comment findComment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
+
+		if (findComment.getWriter().getId() != member.getId()) {
+			throw new NotMatchCommentWriterException("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
+		}
+
+		commentRepository.delete(findComment);
 	}
 
 	private void validateEmptyContent(
