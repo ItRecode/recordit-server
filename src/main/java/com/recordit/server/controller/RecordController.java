@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
+import com.recordit.server.dto.record.UpdateRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
@@ -128,5 +130,28 @@ public class RecordController {
 	) {
 		recordService.deleteRecord(recordId);
 		return ResponseEntity.ok().build();
+	}
+
+	@ApiOperation(
+			value = "레코드 수정",
+			notes = "레코드를 수정합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 수정 성공"
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@PutMapping("/{recordId}")
+	public ResponseEntity<Long> updateRecord(
+			@PathVariable("recordId") Long recordId,
+			@ApiParam(required = true) @RequestPart(required = true) @Valid UpdateRecordRequestDto updateRecordRequestDto,
+			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
+	) {
+		return ResponseEntity.ok().body(recordService.updateRecord(recordId, updateRecordRequestDto, attachments));
 	}
 }

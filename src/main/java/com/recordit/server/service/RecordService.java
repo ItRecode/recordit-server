@@ -24,6 +24,7 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
+import com.recordit.server.dto.record.UpdateRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -179,5 +180,46 @@ public class RecordService {
 		}
 
 		recordRepository.delete(record);
+	}
+
+	@Transactional
+	public Long updateRecord(
+			Long recordId,
+			UpdateRecordRequestDto updateRecordRequestDto,
+			List<MultipartFile> attachments
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Record record = recordRepository.findByIdFetchWriter(recordId)
+				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+
+		RecordColor recordColor = recordColorRepository.findByName(updateRecordRequestDto.getColorName())
+				.orElseThrow(() -> new RecordColorNotFoundException("컬러 정보를 찾을 수 없습니다."));
+
+		RecordIcon recordIcon = recordIconRepository.findByName(updateRecordRequestDto.getIconName())
+				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
+
+		if (record.getWriter().getId() != member.getId()) {
+			throw new NotMatchLoginUserWithRecordWriterException("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		if (!imageFileService.isEmptyFile(attachments)) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, record.getId(), attachments);
+			log.info("저장된 이미지 urls : {}", urls);
+		}
+
+		if (updateRecordRequestDto.getDeleteImages() != null) {
+			imageFileService.deleteAttachmentFiles(
+					RefType.RECORD,
+					recordId,
+					updateRecordRequestDto.getDeleteImages()
+			);
+		}
+
+		return record.update(updateRecordRequestDto, recordColor, recordIcon);
 	}
 }
