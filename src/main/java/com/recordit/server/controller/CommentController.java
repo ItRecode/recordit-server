@@ -4,8 +4,10 @@ import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -73,5 +75,27 @@ public class CommentController {
 	@GetMapping
 	public ResponseEntity<CommentResponseDto> getComment(@Valid @ModelAttribute CommentRequestDto commentRequestDto) {
 		return ResponseEntity.ok(commentService.getCommentsBy(commentRequestDto));
+	}
+
+	@ApiOperation(
+			value = "댓글 삭제",
+			notes = "댓글을 삭제합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "댓글 삭제 성공"
+			),
+			@ApiResponse(
+					code = 400,
+					message = "로그인이 안되어있거나, 댓글이 없거나, 로그인 한 사용자와 댓글 작성자가 불일치 한 경우",
+					response = ErrorMessage.class
+			)
+	})
+	@DeleteMapping("/{commentId}")
+	public ResponseEntity deleteComment(
+			@PathVariable("commentId") Long commentId
+	) {
+		commentService.deleteComment(commentId);
+		return ResponseEntity.ok().build();
 	}
 }
