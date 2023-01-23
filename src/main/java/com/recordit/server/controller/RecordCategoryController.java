@@ -2,12 +2,16 @@ package com.recordit.server.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recordit.server.dto.record.category.RecordCategoryResponseDto;
+import com.recordit.server.dto.record.category.SaveRecordCategoryRequestDto;
 import com.recordit.server.service.RecordCategoryService;
 
 import io.swagger.annotations.ApiOperation;
@@ -37,4 +41,11 @@ public class RecordCategoryController {
 		return ResponseEntity.ok(recordCategoryService.getAllRecordCategories());
 	}
 
+	@PostMapping
+	public ResponseEntity saveRecordCategories(
+			@RequestBody SaveRecordCategoryRequestDto saveRecordCategoryRequestDto
+	) {
+		recordCategoryService.saveRecordCategory(saveRecordCategoryRequestDto);
+		return new ResponseEntity(HttpStatus.CREATED);
+	}
 }

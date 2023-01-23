@@ -6,12 +6,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.dto.record.category.RecordCategoryResponseDto;
+import com.recordit.server.dto.record.category.SaveRecordCategoryRequestDto;
+import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.RecordCategoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -60,5 +63,18 @@ public class RecordCategoryService {
 		}
 
 		return result;
+	}
+
+	@CacheEvict(value = "Categories", allEntries = true)
+	public void saveRecordCategory(SaveRecordCategoryRequestDto saveRecordCategoryRequestDto) {
+		RecordCategory parentRecordCategory = null;
+
+		if (saveRecordCategoryRequestDto.getParentCategoryId() != null) {
+			parentRecordCategory = recordCategoryRepository.findById(saveRecordCategoryRequestDto.getParentCategoryId())
+					.orElseThrow(() -> new RecordCategoryNotFoundException("지정한 부모 카테고리 정보를 찾을 수 없습니다."));
+		}
+
+		RecordCategory recordCategory = RecordCategory.of(parentRecordCategory, saveRecordCategoryRequestDto.getName());
+		recordCategoryRepository.save(recordCategory);
 	}
 }
