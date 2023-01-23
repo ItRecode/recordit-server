@@ -311,7 +311,6 @@ class RecordServiceTest {
 		}
 	}
 
-	
 	@Nested
 	@DisplayName("추억 레코드를 조회할 때")
 	class 추억_레코드를_조회할_때 {
@@ -327,6 +326,8 @@ class RecordServiceTest {
 
 			// when, then
 			assertThatThrownBy(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
 
 	}
@@ -350,8 +351,8 @@ class RecordServiceTest {
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
 	}
-  
-  @DisplayName("레코드를 수정 할 때")
+
+	@DisplayName("레코드를 수정 할 때")
 	class 레코드를_수정_할_때 {
 		@Mock
 		private Member otherMockMember;
@@ -388,7 +389,6 @@ class RecordServiceTest {
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
-
 
 		@Test
 		void 레코드_정보를_찾을_수_없다면_예외를_던진다() {
