@@ -20,7 +20,6 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
-import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;

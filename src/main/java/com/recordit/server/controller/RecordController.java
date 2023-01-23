@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
