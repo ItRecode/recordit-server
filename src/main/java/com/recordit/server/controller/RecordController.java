@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
@@ -84,7 +87,27 @@ public class RecordController {
 	}
 
 	@ApiOperation(
+			value = "날짜로 작성한 레코드 조회",
+			notes = "날짜로 작성한 레코드를 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "날짜로 작성한 레코드 조회 성공",
+					response = RecordByDateResponseDto.class
+			),
+			@ApiResponse(
+					code = 400, message = "잘못된 요청입니다.",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping
+	public ResponseEntity<RecordByDateResponseDto> getTodayWriteRecord(
+			@ModelAttribute RecordByDateRequestDto recordByDateRequestDto
+	) {
+		return ResponseEntity.ok().body(recordService.getRecordBy(recordByDateRequestDto));
+	}
 
+	@ApiOperation(
 			value = "추억레코드 리스트를 내림차순으로 7개씩 조회",
 			notes = "추억레코드 리스트를 내림차순으로 7개씩 조회합니다."
 	)
