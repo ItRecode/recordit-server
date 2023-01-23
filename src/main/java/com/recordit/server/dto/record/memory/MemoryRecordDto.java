@@ -1,6 +1,9 @@
-package com.recordit.server.dto.record;
+package com.recordit.server.dto.record.memory;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.recordit.server.domain.Comment;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,8 +30,8 @@ public class MemoryRecordDto {
 	@ApiModelProperty(notes = "추억 레코드 아이콘 색상")
 	private String iconColor;
 
-	@ApiModelProperty(notes = "추억 레코드 댓글 리스트 ")
-	private List<MemoryRecordCommentDto> commentList;
+	@ApiModelProperty(notes = "추억 레코드 댓글 리스트")
+	private List<MemoryRecordCommentDto> memoryRecordComments;
 
 	@Builder
 	public MemoryRecordDto(
@@ -36,12 +39,19 @@ public class MemoryRecordDto {
 			String title,
 			String iconName,
 			String iconColor,
-			List<MemoryRecordCommentDto> commentList
+			List<Comment> memoryRecordComments
 	) {
 		this.recordId = recordId;
 		this.title = title;
 		this.iconName = iconName;
 		this.iconColor = iconColor;
-		this.commentList = commentList;
+		this.memoryRecordComments = memoryRecordComments.stream()
+				.map(
+						comment -> MemoryRecordCommentDto.builder()
+								.commentId(comment.getId())
+								.content(comment.getContent())
+								.build()
+				)
+				.collect(Collectors.toList());
 	}
 }

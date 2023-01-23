@@ -24,7 +24,9 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
@@ -309,8 +311,47 @@ class RecordServiceTest {
 		}
 	}
 
+	
 	@Nested
-	@DisplayName("레코드를 수정 할 때")
+	@DisplayName("추억 레코드를 조회할 때")
+	class 추억_레코드를_조회할_때 {
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			MemoryRecordRequestDto memoryRecordRequestDto = mock(MemoryRecordRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
+		}
+
+	}
+
+	@Nested
+	@DisplayName("날짜로 레코드를 조회할 때")
+	class 날짜로_레코드를_조회할_때 {
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			RecordByDateRequestDto recordByDateRequestDto = mock(RecordByDateRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getRecordBy(recordByDateRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+	}
+  
+  @DisplayName("레코드를 수정 할 때")
 	class 레코드를_수정_할_때 {
 		@Mock
 		private Member otherMockMember;
@@ -347,6 +388,7 @@ class RecordServiceTest {
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
+
 
 		@Test
 		void 레코드_정보를_찾을_수_없다면_예외를_던진다() {

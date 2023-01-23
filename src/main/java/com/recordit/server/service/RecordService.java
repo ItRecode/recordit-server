@@ -1,14 +1,12 @@
 package com.recordit.server.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +22,13 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
+import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
+import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
@@ -40,6 +42,7 @@ import com.recordit.server.repository.RecordCategoryRepository;
 import com.recordit.server.repository.RecordColorRepository;
 import com.recordit.server.repository.RecordIconRepository;
 import com.recordit.server.repository.RecordRepository;
+import com.recordit.server.util.DateTimeUtil;
 import com.recordit.server.util.SessionUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -49,7 +52,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
-	private final Integer FIX_MEMORY_RECORD_SIZE = 7;
+
+	private final int FIRST_PAGE = 0;
+
 	private final ImageFileRepository imageFileRepository;
 	private final SessionUtil sessionUtil;
 	private final MemberRepository memberRepository;
@@ -128,7 +133,43 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public MemoryRecordResponseDto getMemoryRecordList(Integer pageNum) {
+	public RecordByDateResponseDto getRecordBy(RecordByDateRequestDto recordByDateRequestDto) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+				member,
+				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
+				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
+				PageRequest.of(
+						recordByDateRequestDto.getPage(),
+						recordByDateRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
+		);
+
+		LinkedHashMap<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
+		for (Record record : findRecords) {
+			recordToNumOfComment.put(
+					// key
+					record,
+					// value
+					commentRepository.countByRecordAndParentCommentIsNull(record)
+			);
+		}
+
+		return RecordByDateResponseDto.builder()
+				.records(findRecords)
+				.recordToNumOfComments(recordToNumOfComment)
+				.build();
+	}
+
+	@Transactional(readOnly = true)
+	public MemoryRecordResponseDto getMemoryRecords(MemoryRecordRequestDto memoryRecordRequestDto) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -136,31 +177,37 @@ public class RecordService {
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
 		PageRequest pageRequest = PageRequest.of(
-				pageNum,
-				FIX_MEMORY_RECORD_SIZE,
+				memoryRecordRequestDto.getMemoryRecordPage(),
+				memoryRecordRequestDto.getMemoryRecordSize(),
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
-		List<List<Comment>> commentList = new ArrayList<>();
-
-		Slice<Record> recordSlice = recordRepository.findByWriterAndCreatedAtBefore(
+		Page<Record> findRecords = recordRepository.findByWriterFetchAllCreatedAtBefore(
 				member,
-				LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
+				DateTimeUtil.getStartOfToday(),
 				pageRequest
-		).map(
-				record -> {
-					List<Comment> list = commentRepository
-							.findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(record);
-
-					commentList.add(list);
-
-					return record;
-				}
 		);
 
+		Map<Record, List<Comment>> recordToComments = new LinkedHashMap<>();
+		for (Record findRecord : findRecords) {
+			recordToComments.put(
+					// key
+					findRecord,
+					// value
+					commentRepository.findAllByRecord(
+							findRecord,
+							PageRequest.of(
+									FIRST_PAGE,
+									memoryRecordRequestDto.getSizeOfCommentPerRecord(),
+									Sort.by(Sort.Direction.DESC, "createdAt")
+							)
+					)
+			);
+		}
+
 		return MemoryRecordResponseDto.builder()
-				.memoryRecordSlice(recordSlice)
-				.commentList(commentList)
+				.memoryRecords(findRecords)
+				.recordToComments(recordToComments)
 				.build();
 	}
 
