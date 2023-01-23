@@ -23,7 +23,7 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
-import com.recordit.server.dto.record.UpdateRecordRequestDto;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
@@ -327,7 +327,7 @@ class RecordServiceTest {
 		private List<MultipartFile> files = List.of();
 		private List<String> deleteImages = List.of();
 
-		private final UpdateRecordRequestDto updateRecordRequestDto = UpdateRecordRequestDto.builder()
+		private final ModifyRecordRequestDto modifyRecordRequestDto = ModifyRecordRequestDto.builder()
 				.title(title)
 				.content(content)
 				.colorName(colorName)
@@ -343,7 +343,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
@@ -357,7 +357,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.isInstanceOf(RecordNotFoundException.class)
 					.hasMessage("레코드 정보를 찾을 수 없습니다.");
 		}
@@ -373,7 +373,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.isInstanceOf(RecordColorNotFoundException.class)
 					.hasMessage("컬러 정보를 찾을 수 없습니다.");
 		}
@@ -391,7 +391,7 @@ class RecordServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.isInstanceOf(RecordIconNotFoundException.class)
 					.hasMessage("아이콘 정보를 찾을 수 없습니다.");
 		}
@@ -417,7 +417,7 @@ class RecordServiceTest {
 					.willReturn(23L);
 
 			// when, then
-			assertThatThrownBy(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.isInstanceOf(NotMatchLoginUserWithRecordWriterException.class)
 					.hasMessage("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
 		}
@@ -441,7 +441,7 @@ class RecordServiceTest {
 					.willReturn(1L);
 
 			// when, then
-			assertThatCode(() -> recordService.updateRecord(12L, updateRecordRequestDto, files))
+			assertThatCode(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
 					.doesNotThrowAnyException();
 		}
 	}

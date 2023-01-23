@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
-import com.recordit.server.dto.record.UpdateRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
@@ -148,11 +148,11 @@ public class RecordController {
 			)
 	})
 	@PutMapping("/{recordId}")
-	public ResponseEntity<Long> updateRecord(
+	public ResponseEntity<Long> modifyRecord(
 			@PathVariable("recordId") Long recordId,
-			@ApiParam(required = true) @RequestPart(required = true) @Valid UpdateRecordRequestDto updateRecordRequestDto,
+			@ApiParam(required = true) @RequestPart(required = true) @Valid ModifyRecordRequestDto modifyRecordRequestDto,
 			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
-		return ResponseEntity.ok().body(recordService.updateRecord(recordId, updateRecordRequestDto, attachments));
+		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
 	}
 }

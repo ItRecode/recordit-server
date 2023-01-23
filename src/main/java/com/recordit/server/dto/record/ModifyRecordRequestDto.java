@@ -16,7 +16,7 @@ import lombok.ToString;
 @ToString
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateRecordRequestDto {
+public class ModifyRecordRequestDto {
 	@Size(max = 12, message = "레코드 제목은 최대 12자 입니다.")
 	@NotBlank(message = "레코드 제목은 빈 값일 수 없습니다.")
 	private String title;
@@ -34,9 +34,13 @@ public class UpdateRecordRequestDto {
 	private List<String> deleteImages;
 
 	@Builder
-
-	public UpdateRecordRequestDto(String title, String content, String colorName, String iconName,
-			List<String> deleteImages) {
+	public ModifyRecordRequestDto(
+			String title,
+			String content,
+			String colorName,
+			String iconName,
+			List<String> deleteImages
+	) {
 		this.title = title;
 		this.content = content;
 		this.colorName = colorName;

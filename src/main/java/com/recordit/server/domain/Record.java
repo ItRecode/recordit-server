@@ -13,7 +13,7 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import com.recordit.server.dto.record.UpdateRecordRequestDto;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 
 import lombok.AccessLevel;
@@ -88,12 +88,12 @@ public class Record extends BaseEntity {
 	}
 
 	public Long update(
-			final UpdateRecordRequestDto updateRecordRequestDto,
+			final ModifyRecordRequestDto modifyRecordRequestDto,
 			final RecordColor recordColor,
 			final RecordIcon recordIcon
 	) {
-		this.title = updateRecordRequestDto.getTitle();
-		this.content = updateRecordRequestDto.getContent();
+		this.title = modifyRecordRequestDto.getTitle();
+		this.content = modifyRecordRequestDto.getContent();
 		this.recordColor = recordColor;
 		this.recordIcon = recordIcon;
 		return this.id;

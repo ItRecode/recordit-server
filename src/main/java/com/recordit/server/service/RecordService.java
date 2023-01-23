@@ -23,8 +23,8 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
-import com.recordit.server.dto.record.UpdateRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -183,9 +183,9 @@ public class RecordService {
 	}
 
 	@Transactional
-	public Long updateRecord(
+	public Long modifyRecord(
 			Long recordId,
-			UpdateRecordRequestDto updateRecordRequestDto,
+			ModifyRecordRequestDto modifyRecordRequestDto,
 			List<MultipartFile> attachments
 	) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
@@ -197,10 +197,10 @@ public class RecordService {
 		Record record = recordRepository.findByIdFetchWriter(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		RecordColor recordColor = recordColorRepository.findByName(updateRecordRequestDto.getColorName())
+		RecordColor recordColor = recordColorRepository.findByName(modifyRecordRequestDto.getColorName())
 				.orElseThrow(() -> new RecordColorNotFoundException("컬러 정보를 찾을 수 없습니다."));
 
-		RecordIcon recordIcon = recordIconRepository.findByName(updateRecordRequestDto.getIconName())
+		RecordIcon recordIcon = recordIconRepository.findByName(modifyRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
 		if (record.getWriter().getId() != member.getId()) {
@@ -212,14 +212,14 @@ public class RecordService {
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
-		if (updateRecordRequestDto.getDeleteImages() != null) {
+		if (modifyRecordRequestDto.getDeleteImages() != null) {
 			imageFileService.deleteAttachmentFiles(
 					RefType.RECORD,
 					recordId,
-					updateRecordRequestDto.getDeleteImages()
+					modifyRecordRequestDto.getDeleteImages()
 			);
 		}
 
-		return record.update(updateRecordRequestDto, recordColor, recordIcon);
+		return record.update(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 }

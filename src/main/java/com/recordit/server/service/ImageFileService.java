@@ -109,8 +109,9 @@ public class ImageFileService {
 	public void deleteAttachmentFiles(
 			@NonNull RefType refType,
 			@NonNull Long refId,
-			@NonNull List<String> attachmentFileNames) {
-		imageFileRepository.deleteAllByRefTypeAndRefIdAndSaveNameIsIn(refType, refId, attachmentFileNames);
+			@NonNull List<String> attachmentFileNames
+	) {
+		imageFileRepository.deleteAllByRefTypeAndRefIdAndSaveNameIn(refType, refId, attachmentFileNames);
 
 		for (String attachmentFileName : attachmentFileNames) {
 			s3Uploader.delete(attachmentFileName);
