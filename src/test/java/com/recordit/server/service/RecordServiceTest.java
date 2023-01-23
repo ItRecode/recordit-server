@@ -21,6 +21,7 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -322,6 +323,27 @@ class RecordServiceTest {
 
 			// when, then
 			assertThatThrownBy(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+	}
+
+	@Nested
+	@DisplayName("날짜로 레코드를 조회할 때")
+	class 날짜로_레코드를_조회할_때 {
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			RecordByDateRequestDto recordByDateRequestDto = mock(RecordByDateRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getRecordBy(recordByDateRequestDto))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}

@@ -9,4 +9,12 @@ public class DateTimeUtil {
 	public static LocalDateTime getStartOfToday() {
 		return LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
 	}
+
+	public static LocalDateTime getStartOfDay(LocalDate localDate) {
+		return LocalDateTime.of(localDate, LocalTime.MIN);
+	}
+
+	public static LocalDateTime getEndOfDay(LocalDate localDate) {
+		return LocalDateTime.of(localDate, LocalTime.MAX);
+	}
 }

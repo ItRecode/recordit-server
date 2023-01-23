@@ -1,6 +1,11 @@
 package com.recordit.server.service;
 
 import java.util.LinkedHashMap;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +25,9 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
@@ -125,6 +133,42 @@ public class RecordService {
 				.iconName(record.getRecordIcon().getName())
 				.createdAt(record.getCreatedAt())
 				.imageUrls(findImageFileUrls)
+				.build();
+	}
+
+	@Transactional(readOnly = true)
+	public RecordByDateResponseDto getRecordBy(RecordByDateRequestDto recordByDateRequestDto) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+				member,
+				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
+				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
+				PageRequest.of(
+						recordByDateRequestDto.getPage(),
+						recordByDateRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
+		);
+
+		LinkedHashMap<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
+		for (Record record : findRecords) {
+			recordToNumOfComment.put(
+					// key
+					record,
+					// value
+					commentRepository.countByRecordAndParentCommentIsNull(record)
+			);
+		}
+
+		return RecordByDateResponseDto.builder()
+				.records(findRecords)
+				.recordToNumOfComments(recordToNumOfComment)
 				.build();
 	}
 
