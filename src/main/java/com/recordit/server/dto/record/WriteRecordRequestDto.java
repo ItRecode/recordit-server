@@ -19,7 +19,7 @@ public class WriteRecordRequestDto {
 	@NotNull
 	private Long recordCategoryId;
 
-	@Size(max = 12, message = "레코드 제목은 최대 10자 입니다.")
+	@Size(max = 12, message = "레코드 제목은 최대 12자 입니다.")
 	@NotBlank(message = "레코드 제목은 빈 값일 수 없습니다.")
 	private String title;
 
