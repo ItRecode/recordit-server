@@ -220,6 +220,6 @@ public class RecordService {
 			);
 		}
 
-		return record.update(modifyRecordRequestDto, recordColor, recordIcon);
+		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 }

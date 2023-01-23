@@ -87,7 +87,7 @@ public class Record extends BaseEntity {
 		);
 	}
 
-	public Long update(
+	public Long modify(
 			final ModifyRecordRequestDto modifyRecordRequestDto,
 			final RecordColor recordColor,
 			final RecordIcon recordIcon
