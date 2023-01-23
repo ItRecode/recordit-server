@@ -106,7 +106,13 @@ public class ImageFileService {
 	}
 
 	@Transactional
-	public void deleteAttachmentFiles(List<String> attachmentFileNames) {
+	public void deleteAttachmentFiles(
+			@NonNull RefType refType,
+			@NonNull Long refId,
+			@NonNull List<String> attachmentFileNames
+	) {
+		imageFileRepository.deleteAllByRefTypeAndRefIdAndSaveNameIn(refType, refId, attachmentFileNames);
+
 		for (String attachmentFileName : attachmentFileNames) {
 			s3Uploader.delete(attachmentFileName);
 			log.info("저장한 이미지 파일 삭제 : {}", attachmentFileName);

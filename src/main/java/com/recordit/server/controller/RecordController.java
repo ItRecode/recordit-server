@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -144,5 +146,29 @@ public class RecordController {
 	) {
 		recordService.deleteRecord(recordId);
 		return ResponseEntity.ok().build();
+	}
+
+	@ApiOperation(
+			value = "레코드 수정",
+			notes = "레코드를 수정합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 수정 성공",
+					response = Long.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@PutMapping("/{recordId}")
+	public ResponseEntity<Long> modifyRecord(
+			@PathVariable("recordId") Long recordId,
+			@ApiParam(required = true) @RequestPart(required = true) @Valid ModifyRecordRequestDto modifyRecordRequestDto,
+			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
+	) {
+		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
 	}
 }

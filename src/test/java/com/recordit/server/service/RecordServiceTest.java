@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +17,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.recordit.server.constant.RefType;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
@@ -347,6 +350,141 @@ class RecordServiceTest {
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
+	}
 
+	@DisplayName("레코드를 수정 할 때")
+	class 레코드를_수정_할_때 {
+		@Mock
+		private Member otherMockMember;
+
+		private final RefType refType = Arrays.stream(RefType.values()).findAny().get();
+		private final Long refId = 0L;
+		private final MultipartFile mock = mock(MultipartFile.class);
+		private final List<MultipartFile> mockMultipartFiles = List.of(mock);
+
+		private final String title = "수정 된 제목";
+		private final String content = "수정 된 내용";
+		private final String colorName = "icon-purple";
+		private final String iconName = "moon";
+		private List<MultipartFile> files = List.of();
+		private List<String> deleteImages = List.of();
+
+		private final ModifyRecordRequestDto modifyRecordRequestDto = ModifyRecordRequestDto.builder()
+				.title(title)
+				.content(content)
+				.colorName(colorName)
+				.iconName(iconName)
+				.deleteImages(deleteImages)
+				.build();
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		void 레코드_정보를_찾을_수_없다면_예외를_던진다() {
+			/// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("레코드 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("컬러_정보를_찾을 수 없다면 예외를 던진다")
+		void 컬러_정보를_찾을_수_없다면_예외를_던진다() {
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.isInstanceOf(RecordColorNotFoundException.class)
+					.hasMessage("컬러 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("아이콘 정보를 찾을 수 없다면 예외를 던진다")
+		void 아이콘_정보를_찾을_수_없다면_예외를_던진다() {
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordColor));
+			given(recordIconRepository.findByName(anyString()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.isInstanceOf(RecordIconNotFoundException.class)
+					.hasMessage("아이콘 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("로그인 한 사용자와 글 작성자가 다르다면 예외를 던진다")
+		void 로그인_한_사용자와_글_작성자가_다르다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordColor));
+			given(recordIconRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordIcon));
+
+			given(mockRecord.getWriter())
+					.willReturn(otherMockMember);
+			given(otherMockMember.getId())
+					.willReturn(1L);
+			given(mockMember.getId())
+					.willReturn(23L);
+
+			// when, then
+			assertThatThrownBy(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.isInstanceOf(NotMatchLoginUserWithRecordWriterException.class)
+					.hasMessage("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 수정이 완료되고 예외를 던지지 않는다")
+		void 정상적이라면_수정이_완료되고_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findByIdFetchWriter(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+			given(recordColorRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordColor));
+			given(recordIconRepository.findByName(anyString()))
+					.willReturn(Optional.of(mockRecordIcon));
+
+			given(mockRecord.getWriter())
+					.willReturn(mockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+
+			// when, then
+			assertThatCode(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.doesNotThrowAnyException();
+		}
 	}
 }

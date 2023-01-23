@@ -20,6 +20,7 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
+import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -225,5 +226,46 @@ public class RecordService {
 		}
 
 		recordRepository.delete(record);
+	}
+
+	@Transactional
+	public Long modifyRecord(
+			Long recordId,
+			ModifyRecordRequestDto modifyRecordRequestDto,
+			List<MultipartFile> attachments
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Record record = recordRepository.findByIdFetchWriter(recordId)
+				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+
+		RecordColor recordColor = recordColorRepository.findByName(modifyRecordRequestDto.getColorName())
+				.orElseThrow(() -> new RecordColorNotFoundException("컬러 정보를 찾을 수 없습니다."));
+
+		RecordIcon recordIcon = recordIconRepository.findByName(modifyRecordRequestDto.getIconName())
+				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
+
+		if (record.getWriter().getId() != member.getId()) {
+			throw new NotMatchLoginUserWithRecordWriterException("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
+		}
+
+		if (!imageFileService.isEmptyFile(attachments)) {
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, record.getId(), attachments);
+			log.info("저장된 이미지 urls : {}", urls);
+		}
+
+		if (modifyRecordRequestDto.getDeleteImages() != null) {
+			imageFileService.deleteAttachmentFiles(
+					RefType.RECORD,
+					recordId,
+					modifyRecordRequestDto.getDeleteImages()
+			);
+		}
+
+		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 }
