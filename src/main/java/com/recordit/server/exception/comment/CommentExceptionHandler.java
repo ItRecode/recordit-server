@@ -45,4 +45,10 @@ public class CommentExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
+
+	@ExceptionHandler(NotMatchCommentWriterException.class)
+	public ResponseEntity<ErrorMessage> handleNotMatchCommentWriterException(NotMatchCommentWriterException exception) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
+	}
 }
