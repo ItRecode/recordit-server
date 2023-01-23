@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,9 +14,19 @@ import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
-	// @Query("select r from RECORD r join fetch r.writer join fetch r.recordColor join fetch r.recordIcon"
-	// 		+ " where r.id = :id")
-	// Optional<Record> findById(Long id);
+
+	@EntityGraph(attributePaths = {"writer", "recordColor", "recordIcon"})
+	@Query("select r "
+			+ "from RECORD r "
+			+ "left join r.writer "
+			+ "left join r.recordColor "
+			+ "left join r.recordIcon "
+			+ "where r.writer = :writer and r.createdAt < :dateTime ")
+	Page<Record> findByWriterFetchAllCreatedAtBefore(
+			@Param("writer") Member writer,
+			@Param("dateTime") LocalDateTime dateTime,
+			Pageable pageable
+	);
 
 	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor"})
 	@Query("select r "
@@ -32,12 +41,6 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			@Param("writer") Member writer,
 			@Param("startTime") LocalDateTime startTime,
 			@Param("endTime") LocalDateTime endTime,
-			Pageable pageable
-	);
-
-	Slice<Record> findByWriterAndCreatedAtBefore(
-			Member writer,
-			LocalDateTime dateTime,
 			Pageable pageable
 	);
 

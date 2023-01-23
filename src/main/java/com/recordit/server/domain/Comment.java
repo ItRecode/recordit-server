@@ -28,7 +28,7 @@ public class Comment extends BaseEntity {
 	@Column(name = "COMMENT_ID")
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "MEMBER_ID")
 	private Member writer;
 

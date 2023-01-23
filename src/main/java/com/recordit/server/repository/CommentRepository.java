@@ -25,5 +25,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	Long countAllByParentComment(Comment parentComment);
 
-	List<Comment> findTop5ByRecordAndParentCommentIsNullOrderByCreatedAtDesc(Record record);
+	List<Comment> findAllByRecord(Record record, Pageable pageable);
 }
