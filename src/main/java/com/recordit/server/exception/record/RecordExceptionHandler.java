@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.recordit.server.controller.RecordController;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +25,13 @@ public class RecordExceptionHandler {
 	@ExceptionHandler(RecordColorNotFoundException.class)
 	public ResponseEntity<ErrorMessage> handleRecordColorNotFoundException(
 			RecordColorNotFoundException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
+
+	@ExceptionHandler(RecordCategoryNotFoundException.class)
+	public ResponseEntity<ErrorMessage> handleRecordCategoryNotFoundException(
+			RecordCategoryNotFoundException exception) {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
