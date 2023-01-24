@@ -362,7 +362,6 @@ class RecordServiceTest {
 		private final MultipartFile mock = mock(MultipartFile.class);
 		private final List<MultipartFile> mockMultipartFiles = List.of(mock);
 
-		private final String title = "수정 된 제목";
 		private final String content = "수정 된 내용";
 		private final String colorName = "icon-purple";
 		private final String iconName = "moon";
@@ -370,7 +369,6 @@ class RecordServiceTest {
 		private List<String> deleteImages = List.of();
 
 		private final ModifyRecordRequestDto modifyRecordRequestDto = ModifyRecordRequestDto.builder()
-				.title(title)
 				.content(content)
 				.colorName(colorName)
 				.iconName(iconName)

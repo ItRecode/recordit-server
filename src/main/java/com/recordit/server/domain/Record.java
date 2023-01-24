@@ -92,7 +92,6 @@ public class Record extends BaseEntity {
 			final RecordColor recordColor,
 			final RecordIcon recordIcon
 	) {
-		this.title = modifyRecordRequestDto.getTitle();
 		this.content = modifyRecordRequestDto.getContent();
 		this.recordColor = recordColor;
 		this.recordIcon = recordIcon;
