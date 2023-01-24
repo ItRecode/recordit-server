@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.dto.record.category.RecordCategoryResponseDto;
 import com.recordit.server.dto.record.category.SaveRecordCategoryRequestDto;
+import com.recordit.server.exception.record.category.HaveParentRecordCategoryException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.RecordCategoryRepository;
 
@@ -72,6 +73,10 @@ public class RecordCategoryService {
 		if (saveRecordCategoryRequestDto.getParentCategoryId() != null) {
 			parentRecordCategory = recordCategoryRepository.findById(saveRecordCategoryRequestDto.getParentCategoryId())
 					.orElseThrow(() -> new RecordCategoryNotFoundException("지정한 부모 카테고리 정보를 찾을 수 없습니다."));
+		}
+
+		if (parentRecordCategory != null && parentRecordCategory.getParentRecordCategory() != null) {
+			throw new HaveParentRecordCategoryException("부모 카테고리는 부모 카테고리를 가질 수 없습니다.");
 		}
 
 		RecordCategory recordCategory = RecordCategory.of(parentRecordCategory, saveRecordCategoryRequestDto.getName());
