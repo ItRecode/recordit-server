@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
+import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -354,4 +356,90 @@ public class CommentServiceTest {
 
 	}
 
+	@Nested
+	@DisplayName("댓글을 수정 할 때")
+	class 댓글을_수정_할_때 {
+		@Mock
+		private Member mockMember;
+
+		@Mock
+		private Member otherMockMember;
+
+		@Mock
+		private Comment mockComment;
+
+		private final MultipartFile mock = mock(MultipartFile.class);
+		private List<MultipartFile> files = List.of();
+
+		private final ModifyCommentRequestDto modifyCommentRequestDto = ModifyCommentRequestDto.builder()
+				.comment("수정된 댓글")
+				.build();
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(153L, modifyCommentRequestDto, files))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 정보를 찾을 수 없다면 예외를 던진다")
+		void 댓글_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(124L, modifyCommentRequestDto, files))
+					.isInstanceOf(CommentNotFoundException.class)
+					.hasMessage("댓글 정보를 가져올 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 작성자와 요청한 사용자가 일치하지 않으면 예외를 던진다")
+		void 댓글_작성자와_요청한_사용자가_일치하지_않으면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+			given(otherMockMember.getId())
+					.willReturn(2L);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, files))
+					.isInstanceOf(NotMatchCommentWriterException.class)
+					.hasMessage("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적으로 수정되면 예외를 던지지 않는다")
+		void 정상적으로_수정되면_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(mockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+
+			// when, then
+			assertThatCode(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, files))
+					.doesNotThrowAnyException();
+		}
+	}
 }
