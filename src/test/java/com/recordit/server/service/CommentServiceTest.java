@@ -368,7 +368,6 @@ public class CommentServiceTest {
 		@Mock
 		private Comment mockComment;
 
-		private final MultipartFile mock = mock(MultipartFile.class);
 		private List<MultipartFile> files = List.of();
 
 		private final ModifyCommentRequestDto modifyCommentRequestDto = ModifyCommentRequestDto.builder()
