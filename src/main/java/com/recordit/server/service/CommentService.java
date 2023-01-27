@@ -17,6 +17,7 @@ import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
+import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -160,5 +161,39 @@ public class CommentService {
 		} catch (NotFoundUserInfoInSessionException e) {
 			return null;
 		}
+	}
+
+	@Transactional
+	public void modifyComment(
+			Long commentId,
+			ModifyCommentRequestDto modifyCommentRequestDto,
+			List<MultipartFile> attachments
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
+
+		if (comment.getWriter().getId() != member.getId()) {
+			throw new NotMatchCommentWriterException("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
+		}
+
+		if (!imageFileService.isEmptyFile(attachments)) {
+			imageFileService.saveAttachmentFiles(RefType.COMMENT, comment.getId(), attachments);
+		}
+
+		if (modifyCommentRequestDto.getDeleteImages() != null) {
+			imageFileService.deleteAttachmentFiles(
+					RefType.COMMENT,
+					commentId,
+					modifyCommentRequestDto.getDeleteImages()
+			);
+		}
+
+		comment.modify(modifyCommentRequestDto);
 	}
 }
