@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
+import com.recordit.server.dto.comment.DeleteCommentRequestDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
@@ -97,9 +99,10 @@ public class CommentController {
 	})
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity deleteComment(
-			@PathVariable("commentId") Long commentId
+			@PathVariable("commentId") Long commentId,
+			@RequestBody DeleteCommentRequestDto deleteCommentRequestDto
 	) {
-		commentService.deleteComment(commentId);
+		commentService.deleteComment(commentId, deleteCommentRequestDto);
 		return ResponseEntity.ok().build();
 	}
 

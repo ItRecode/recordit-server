@@ -21,6 +21,7 @@ import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
+import com.recordit.server.dto.comment.DeleteCommentRequestDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
@@ -269,18 +270,31 @@ public class CommentServiceTest {
 	@Nested
 	@DisplayName("댓글 삭제시")
 	class 댓글_삭제시 {
+		@Mock
+		private Member mockMember;
+
+		@Mock
+		private Member otherMockMember;
+
+		@Mock
+		private Comment mockComment;
+
+		@Mock
+		private Record mockRecord;
+
+		private final DeleteCommentRequestDto deleteCommentRequestDto = DeleteCommentRequestDto.builder()
+				.recordId(1L)
+				.build();
 
 		@Test
 		@DisplayName("세션에 사용자가 없다면 예외를 던진다")
 		void 세션에_사용자가_없다면_예외를_던진다() {
 			// given
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(1L);
 			given(memberRepository.findById(any()))
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
 					.isInstanceOf(MemberNotFoundException.class);
 		}
 
@@ -288,72 +302,113 @@ public class CommentServiceTest {
 		@DisplayName("삭제할 댓글이 존재하지 않으면 예외를 던진다")
 		void 삭제할_댓글이_존재하지_않으면_예외를_던진다() {
 			// given
-			Member member = mock(Member.class);
-
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(1L);
 			given(memberRepository.findById(any()))
-					.willReturn(Optional.of(member));
+					.willReturn(Optional.of(mockMember));
 			given(commentRepository.findById(any()))
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
 					.isInstanceOf(CommentNotFoundException.class);
 		}
 
 		@Test
-		@DisplayName("댓글 작성자와 요청한 사용자가 일치하지 않으면 예외를 던진다")
-		void 댓글_작성자와_요청한_사용자가_일치하지_않으면_예외를_던진다() {
+		@DisplayName("요청 한 사용자와 댓글 작성자가 다를경우 레코드를 못찾는다면 예외를 던진다")
+		void 요청_한_사용자와_댓글_작성자가_다를경우_레코드를_못찾는다면_예외를_던진다() {
 			// given
-			Member member = mock(Member.class);
-			Member writer = mock(Member.class);
-			Comment comment = mock(Comment.class);
-
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(1L);
 			given(memberRepository.findById(any()))
-					.willReturn(Optional.of(member));
+					.willReturn(Optional.of(mockMember));
 			given(commentRepository.findById(any()))
-					.willReturn(Optional.of(comment));
-			given(comment.getWriter())
-					.willReturn(writer);
-			given(writer.getId())
+					.willReturn(Optional.of(mockComment));
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.empty());
+
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+
+			given(otherMockMember.getId())
 					.willReturn(1L);
-			given(member.getId())
+			given(mockMember.getId())
 					.willReturn(2L);
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L))
-					.isInstanceOf(NotMatchCommentWriterException.class);
+			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("레코드 정보를 찾을 수 없습니다.");
 		}
 
 		@Test
-		@DisplayName("정상적으로 삭제되면 예외를 던지지 않는다")
-		void 정상적으로_삭제되면_예외를_던지지_않는다() {
+		@DisplayName("요청 한 사용자가 댓글 작성자가 아니면서 레코드 작성자도 아닐 경우 예외를 던진다")
+		void 요청_한_사용자가_댓글_작성자가_아니면서_레코드_작성자도_아닐_경우_예외를_던진다() {
 			// given
-			Member member = mock(Member.class);
-			Member writer = mock(Member.class);
-			Comment comment = mock(Comment.class);
-
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(1L);
 			given(memberRepository.findById(any()))
-					.willReturn(Optional.of(member));
+					.willReturn(Optional.of(mockMember));
 			given(commentRepository.findById(any()))
-					.willReturn(Optional.of(comment));
-			given(comment.getWriter())
-					.willReturn(writer);
-			given(writer.getId())
+					.willReturn(Optional.of(mockComment));
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.of(mockRecord));
+
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+
+			given(mockRecord.getWriter())
+					.willReturn(otherMockMember);
+
+			given(otherMockMember.getId())
 					.willReturn(1L);
-			given(member.getId())
+			given(mockMember.getId())
+					.willReturn(2L);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+					.isInstanceOf(NotMatchCommentWriterException.class)
+					.hasMessage("로그인한 사용자가 댓글 작성자 또는 레코드 작성자가 아닙니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 작성자가 삭제 할 경우 예외를 던지지 않는다")
+		void 댓글_작성자가_삭제_할_경우_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+
+			given(mockComment.getWriter())
+					.willReturn(mockMember);
+			given(mockMember.getId())
 					.willReturn(1L);
 
 			// when, then
-			assertThatCode(() -> commentService.deleteComment(1L))
+			assertThatCode(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
 					.doesNotThrowAnyException();
 		}
 
+		@Test
+		@DisplayName("레코드 작성자가 삭제 할 경우 예외를 던지지 않는다")
+		void 레코드_작성자가_삭제_할_경우_예외를_던지지_않는다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(1L);
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+			given(otherMockMember.getId())
+					.willReturn(2L);
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.of(mockRecord));
+			given(mockRecord.getWriter())
+					.willReturn(mockMember);
+
+			// when, then
+			assertThatCode(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+					.doesNotThrowAnyException();
+		}
 	}
 
 	@Nested
