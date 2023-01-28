@@ -27,6 +27,7 @@ import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
 import com.recordit.server.exception.comment.EmptyContentException;
+import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
 import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
@@ -455,6 +456,23 @@ public class CommentServiceTest {
 			assertThatThrownBy(() -> commentService.modifyComment(124L, modifyCommentRequestDto, files))
 					.isInstanceOf(CommentNotFoundException.class)
 					.hasMessage("댓글 정보를 가져올 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("비회원 댓글이라면 예외를 던진다")
+		void 비회원_댓글이라면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(null);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(1224L, modifyCommentRequestDto, files))
+					.isInstanceOf(NotAllowedModifyWhenNonMemberException.class)
+					.hasMessage("비회원 댓글은 수정 불가능합니다.");
 		}
 
 		@Test

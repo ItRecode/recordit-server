@@ -23,6 +23,7 @@ import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
 import com.recordit.server.exception.comment.EmptyContentException;
+import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
 import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
@@ -189,6 +190,10 @@ public class CommentService {
 
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
+
+		if (comment.getWriter() == null) {
+			throw new NotAllowedModifyWhenNonMemberException("비회원 댓글은 수정 불가능합니다.");
+		}
 
 		if (comment.getWriter().getId() != member.getId()) {
 			throw new NotMatchCommentWriterException("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");

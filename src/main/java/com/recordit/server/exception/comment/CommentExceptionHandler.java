@@ -51,4 +51,12 @@ public class CommentExceptionHandler {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
 	}
+
+	@ExceptionHandler(NotAllowedModifyWhenNonMemberException.class)
+	public ResponseEntity<ErrorMessage> handleNotAllowedModifyWhenNonMemberException(
+			NotAllowedModifyWhenNonMemberException exception) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
+	}
+
 }
