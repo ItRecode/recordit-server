@@ -123,6 +123,7 @@ public class CommentService {
 
 	@Transactional
 	public void deleteComment(Long commentId, DeleteCommentRequestDto deleteCommentRequestDto) {
+		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -133,6 +134,8 @@ public class CommentService {
 				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
 
 		validateDeleteCommentMatchMember(deleteCommentRequestDto.getRecordId(), member, findComment);
+
+		imageFileService.delete(RefType.COMMENT, commentId);
 		commentRepository.delete(findComment);
 	}
 

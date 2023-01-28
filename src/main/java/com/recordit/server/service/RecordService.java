@@ -67,7 +67,7 @@ public class RecordService {
 	@Transactional
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
 			List<MultipartFile> attachments) {
-
+		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -212,6 +212,7 @@ public class RecordService {
 
 	@Transactional
 	public void deleteRecord(Long recordId) {
+		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -225,6 +226,7 @@ public class RecordService {
 			throw new NotMatchLoginUserWithRecordWriterException("로그인 한 사용자와 글 작성자가 일치하지 않습니다.");
 		}
 
+		imageFileService.delete(RefType.RECORD, recordId);
 		recordRepository.delete(record);
 	}
 
