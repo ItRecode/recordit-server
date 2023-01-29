@@ -1,7 +1,5 @@
 package com.recordit.server.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
@@ -123,9 +121,9 @@ public class CommentController {
 	public ResponseEntity modifyComment(
 			@PathVariable("commentId") Long commentId,
 			@ApiParam(required = true) @RequestPart(required = true) @Valid ModifyCommentRequestDto modifyCommentRequestDto,
-			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
+			@ApiParam @RequestPart(required = false) MultipartFile attachment
 	) {
-		commentService.modifyComment(commentId, modifyCommentRequestDto, attachments);
+		commentService.modifyComment(commentId, modifyCommentRequestDto, attachment);
 		return ResponseEntity.ok().build();
 	}
 }
