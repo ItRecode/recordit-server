@@ -21,7 +21,6 @@ import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
-import com.recordit.server.dto.comment.DeleteCommentRequestDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
@@ -283,10 +282,6 @@ public class CommentServiceTest {
 		@Mock
 		private Record mockRecord;
 
-		private final DeleteCommentRequestDto deleteCommentRequestDto = DeleteCommentRequestDto.builder()
-				.recordId(1L)
-				.build();
-
 		@Test
 		@DisplayName("세션에 사용자가 없다면 예외를 던진다")
 		void 세션에_사용자가_없다면_예외를_던진다() {
@@ -295,7 +290,7 @@ public class CommentServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
 					.isInstanceOf(MemberNotFoundException.class);
 		}
 
@@ -309,7 +304,7 @@ public class CommentServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
 					.isInstanceOf(CommentNotFoundException.class);
 		}
 
@@ -333,7 +328,7 @@ public class CommentServiceTest {
 					.willReturn(2L);
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
 					.isInstanceOf(RecordNotFoundException.class)
 					.hasMessage("레코드 정보를 찾을 수 없습니다.");
 		}
@@ -361,7 +356,7 @@ public class CommentServiceTest {
 					.willReturn(2L);
 
 			// when, then
-			assertThatThrownBy(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
 					.isInstanceOf(NotMatchCommentWriterException.class)
 					.hasMessage("로그인한 사용자가 댓글 작성자 또는 레코드 작성자가 아닙니다.");
 		}
@@ -381,7 +376,7 @@ public class CommentServiceTest {
 					.willReturn(1L);
 
 			// when, then
-			assertThatCode(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatCode(() -> commentService.deleteComment(1L, 1L))
 					.doesNotThrowAnyException();
 		}
 
@@ -407,7 +402,7 @@ public class CommentServiceTest {
 					.willReturn(mockMember);
 
 			// when, then
-			assertThatCode(() -> commentService.deleteComment(1L, deleteCommentRequestDto))
+			assertThatCode(() -> commentService.deleteComment(1L, 1L))
 					.doesNotThrowAnyException();
 		}
 	}
