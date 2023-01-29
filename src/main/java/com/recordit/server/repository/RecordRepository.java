@@ -21,7 +21,13 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ "left join r.writer "
 			+ "left join r.recordColor "
 			+ "left join r.recordIcon "
-			+ "where r.writer = :writer and r.createdAt < :dateTime ")
+			+ "where r.writer = :writer and r.createdAt < "
+			+ "("
+			+ "select coalesce(max(r.createdAt), :dateTime)"
+			+ "from RECORD r "
+			+ "where r.createdAt >= :dateTime"
+			+ ") "
+	)
 	Page<Record> findByWriterFetchAllCreatedAtBefore(
 			@Param("writer") Member writer,
 			@Param("dateTime") LocalDateTime dateTime,
