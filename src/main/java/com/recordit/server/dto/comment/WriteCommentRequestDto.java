@@ -1,5 +1,6 @@
 package com.recordit.server.dto.comment;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -26,6 +27,7 @@ public class WriteCommentRequestDto {
 
 	@ApiModelProperty(notes = "댓글 내용", required = true)
 	@Size(max = 100, message = "댓글 내용은 100자를 넘길 수 없습니다")
+	@NotBlank(message = "댓글은 빈 값일 수 없습니다")
 	private String comment;
 
 	@Builder
