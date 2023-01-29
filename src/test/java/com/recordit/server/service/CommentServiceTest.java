@@ -3,7 +3,6 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -419,7 +418,7 @@ public class CommentServiceTest {
 		@Mock
 		private Comment mockComment;
 
-		private List<MultipartFile> files = List.of();
+		MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
 		private final ModifyCommentRequestDto modifyCommentRequestDto = ModifyCommentRequestDto.builder()
 				.comment("수정된 댓글")
@@ -433,7 +432,7 @@ public class CommentServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.modifyComment(153L, modifyCommentRequestDto, files))
+			assertThatThrownBy(() -> commentService.modifyComment(153L, modifyCommentRequestDto, multipartFile))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
@@ -448,7 +447,7 @@ public class CommentServiceTest {
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> commentService.modifyComment(124L, modifyCommentRequestDto, files))
+			assertThatThrownBy(() -> commentService.modifyComment(124L, modifyCommentRequestDto, multipartFile))
 					.isInstanceOf(CommentNotFoundException.class)
 					.hasMessage("댓글 정보를 가져올 수 없습니다.");
 		}
@@ -465,7 +464,7 @@ public class CommentServiceTest {
 					.willReturn(null);
 
 			// when, then
-			assertThatThrownBy(() -> commentService.modifyComment(1224L, modifyCommentRequestDto, files))
+			assertThatThrownBy(() -> commentService.modifyComment(1224L, modifyCommentRequestDto, multipartFile))
 					.isInstanceOf(NotAllowedModifyWhenNonMemberException.class)
 					.hasMessage("비회원 댓글은 수정 불가능합니다.");
 		}
@@ -486,7 +485,7 @@ public class CommentServiceTest {
 					.willReturn(2L);
 
 			// when, then
-			assertThatThrownBy(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, files))
+			assertThatThrownBy(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, multipartFile))
 					.isInstanceOf(NotMatchCommentWriterException.class)
 					.hasMessage("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
 		}
@@ -505,7 +504,7 @@ public class CommentServiceTest {
 					.willReturn(1L);
 
 			// when, then
-			assertThatCode(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, files))
+			assertThatCode(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, multipartFile))
 					.doesNotThrowAnyException();
 		}
 	}
