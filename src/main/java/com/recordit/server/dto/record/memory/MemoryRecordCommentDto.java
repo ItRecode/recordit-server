@@ -1,9 +1,4 @@
-package com.recordit.server.dto.record;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.recordit.server.domain.Comment;
+package com.recordit.server.dto.record.memory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,18 +25,4 @@ public class MemoryRecordCommentDto {
 		this.content = content;
 	}
 
-	public static List<MemoryRecordCommentDto> asMemoryRecordCommentDtoList(List<Comment> commentList) {
-		List<MemoryRecordCommentDto> memoryRecordCommentDtoList = new ArrayList<>();
-
-		for (Comment comment : commentList) {
-			memoryRecordCommentDtoList.add(
-					MemoryRecordCommentDto.builder()
-							.commentId(comment.getId())
-							.content(comment.getContent())
-							.build()
-			);
-		}
-
-		return memoryRecordCommentDtoList;
-	}
 }
