@@ -17,7 +17,6 @@ import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
-import com.recordit.server.dto.comment.DeleteCommentRequestDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
@@ -123,7 +122,7 @@ public class CommentService {
 	}
 
 	@Transactional
-	public void deleteComment(Long commentId, DeleteCommentRequestDto deleteCommentRequestDto) {
+	public void deleteComment(Long commentId, Long recordId) {
 		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -134,7 +133,7 @@ public class CommentService {
 		Comment findComment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
 
-		validateDeleteCommentMatchMember(deleteCommentRequestDto.getRecordId(), member, findComment);
+		validateDeleteCommentMatchMember(recordId, member, findComment);
 
 		imageFileService.delete(RefType.COMMENT, commentId);
 		commentRepository.delete(findComment);
