@@ -181,7 +181,7 @@ public class CommentService {
 	public void modifyComment(
 			Long commentId,
 			ModifyCommentRequestDto modifyCommentRequestDto,
-			List<MultipartFile> attachments
+			MultipartFile attachment
 	) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -200,8 +200,8 @@ public class CommentService {
 			throw new NotMatchCommentWriterException("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
 		}
 
-		if (!imageFileService.isEmptyFile(attachments)) {
-			imageFileService.saveAttachmentFiles(RefType.COMMENT, comment.getId(), attachments);
+		if (!imageFileService.isEmptyFile(attachment)) {
+			imageFileService.saveAttachmentFile(RefType.COMMENT, comment.getId(), attachment);
 		}
 
 		if (modifyCommentRequestDto.getDeleteImages() != null) {
