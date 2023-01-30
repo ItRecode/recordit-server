@@ -69,7 +69,7 @@ public class HTTPLogFilter implements Filter {
 		if ("/v2/api-docs".equals(requestWrapper.getRequestURI())) {
 			return true;
 		}
-		if ("/actuator/prometheus".equals(requestWrapper.getRequestURI())) {
+		if ("/api/actuator/recordIt/prometheus".equals(requestWrapper.getRequestURI())) {
 			return true;
 		}
 		if ("/".equals(requestWrapper.getRequestURI())) {
