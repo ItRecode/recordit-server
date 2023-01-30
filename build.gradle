@@ -55,6 +55,13 @@ dependencies {
     // log4j2
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus:latest.release'
+    testImplementation 'io.micrometer:micrometer-registry-elastic:latest.release'
+
 }
 
 tasks.named('test') {
