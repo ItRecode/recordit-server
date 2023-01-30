@@ -17,12 +17,16 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
+import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
 import com.recordit.server.exception.comment.EmptyContentException;
+import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
+import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -262,4 +266,246 @@ public class CommentServiceTest {
 
 	}
 
+	@Nested
+	@DisplayName("댓글 삭제시")
+	class 댓글_삭제시 {
+		@Mock
+		private Member mockMember;
+
+		@Mock
+		private Member otherMockMember;
+
+		@Mock
+		private Comment mockComment;
+
+		@Mock
+		private Record mockRecord;
+
+		@Test
+		@DisplayName("세션에 사용자가 없다면 예외를 던진다")
+		void 세션에_사용자가_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
+					.isInstanceOf(MemberNotFoundException.class);
+		}
+
+		@Test
+		@DisplayName("삭제할 댓글이 존재하지 않으면 예외를 던진다")
+		void 삭제할_댓글이_존재하지_않으면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
+					.isInstanceOf(CommentNotFoundException.class);
+		}
+
+		@Test
+		@DisplayName("요청 한 사용자와 댓글 작성자가 다를경우 레코드를 못찾는다면 예외를 던진다")
+		void 요청_한_사용자와_댓글_작성자가_다를경우_레코드를_못찾는다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.empty());
+
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+
+			given(otherMockMember.getId())
+					.willReturn(1L);
+			given(mockMember.getId())
+					.willReturn(2L);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("레코드 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("요청 한 사용자가 댓글 작성자가 아니면서 레코드 작성자도 아닐 경우 예외를 던진다")
+		void 요청_한_사용자가_댓글_작성자가_아니면서_레코드_작성자도_아닐_경우_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.of(mockRecord));
+
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+
+			given(mockRecord.getWriter())
+					.willReturn(otherMockMember);
+
+			given(otherMockMember.getId())
+					.willReturn(1L);
+			given(mockMember.getId())
+					.willReturn(2L);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.deleteComment(1L, 1L))
+					.isInstanceOf(NotMatchCommentWriterException.class)
+					.hasMessage("로그인한 사용자가 댓글 작성자 또는 레코드 작성자가 아닙니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 작성자가 삭제 할 경우 예외를 던지지 않는다")
+		void 댓글_작성자가_삭제_할_경우_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+
+			given(mockComment.getWriter())
+					.willReturn(mockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+
+			// when, then
+			assertThatCode(() -> commentService.deleteComment(1L, 1L))
+					.doesNotThrowAnyException();
+		}
+
+		@Test
+		@DisplayName("레코드 작성자가 삭제 할 경우 예외를 던지지 않는다")
+		void 레코드_작성자가_삭제_할_경우_예외를_던지지_않는다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(1L);
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+			given(otherMockMember.getId())
+					.willReturn(2L);
+			given(recordRepository.findByIdFetchWriter(any()))
+					.willReturn(Optional.of(mockRecord));
+			given(mockRecord.getWriter())
+					.willReturn(mockMember);
+
+			// when, then
+			assertThatCode(() -> commentService.deleteComment(1L, 1L))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("댓글을 수정 할 때")
+	class 댓글을_수정_할_때 {
+		@Mock
+		private Member mockMember;
+
+		@Mock
+		private Member otherMockMember;
+
+		@Mock
+		private Comment mockComment;
+
+		MockMultipartFile multipartFile = mock(MockMultipartFile.class);
+
+		private final ModifyCommentRequestDto modifyCommentRequestDto = ModifyCommentRequestDto.builder()
+				.comment("수정된 댓글")
+				.build();
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(153L, modifyCommentRequestDto, multipartFile))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 정보를 찾을 수 없다면 예외를 던진다")
+		void 댓글_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(124L, modifyCommentRequestDto, multipartFile))
+					.isInstanceOf(CommentNotFoundException.class)
+					.hasMessage("댓글 정보를 가져올 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("비회원 댓글이라면 예외를 던진다")
+		void 비회원_댓글이라면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(null);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(1224L, modifyCommentRequestDto, multipartFile))
+					.isInstanceOf(NotAllowedModifyWhenNonMemberException.class)
+					.hasMessage("비회원 댓글은 수정 불가능합니다.");
+		}
+
+		@Test
+		@DisplayName("댓글 작성자와 요청한 사용자가 일치하지 않으면 예외를 던진다")
+		void 댓글_작성자와_요청한_사용자가_일치하지_않으면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(otherMockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+			given(otherMockMember.getId())
+					.willReturn(2L);
+
+			// when, then
+			assertThatThrownBy(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, multipartFile))
+					.isInstanceOf(NotMatchCommentWriterException.class)
+					.hasMessage("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적으로 수정되면 예외를 던지지 않는다")
+		void 정상적으로_수정되면_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(any()))
+					.willReturn(Optional.of(mockMember));
+			given(commentRepository.findById(any()))
+					.willReturn(Optional.of(mockComment));
+			given(mockComment.getWriter())
+					.willReturn(mockMember);
+			given(mockMember.getId())
+					.willReturn(1L);
+
+			// when, then
+			assertThatCode(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, multipartFile))
+					.doesNotThrowAnyException();
+		}
+	}
 }

@@ -17,10 +17,13 @@ import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
+import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
 import com.recordit.server.exception.comment.EmptyContentException;
+import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
+import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.exception.record.RecordNotFoundException;
@@ -118,6 +121,37 @@ public class CommentService {
 				.build();
 	}
 
+	@Transactional
+	public void deleteComment(Long commentId, Long recordId) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Comment findComment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
+
+		validateDeleteCommentMatchMember(recordId, member, findComment);
+
+		imageFileService.delete(RefType.COMMENT, commentId);
+		commentRepository.delete(findComment);
+	}
+
+	private void validateDeleteCommentMatchMember(
+			Long recordId,
+			Member member,
+			Comment comment
+	) {
+		if (comment.getWriter() == null || comment.getWriter().getId() != member.getId()) {
+			Record record = recordRepository.findByIdFetchWriter(recordId)
+					.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
+			if (record.getWriter().getId() != member.getId()) {
+				throw new NotMatchCommentWriterException("로그인한 사용자가 댓글 작성자 또는 레코드 작성자가 아닙니다.");
+			}
+		}
+	}
+
 	private void validateEmptyContent(
 			WriteCommentRequestDto writeCommentRequestDto,
 			MultipartFile attachment
@@ -141,5 +175,43 @@ public class CommentService {
 		} catch (NotFoundUserInfoInSessionException e) {
 			return null;
 		}
+	}
+
+	@Transactional
+	public void modifyComment(
+			Long commentId,
+			ModifyCommentRequestDto modifyCommentRequestDto,
+			MultipartFile attachment
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new CommentNotFoundException("댓글 정보를 가져올 수 없습니다."));
+
+		if (comment.getWriter() == null) {
+			throw new NotAllowedModifyWhenNonMemberException("비회원 댓글은 수정 불가능합니다.");
+		}
+
+		if (comment.getWriter().getId() != member.getId()) {
+			throw new NotMatchCommentWriterException("로그인한 사용자와 댓글 작성자가 일치하지 않습니다.");
+		}
+
+		if (!imageFileService.isEmptyFile(attachment)) {
+			imageFileService.saveAttachmentFile(RefType.COMMENT, comment.getId(), attachment);
+		}
+
+		if (modifyCommentRequestDto.getDeleteImages() != null) {
+			imageFileService.deleteAttachmentFiles(
+					RefType.COMMENT,
+					commentId,
+					modifyCommentRequestDto.getDeleteImages()
+			);
+		}
+
+		comment.modify(modifyCommentRequestDto);
 	}
 }

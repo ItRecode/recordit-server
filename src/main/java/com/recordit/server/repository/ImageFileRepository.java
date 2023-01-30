@@ -13,4 +13,10 @@ public interface ImageFileRepository extends JpaRepository<ImageFile, Long> {
 	Optional<ImageFile> findByRefTypeAndRefId(RefType refType, Long refId);
 
 	List<ImageFile> findAllByRefTypeAndRefId(RefType refType, Long refId);
+
+	void deleteAllByRefTypeAndRefIdAndSaveNameIn(
+			RefType refType,
+			Long refId,
+			List<String> attachmentFileNames
+	);
 }

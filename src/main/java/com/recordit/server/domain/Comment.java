@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import com.recordit.server.dto.comment.ModifyCommentRequestDto;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +30,7 @@ public class Comment extends BaseEntity {
 	@Column(name = "COMMENT_ID")
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "MEMBER_ID")
 	private Member writer;
 
@@ -52,5 +54,11 @@ public class Comment extends BaseEntity {
 
 	public static Comment of(Member writer, Record record, Comment parentComment, String content) {
 		return new Comment(writer, record, parentComment, content);
+	}
+
+	public void modify(
+			final ModifyCommentRequestDto modifyCommentRequestDto
+	) {
+		this.content = modifyCommentRequestDto.getComment();
 	}
 }

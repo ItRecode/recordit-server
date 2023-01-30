@@ -1,0 +1,23 @@
+spring:
+  config:
+    activate:
+      on-profile: "actuator"
+
+management:
+  endpoints:
+    enabled-by-default: false
+    jmx:
+      exposure:
+        exclude: "*"
+    web:
+      exposure:
+        include: info, health, prometheus
+      base-path: /api/actuator/recordIt
+
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+    prometheus:
+      enabled: true
