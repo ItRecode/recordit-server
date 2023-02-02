@@ -26,4 +26,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	Long countAllByParentComment(Comment parentComment);
 
 	List<Comment> findAllByRecord(Record record, Pageable pageable);
+
+	List<Comment> findByRecord(Record record);
+
+	List<Comment> findByRecordIn(List<Record> record);
 }

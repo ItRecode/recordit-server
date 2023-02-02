@@ -3,10 +3,12 @@ package com.recordit.server.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,8 +29,10 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.mix.MixRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
+import com.recordit.server.util.SessionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -37,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/record")
 public class RecordController {
 
@@ -171,4 +177,29 @@ public class RecordController {
 	) {
 		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
 	}
+
+	@ApiOperation(
+			value = "믹스레코드 조회",
+			notes = "믹스레코드를 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "믹스레코드 조회 성공",
+					response = MixRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 500,
+					message = "서버에 고정 레코드가 없음",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/mix")
+	public ResponseEntity<MixRecordResponseDto> getMixRecords(
+			@Valid
+			@Pattern(regexp = "^[12]$", message = "부모 카테고리는 1(축하),2(위로)만 가능합니다.")
+			@RequestParam String parentRecordCategoryId
+	) {
+		return ResponseEntity.ok().body(recordService.getMixRecords(Long.parseLong(parentRecordCategoryId)));
+	}
+
 }
