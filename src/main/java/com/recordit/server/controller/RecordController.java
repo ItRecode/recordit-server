@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -170,5 +172,27 @@ public class RecordController {
 			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
 		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
+	}
+
+	@ApiOperation(
+			value = "레코드 랜덤 조회",
+			notes = "레코드를 랜덤으로 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 랜덤 조회 성공",
+					response = RandomRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/random")
+	public ResponseEntity<List<RandomRecordResponseDto>> getRandomRecord(
+			@ModelAttribute @Valid RandomRecordRequestDto randomRecordRequestDto
+	) {
+		return ResponseEntity.ok(recordService.getRandomRecord(randomRecordRequestDto));
 	}
 }
