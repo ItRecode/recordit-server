@@ -61,5 +61,5 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ "from RECORD_CATEGORY c where c.PARENT_RECORD_CATEGORY_ID = :categoryId"
 			+ ") "
 			+ "order by RAND() limit :size", nativeQuery = true)
-	List<Record> findTopSizeRandomRecordByRecordCategoryId(Integer size, Long categoryId);
+	List<Record> findRandomRecordByRecordCategoryId(Integer size, Long categoryId);
 }

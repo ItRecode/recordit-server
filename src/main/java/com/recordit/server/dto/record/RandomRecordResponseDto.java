@@ -3,9 +3,6 @@ package com.recordit.server.dto.record;
 import com.recordit.server.domain.Record;
 
 import io.swagger.annotations.ApiParam;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,8 +10,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class RandomRecordResponseDto {
 	@ApiParam(value = "레코드 ID", required = true)
 	private Long recordId;
@@ -31,16 +26,24 @@ public class RandomRecordResponseDto {
 	@ApiParam(value = "댓글 개수", required = true)
 	private Long commentCount;
 
+	private RandomRecordResponseDto(Long recordId, String title, String colorName, String iconName, Long commentCount) {
+		this.recordId = recordId;
+		this.title = title;
+		this.colorName = colorName;
+		this.iconName = iconName;
+		this.commentCount = commentCount;
+	}
+
 	public static RandomRecordResponseDto of(
 			Record record,
 			Long commentCount
 	) {
-		return RandomRecordResponseDto.builder()
-				.recordId(record.getId())
-				.title(record.getTitle())
-				.colorName(record.getRecordColor().getName())
-				.iconName(record.getRecordIcon().getName())
-				.commentCount(commentCount)
-				.build();
+		return new RandomRecordResponseDto(
+				record.getId(),
+				record.getTitle(),
+				record.getRecordColor().getName(),
+				record.getRecordIcon().getName(),
+				commentCount
+		);
 	}
 }

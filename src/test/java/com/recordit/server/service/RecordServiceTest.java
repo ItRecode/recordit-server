@@ -500,9 +500,6 @@ class RecordServiceTest {
 		@Test
 		@DisplayName("레코드 카테고리를 찾지 못한다면 예외를 던진다")
 		void 레코드_카테고리를_찾지_못한다면_예외를_던진다() {
-			// given
-			given(recordCategoryRepository.findById(anyLong()))
-					.willReturn(Optional.empty());
 			// when, then
 			assertThatThrownBy(() -> recordService.getRandomRecord(randomRecordRequestDto))
 					.isInstanceOf(RecordCategoryNotFoundException.class)
@@ -513,9 +510,9 @@ class RecordServiceTest {
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			// given
-			given(recordCategoryRepository.findById(anyLong()))
-					.willReturn(Optional.of(mockRecordCategory));
-			given(recordRepository.findTopSizeRandomRecordByRecordCategoryId(any(), anyLong()))
+			given(recordRepository.existsById(anyLong()))
+					.willReturn(true);
+			given(recordRepository.findRandomRecordByRecordCategoryId(any(), anyLong()))
 					.willReturn(new ArrayList<>());
 			// when, then
 			assertThatCode(() -> recordService.getRandomRecord(randomRecordRequestDto))

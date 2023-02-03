@@ -1,6 +1,5 @@
 package com.recordit.server.service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,21 +271,23 @@ public class RecordService {
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 
+	@Transactional
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
-		RecordCategory recordCategory = recordCategoryRepository.findById(randomRecordRequestDto.getRecordCategoryId())
-				.orElseThrow(() -> new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다."));
-
-		List<Record> recordList = recordRepository.findTopSizeRandomRecordByRecordCategoryId(
-				randomRecordRequestDto.getSize(),
-				recordCategory.getId()
-		);
-		List<RandomRecordResponseDto> randomRecords = new ArrayList<>();
-		for (Record record : recordList) {
-			Long commentCount = commentRepository.countByRecordId(record.getId());
-			randomRecords.add(RandomRecordResponseDto.of(record, commentCount));
+		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
+			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
 		}
-		return randomRecords;
+
+		List<Record> recordList = recordRepository.findRandomRecordByRecordCategoryId(
+				randomRecordRequestDto.getSize(),
+				randomRecordRequestDto.getRecordCategoryId()
+		);
+
+		return recordList.stream()
+				.map(record -> RandomRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)).collect(Collectors.toList());
 	}
 }
