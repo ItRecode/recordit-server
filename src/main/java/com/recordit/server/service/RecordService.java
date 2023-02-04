@@ -308,7 +308,7 @@ public class RecordService {
 		Random random = new Random();
 		List<MixRecordDto> randomCommentList = new ArrayList<>();
 
-		if (randomCommentList.size() > 1) {
+		if (randomCommentList.size() != 0) {
 			for (int i = 0; i < MIX_RECORD_COMMENT_SIZE; i++) {
 				randomCommentList.add(commentList.get(random.nextInt(commentList.size())));
 			}
