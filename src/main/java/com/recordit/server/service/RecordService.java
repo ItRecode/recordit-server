@@ -22,6 +22,8 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -310,5 +312,25 @@ public class RecordService {
 		return MixRecordResponseDto.builder()
 				.mixRecordDto(MixRecordDto.asMixRecordDtoList(randomCommentList))
 				.build();
+	}
+
+	@Transactional
+	public List<RandomRecordResponseDto> getRandomRecord(
+			RandomRecordRequestDto randomRecordRequestDto
+	) {
+		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
+			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
+		}
+
+		List<Record> recordList = recordRepository.findRandomRecordByRecordCategoryId(
+				randomRecordRequestDto.getSize(),
+				randomRecordRequestDto.getRecordCategoryId()
+		);
+
+		return recordList.stream()
+				.map(record -> RandomRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)).collect(Collectors.toList());
 	}
 }
