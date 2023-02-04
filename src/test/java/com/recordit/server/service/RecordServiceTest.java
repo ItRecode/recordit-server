@@ -30,11 +30,13 @@ import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.FixRecordNotExistException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
+import com.recordit.server.repository.CommentRepository;
 import com.recordit.server.repository.ImageFileRepository;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.repository.RecordCategoryRepository;
@@ -72,6 +74,9 @@ class RecordServiceTest {
 
 	@Mock
 	private RecordRepository recordRepository;
+
+	@Mock
+	private CommentRepository commentRepository;
 
 	@Mock
 	private Member mockMember;
@@ -516,6 +521,38 @@ class RecordServiceTest {
 					.willReturn(new ArrayList<>());
 			// when, then
 			assertThatCode(() -> recordService.getRandomRecord(randomRecordRequestDto))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("믹스_레코드를_조회_할_때")
+	class 믹스_레코드를_조회_할_때 {
+		@Test
+		@DisplayName("서버에 고정레코드가 존재하지 않을때 예외를 던진다")
+		void 서버에_고정레코드가_존재하지_않을때_예외를_던진다() {
+			//given
+			given(recordRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			//when, then
+			assertThatThrownBy(() -> recordService.getMixRecords())
+					.isInstanceOf(FixRecordNotExistException.class)
+					.hasMessage("서버에 고정 레코드가 존재하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//given
+			given(recordRepository.findById(31L))
+					.willReturn(Optional.of(mockRecord));
+
+			given(commentRepository.findByRecord(mockRecord))
+					.willReturn(new ArrayList<>());
+
+			//when, then
+			assertThatCode(() -> recordService.getMixRecords())
 					.doesNotThrowAnyException();
 		}
 	}
