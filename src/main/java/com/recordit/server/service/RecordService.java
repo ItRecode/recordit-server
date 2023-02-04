@@ -57,9 +57,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
+
 	private final int MIX_RECORD_COMMENT_SIZE = 10;
 	private final long FIX_RECORD_PK_VALUE = 31L;
 	private final int FIRST_PAGE = 0;
+
 	private final ImageFileRepository imageFileRepository;
 	private final SessionUtil sessionUtil;
 	private final MemberRepository memberRepository;
@@ -297,7 +299,6 @@ public class RecordService {
 
 	@Transactional(readOnly = true)
 	public MixRecordResponseDto getMixRecords() {
-
 		Record fixRecord = recordRepository.findById(FIX_RECORD_PK_VALUE)
 				.orElseThrow(() -> new FixRecordNotExistException("서버에 고정 레코드가 존재하지 않습니다."));
 
