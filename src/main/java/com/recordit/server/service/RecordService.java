@@ -92,14 +92,7 @@ public class RecordService {
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
 		Record saveRecord = recordRepository.save(
-				Record.of(
-						writeRecordRequestDto,
-						recordCategory,
-						member,
-						recordColor,
-						recordIcon
-				)
-		);
+				Record.of(writeRecordRequestDto, recordCategory, member, recordColor, recordIcon));
 		log.info("저장한 레코드 ID : {}", saveRecord.getId());
 
 		if (!imageFileService.isEmptyFile(attachments)) {
@@ -107,9 +100,7 @@ public class RecordService {
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
-		return WriteRecordResponseDto.builder()
-				.recordId(saveRecord.getId())
-				.build();
+		return WriteRecordResponseDto.builder().recordId(saveRecord.getId()).build();
 	}
 
 	@Transactional(readOnly = true)
@@ -117,10 +108,8 @@ public class RecordService {
 		Record record = recordRepository.findById(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		List<String> findImageFileUrls = imageFileRepository.findAllByRefTypeAndRefId(
-						RefType.RECORD,
-						recordId
-				).stream()
+		List<String> findImageFileUrls = imageFileRepository.findAllByRefTypeAndRefId(RefType.RECORD, recordId)
+				.stream()
 				.map(ImageFile::getDownloadUrl)
 				.collect(Collectors.toList());
 		log.info("조회한 이미지 파일 URL : {}", findImageFileUrls);
@@ -147,17 +136,11 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
-				member,
+		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(member,
 				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
 				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
-				PageRequest.of(
-						recordByDateRequestDto.getPage(),
-						recordByDateRequestDto.getSize(),
-						Sort.Direction.DESC,
-						"createdAt"
-				)
-		);
+				PageRequest.of(recordByDateRequestDto.getPage(), recordByDateRequestDto.getSize(), Sort.Direction.DESC,
+						"createdAt"));
 
 		LinkedHashMap<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
 		for (Record record : findRecords) {
@@ -165,8 +148,7 @@ public class RecordService {
 					// key
 					record,
 					// value
-					commentRepository.countByRecordAndParentCommentIsNull(record)
-			);
+					commentRepository.countByRecordAndParentCommentIsNull(record));
 		}
 
 		return RecordByDateResponseDto.builder()
@@ -183,17 +165,11 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		PageRequest pageRequest = PageRequest.of(
-				memoryRecordRequestDto.getMemoryRecordPage(),
-				memoryRecordRequestDto.getMemoryRecordSize(),
-				Sort.by(Sort.Direction.DESC, "createdAt")
-		);
+		PageRequest pageRequest = PageRequest.of(memoryRecordRequestDto.getMemoryRecordPage(),
+				memoryRecordRequestDto.getMemoryRecordSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		Page<Record> findRecords = recordRepository.findByWriterFetchAllCreatedAtBefore(
-				member,
-				DateTimeUtil.getStartOfToday(),
-				pageRequest
-		);
+		Page<Record> findRecords = recordRepository.findByWriterFetchAllCreatedAtBefore(member,
+				DateTimeUtil.getStartOfToday(), pageRequest);
 
 		Map<Record, List<Comment>> recordToComments = new LinkedHashMap<>();
 		for (Record findRecord : findRecords) {
@@ -201,21 +177,12 @@ public class RecordService {
 					// key
 					findRecord,
 					// value
-					commentRepository.findAllByRecord(
-							findRecord,
-							PageRequest.of(
-									FIRST_PAGE,
-									memoryRecordRequestDto.getSizeOfCommentPerRecord(),
-									Sort.by(Sort.Direction.DESC, "createdAt")
-							)
-					)
-			);
+					commentRepository.findAllByRecord(findRecord,
+							PageRequest.of(FIRST_PAGE, memoryRecordRequestDto.getSizeOfCommentPerRecord(),
+									Sort.by(Sort.Direction.DESC, "createdAt"))));
 		}
 
-		return MemoryRecordResponseDto.builder()
-				.memoryRecords(findRecords)
-				.recordToComments(recordToComments)
-				.build();
+		return MemoryRecordResponseDto.builder().memoryRecords(findRecords).recordToComments(recordToComments).build();
 	}
 
 	@Transactional
@@ -238,11 +205,8 @@ public class RecordService {
 	}
 
 	@Transactional
-	public Long modifyRecord(
-			Long recordId,
-			ModifyRecordRequestDto modifyRecordRequestDto,
-			List<MultipartFile> attachments
-	) {
+	public Long modifyRecord(Long recordId, ModifyRecordRequestDto modifyRecordRequestDto,
+			List<MultipartFile> attachments) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
@@ -268,34 +232,24 @@ public class RecordService {
 		}
 
 		if (modifyRecordRequestDto.getDeleteImages() != null) {
-			imageFileService.deleteAttachmentFiles(
-					RefType.RECORD,
-					recordId,
-					modifyRecordRequestDto.getDeleteImages()
-			);
+			imageFileService.deleteAttachmentFiles(RefType.RECORD, recordId, modifyRecordRequestDto.getDeleteImages());
 		}
 
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 
 	@Transactional
-	public List<RandomRecordResponseDto> getRandomRecord(
-			RandomRecordRequestDto randomRecordRequestDto
-	) {
+	public List<RandomRecordResponseDto> getRandomRecord(RandomRecordRequestDto randomRecordRequestDto) {
 		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
 			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
 		}
 
-		List<Record> recordList = recordRepository.findRandomRecordByRecordCategoryId(
-				randomRecordRequestDto.getSize(),
-				randomRecordRequestDto.getRecordCategoryId()
-		);
+		List<Record> recordList = recordRepository.findRandomRecordByRecordCategoryId(randomRecordRequestDto.getSize(),
+				randomRecordRequestDto.getRecordCategoryId());
 
 		return recordList.stream()
-				.map(record -> RandomRecordResponseDto.of(
-						record,
-						commentRepository.countByRecordId(record.getId())
-				)).collect(Collectors.toList());
+				.map(record -> RandomRecordResponseDto.of(record, commentRepository.countByRecordId(record.getId())))
+				.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
@@ -314,8 +268,6 @@ public class RecordService {
 			}
 		}
 
-		return MixRecordResponseDto.builder()
-				.mixRecordDto(randomCommentList)
-				.build();
+		return MixRecordResponseDto.builder().mixRecordDto(randomCommentList).build();
 	}
 }
