@@ -17,6 +17,7 @@ import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
+import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.service.oauth.OauthService;
 import com.recordit.server.service.oauth.OauthServiceLocator;
@@ -97,5 +98,16 @@ public class MemberService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 		return member.getNickname();
+	}
+
+	@Transactional(readOnly = true)
+	public Member findMemberIfPresent() {
+		try {
+			Long userIdInSession = sessionUtil.findUserIdBySession();
+			return memberRepository.findById(userIdInSession)
+					.orElseThrow(() -> new MemberNotFoundException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
+		} catch (NotFoundUserInfoInSessionException e) {
+			return null;
+		}
 	}
 }

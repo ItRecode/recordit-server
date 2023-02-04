@@ -28,7 +28,6 @@ import com.recordit.server.exception.comment.EmptyContentException;
 import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
 import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
-import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.repository.CommentRepository;
 import com.recordit.server.repository.MemberRepository;
@@ -40,6 +39,9 @@ public class CommentServiceTest {
 
 	@InjectMocks
 	private CommentService commentService;
+
+	@Mock
+	private MemberService memberService;
 
 	@Mock
 	private ImageFileService imageFileService;
@@ -80,28 +82,6 @@ public class CommentServiceTest {
 		}
 
 		@Test
-		@DisplayName("세션에 저장된 사용자가 DB에 존재하지 않으면 예외를 던진다")
-		void 세션에_저장된_사용자가_DB에_존재하지_않으면_예외를_던진다() {
-			// given
-			WriteCommentRequestDto writeCommentRequestDto = WriteCommentRequestDto.builder()
-					.recordId(1L)
-					.parentId(1L)
-					.comment("test")
-					.build();
-			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
-
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(1L);
-			given(memberRepository.findById(1L))
-					.willReturn(Optional.empty());
-
-			// when, then
-			assertThatThrownBy(() -> commentService.writeComment(writeCommentRequestDto, multipartFile))
-					.isInstanceOf(MemberNotFoundException.class);
-
-		}
-
-		@Test
 		@DisplayName("지정한 레코드가 존재하지 않으면 예외를 던진다")
 		void 지정한_레코드가_존재하지_않으면_예외를_던진다() {
 			// given
@@ -112,8 +92,8 @@ public class CommentServiceTest {
 					.build();
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
+			given(memberService.findMemberIfPresent())
+					.willReturn(null);
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.empty());
 
@@ -134,8 +114,8 @@ public class CommentServiceTest {
 			MockMultipartFile multipartFile = mock(MockMultipartFile.class);
 			Record record = mock(Record.class);
 
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
+			given(memberService.findMemberIfPresent())
+					.willReturn(null);
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
@@ -160,8 +140,8 @@ public class CommentServiceTest {
 			Comment parentComment = mock(Comment.class);
 			Comment saveComment = mock(Comment.class);
 
-			given(sessionUtil.findUserIdBySession())
-					.willThrow(new NotFoundUserInfoInSessionException("세션에 사용자 정보가 저장되어 있지 않습니다"));
+			given(memberService.findMemberIfPresent())
+					.willReturn(null);
 			given(recordRepository.findById(writeCommentRequestDto.getRecordId()))
 					.willReturn(Optional.of(record));
 			given(commentRepository.findById(writeCommentRequestDto.getParentId()))
