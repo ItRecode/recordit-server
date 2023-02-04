@@ -30,7 +30,10 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.mix.MixRecordDto;
+import com.recordit.server.dto.record.mix.MixRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.FixRecordNotExistException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
@@ -44,6 +47,7 @@ import com.recordit.server.repository.RecordColorRepository;
 import com.recordit.server.repository.RecordIconRepository;
 import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.util.DateTimeUtil;
+import com.recordit.server.util.MixRecordRandomUtil;
 import com.recordit.server.util.SessionUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -53,9 +57,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
-
+	private final int MIX_RECORD_COMMENT_SIZE = 10;
+	private final long FIX_RECORD_PK_VALUE = 31L;
 	private final int FIRST_PAGE = 0;
-
 	private final ImageFileRepository imageFileRepository;
 	private final SessionUtil sessionUtil;
 	private final MemberRepository memberRepository;
@@ -289,5 +293,21 @@ public class RecordService {
 						record,
 						commentRepository.countByRecordId(record.getId())
 				)).collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public MixRecordResponseDto getMixRecords() {
+
+		Record fixRecord = recordRepository.findById(FIX_RECORD_PK_VALUE)
+				.orElseThrow(() -> new FixRecordNotExistException("서버에 고정 레코드가 존재하지 않습니다."));
+
+		List<Comment> commentList = commentRepository.findByRecord(fixRecord);
+
+		return MixRecordResponseDto.builder()
+				.mixRecordDto(
+						MixRecordDto.asMixRecordDtoList(
+								MixRecordRandomUtil.getRandomCommentList(commentList, MIX_RECORD_COMMENT_SIZE)
+						)
+				).build();
 	}
 }

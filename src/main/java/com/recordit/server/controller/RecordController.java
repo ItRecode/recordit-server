@@ -28,6 +28,7 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.mix.MixRecordResponseDto;
 import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.service.RecordService;
 
@@ -194,5 +195,10 @@ public class RecordController {
 			@ModelAttribute @Valid RandomRecordRequestDto randomRecordRequestDto
 	) {
 		return ResponseEntity.ok(recordService.getRandomRecord(randomRecordRequestDto));
+	}
+
+	@GetMapping("/mix")
+	public ResponseEntity<MixRecordResponseDto> getMixRecords() {
+		return ResponseEntity.ok().body(recordService.getMixRecords());
 	}
 }
