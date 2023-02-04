@@ -194,7 +194,7 @@ public class RecordService {
 					// key
 					findRecord,
 					// value
-					commentRepository.findAllByRecord(
+					commentRepository.findAllByRecordAndParentCommentIsNull(
 							findRecord,
 							PageRequest.of(
 									FIRST_PAGE,
