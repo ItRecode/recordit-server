@@ -1,10 +1,5 @@
 package com.recordit.server.dto.record.mix;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.recordit.server.domain.Comment;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -46,23 +41,5 @@ public class MixRecordDto {
 		this.iconName = iconName;
 		this.commentId = commentId;
 		this.commentContent = commentContent;
-	}
-
-	public static List<MixRecordDto> asMixRecordDtoList(List<Comment> commentList) {
-		List<MixRecordDto> mixRecordDtoList = new ArrayList<>();
-
-		for (int i = 0; i < commentList.size(); i++) {
-			mixRecordDtoList.add(
-					MixRecordDto.builder()
-							.recordId(commentList.get(i).getRecord().getId())
-							.colorName(commentList.get(i).getRecord().getRecordColor().getName())
-							.iconName(commentList.get(i).getRecord().getRecordIcon().getName())
-							.commentId(commentList.get(i).getId())
-							.commentContent(commentList.get(i).getContent())
-							.build()
-			);
-		}
-
-		return mixRecordDtoList;
 	}
 }

@@ -1,8 +1,10 @@
 package com.recordit.server.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -47,7 +49,6 @@ import com.recordit.server.repository.RecordColorRepository;
 import com.recordit.server.repository.RecordIconRepository;
 import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.util.DateTimeUtil;
-import com.recordit.server.util.MixRecordRandomUtil;
 import com.recordit.server.util.SessionUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordService {
 
 	private final int MIX_RECORD_COMMENT_SIZE = 10;
-	private final long FIX_RECORD_PK_VALUE = 31L;
+	private final long FIX_RECORD_PK_VALUE = 99L;
 	private final int FIRST_PAGE = 0;
 
 	private final ImageFileRepository imageFileRepository;
@@ -302,13 +303,17 @@ public class RecordService {
 		Record fixRecord = recordRepository.findById(FIX_RECORD_PK_VALUE)
 				.orElseThrow(() -> new FixRecordNotExistException("서버에 고정 레코드가 존재하지 않습니다."));
 
-		List<Comment> commentList = commentRepository.findByRecord(fixRecord);
+		List<MixRecordDto> commentList = commentRepository.findByRecord(fixRecord);
+
+		Random random = new Random();
+		List<MixRecordDto> randomCommentList = new ArrayList<>();
+
+		for (int i = 0; i < MIX_RECORD_COMMENT_SIZE; i++) {
+			randomCommentList.add(commentList.get(random.nextInt(commentList.size())));
+		}
 
 		return MixRecordResponseDto.builder()
-				.mixRecordDto(
-						MixRecordDto.asMixRecordDtoList(
-								MixRecordRandomUtil.getRandomCommentList(commentList, MIX_RECORD_COMMENT_SIZE)
-						)
-				).build();
+				.mixRecordDto(randomCommentList)
+				.build();
 	}
 }
