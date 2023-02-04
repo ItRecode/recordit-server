@@ -30,4 +30,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findByRecord(Record record);
 
 	List<Comment> findByRecordIn(List<Record> record);
+
+	Long countByRecordId(Long recordId);
 }

@@ -25,7 +25,6 @@ import com.recordit.server.exception.comment.EmptyContentException;
 import com.recordit.server.exception.comment.NotAllowedModifyWhenNonMemberException;
 import com.recordit.server.exception.comment.NotMatchCommentWriterException;
 import com.recordit.server.exception.member.MemberNotFoundException;
-import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.repository.CommentRepository;
 import com.recordit.server.repository.MemberRepository;
@@ -40,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CommentService {
 
+	private final MemberService memberService;
 	private final ImageFileService imageFileService;
 	private final CommentRepository commentRepository;
 	private final MemberRepository memberRepository;
@@ -53,7 +53,7 @@ public class CommentService {
 	) {
 		validateEmptyContent(writeCommentRequestDto, attachment);
 
-		Member writer = findWriterIfPresent();
+		Member writer = memberService.findMemberIfPresent();
 
 		Record record = recordRepository.findById(writeCommentRequestDto.getRecordId())
 				.orElseThrow(() -> new RecordNotFoundException("댓글을 작성할 레코드가 존재하지 않습니다."));
@@ -164,16 +164,6 @@ public class CommentService {
 	private void validateParentHasParent(Comment parentComment) {
 		if (parentComment != null && parentComment.getParentComment() != null) {
 			throw new IllegalStateException("부모 댓글은 부모를 가질 수 없습니다.");
-		}
-	}
-
-	private Member findWriterIfPresent() {
-		try {
-			Long userIdInSession = sessionUtil.findUserIdBySession();
-			return memberRepository.findById(userIdInSession)
-					.orElseThrow(() -> new MemberNotFoundException("세션에 저장된 사용자가 DB에 존재하지 않습니다."));
-		} catch (NotFoundUserInfoInSessionException e) {
-			return null;
 		}
 	}
 
