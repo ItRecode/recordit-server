@@ -308,8 +308,10 @@ public class RecordService {
 		Random random = new Random();
 		List<MixRecordDto> randomCommentList = new ArrayList<>();
 
-		for (int i = 0; i < MIX_RECORD_COMMENT_SIZE; i++) {
-			randomCommentList.add(commentList.get(random.nextInt(commentList.size())));
+		if (randomCommentList.size() > 1) {
+			for (int i = 0; i < MIX_RECORD_COMMENT_SIZE; i++) {
+				randomCommentList.add(commentList.get(random.nextInt(commentList.size())));
+			}
 		}
 
 		return MixRecordResponseDto.builder()
