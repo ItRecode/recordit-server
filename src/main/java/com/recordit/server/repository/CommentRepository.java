@@ -28,4 +28,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findAllByRecordAndParentCommentIsNull(Record record, Pageable pageable);
 
 	Long countByRecordId(Long recordId);
+
+	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
+	List<Comment> findByRecord(Record fixRecord);
 }
