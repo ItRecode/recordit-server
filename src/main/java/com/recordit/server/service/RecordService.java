@@ -1,8 +1,10 @@
 package com.recordit.server.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -28,7 +32,10 @@ import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
+import com.recordit.server.dto.record.mix.MixRecordDto;
+import com.recordit.server.dto.record.mix.MixRecordResponseDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.FixRecordNotExistException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
@@ -52,6 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RecordService {
 
+	private final int MIX_RECORD_COMMENT_SIZE = 10;
+	private final long FIX_RECORD_PK_VALUE = 31L;
 	private final int FIRST_PAGE = 0;
 
 	private final ImageFileRepository imageFileRepository;
@@ -192,7 +201,7 @@ public class RecordService {
 					// key
 					findRecord,
 					// value
-					commentRepository.findAllByRecord(
+					commentRepository.findAllByRecordAndParentCommentIsNull(
 							findRecord,
 							PageRequest.of(
 									FIRST_PAGE,
@@ -267,5 +276,54 @@ public class RecordService {
 		}
 
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
+	}
+
+	@Transactional
+	public List<RandomRecordResponseDto> getRandomRecord(
+			RandomRecordRequestDto randomRecordRequestDto
+	) {
+		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
+			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
+		}
+
+		List<Record> recordList = recordRepository.findRandomRecordByRecordCategoryId(
+				randomRecordRequestDto.getSize(),
+				randomRecordRequestDto.getRecordCategoryId()
+		);
+
+		return recordList.stream()
+				.map(record -> RandomRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)).collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public MixRecordResponseDto getMixRecords() {
+		Record fixRecord = recordRepository.findById(FIX_RECORD_PK_VALUE)
+				.orElseThrow(() -> new FixRecordNotExistException("서버에 고정 레코드가 존재하지 않습니다."));
+
+		List<MixRecordDto> commentList = commentRepository.findByRecord(fixRecord).stream()
+				.map(comment -> MixRecordDto.builder()
+						.commentId(comment.getId())
+						.colorName(comment.getRecord().getRecordColor().getName())
+						.iconName(comment.getRecord().getRecordIcon().getName())
+						.commentContent(comment.getContent())
+						.recordId(comment.getRecord().getId())
+						.build()
+				).collect(Collectors.toList());
+
+		Random random = new Random();
+		List<MixRecordDto> randomCommentList = new ArrayList<>();
+
+		if (commentList.size() != 0) {
+			for (int i = 0; i < MIX_RECORD_COMMENT_SIZE; i++) {
+				randomCommentList.add(commentList.get(random.nextInt(commentList.size())));
+			}
+		}
+
+		return MixRecordResponseDto.builder()
+				.mixRecordDto(randomCommentList)
+				.build();
 	}
 }

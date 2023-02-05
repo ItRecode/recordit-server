@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,15 +25,18 @@ import com.recordit.server.domain.RecordCategory;
 import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
+import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
+import com.recordit.server.exception.record.FixRecordNotExistException;
 import com.recordit.server.exception.record.NotMatchLoginUserWithRecordWriterException;
 import com.recordit.server.exception.record.RecordColorNotFoundException;
 import com.recordit.server.exception.record.RecordIconNotFoundException;
 import com.recordit.server.exception.record.RecordNotFoundException;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
+import com.recordit.server.repository.CommentRepository;
 import com.recordit.server.repository.ImageFileRepository;
 import com.recordit.server.repository.MemberRepository;
 import com.recordit.server.repository.RecordCategoryRepository;
@@ -70,6 +74,9 @@ class RecordServiceTest {
 
 	@Mock
 	private RecordRepository recordRepository;
+
+	@Mock
+	private CommentRepository commentRepository;
 
 	@Mock
 	private Member mockMember;
@@ -482,6 +489,70 @@ class RecordServiceTest {
 
 			// when, then
 			assertThatCode(() -> recordService.modifyRecord(12L, modifyRecordRequestDto, files))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("랜덤 레코드를 조회 할 때")
+	class 랜덤_레코드를_죠회_할_때 {
+		private final RandomRecordRequestDto randomRecordRequestDto = RandomRecordRequestDto
+				.builder()
+				.recordCategoryId(1L)
+				.size(5)
+				.build();
+
+		@Test
+		@DisplayName("레코드 카테고리를 찾지 못한다면 예외를 던진다")
+		void 레코드_카테고리를_찾지_못한다면_예외를_던진다() {
+			// when, then
+			assertThatThrownBy(() -> recordService.getRandomRecord(randomRecordRequestDto))
+					.isInstanceOf(RecordCategoryNotFoundException.class)
+					.hasMessage("카테고리 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			given(recordRepository.existsById(anyLong()))
+					.willReturn(true);
+			given(recordRepository.findRandomRecordByRecordCategoryId(any(), anyLong()))
+					.willReturn(new ArrayList<>());
+			// when, then
+			assertThatCode(() -> recordService.getRandomRecord(randomRecordRequestDto))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("믹스_레코드를_조회_할_때")
+	class 믹스_레코드를_조회_할_때 {
+		@Test
+		@DisplayName("서버에 고정레코드가 존재하지 않을때 예외를 던진다")
+		void 서버에_고정레코드가_존재하지_않을때_예외를_던진다() {
+			//given
+			given(recordRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			//when, then
+			assertThatThrownBy(() -> recordService.getMixRecords())
+					.isInstanceOf(FixRecordNotExistException.class)
+					.hasMessage("서버에 고정 레코드가 존재하지 않습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//given
+			given(recordRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockRecord));
+
+			given(commentRepository.findByRecord(mockRecord))
+					.willReturn(new ArrayList<>());
+
+			//when, then
+			assertThatCode(() -> recordService.getMixRecords())
 					.doesNotThrowAnyException();
 		}
 	}
