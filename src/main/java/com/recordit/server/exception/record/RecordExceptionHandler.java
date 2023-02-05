@@ -60,7 +60,7 @@ public class RecordExceptionHandler {
 	@ExceptionHandler(FixRecordNotExistException.class)
 	public ResponseEntity<ErrorMessage> handleFixRecordNotExistException(
 			FixRecordNotExistException exception) {
-		return ResponseEntity.internalServerError()
+		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
 }
