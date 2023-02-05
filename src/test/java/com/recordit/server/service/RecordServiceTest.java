@@ -545,7 +545,7 @@ class RecordServiceTest {
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			//given
-			given(recordRepository.findById(31L))
+			given(recordRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockRecord));
 
 			given(commentRepository.findByRecord(mockRecord))
