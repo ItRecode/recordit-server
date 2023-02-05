@@ -60,7 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordService {
 
 	private final int MIX_RECORD_COMMENT_SIZE = 10;
-	private final long FIX_RECORD_PK_VALUE = 99L;
+	private final long FIX_RECORD_PK_VALUE = 31L;
 	private final int FIRST_PAGE = 0;
 
 	private final ImageFileRepository imageFileRepository;
