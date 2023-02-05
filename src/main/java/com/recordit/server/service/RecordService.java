@@ -303,7 +303,7 @@ public class RecordService {
 		Record fixRecord = recordRepository.findById(FIX_RECORD_PK_VALUE)
 				.orElseThrow(() -> new FixRecordNotExistException("서버에 고정 레코드가 존재하지 않습니다."));
 
-		List<MixRecordDto> commentList = commentRepository.findByRecordFetch(fixRecord).stream()
+		List<MixRecordDto> commentList = commentRepository.findByRecord(fixRecord).stream()
 				.map(
 						comment -> MixRecordDto.builder()
 								.commentId(comment.getId())
@@ -312,7 +312,6 @@ public class RecordService {
 								.commentContent(comment.getContent())
 								.recordId(comment.getRecord().getId())
 								.build()
-
 				).collect(Collectors.toList());
 
 		Random random = new Random();

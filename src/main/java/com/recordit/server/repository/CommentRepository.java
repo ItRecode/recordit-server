@@ -30,6 +30,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	Long countByRecordId(Long recordId);
 
 	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
-	@Query("select c from COMMENT c where c.record = :fixRecord")
-	List<Comment> findByRecordFetch(@Param("fixRecord") Record fixRecord);
+	List<Comment> findByRecord(Record fixRecord);
 }
