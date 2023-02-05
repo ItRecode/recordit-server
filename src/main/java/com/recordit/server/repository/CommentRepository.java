@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Record;
-import com.recordit.server.dto.record.mix.MixRecordDto;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 	Long countByRecordAndParentCommentIsNull(Record record);
@@ -30,18 +29,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	Long countByRecordId(Long recordId);
 
-	@Query("select new com.recordit.server.dto.record.mix.MixRecordDto("
-			+ "c.record.id,"
-			+ "c.record.recordColor.name,"
-			+ "c.record.recordIcon.name,"
-			+ "c.id,"
-			+ "c.content"
-			+ ") "
-			+ "from COMMENT c "
-			+ "left join c.record "
-			+ "left join c.record.recordColor "
-			+ "left join c.record.recordIcon "
-			+ "where c.record = :fixRecord "
-	)
-	List<MixRecordDto> findByRecord(@Param("fixRecord") Record fixRecord);
+	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
+	@Query("select c from COMMENT c where c.record = :fixRecord")
+	List<Comment> findByRecordFetch(@Param("fixRecord") Record fixRecord);
 }
