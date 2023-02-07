@@ -82,10 +82,12 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		RecordCategory recordCategory = recordCategoryRepository.findById(writeRecordRequestDto.getRecordCategoryId())
+		RecordCategory recordCategory = recordCategoryRepository.findById(
+						writeRecordRequestDto.getRecordCategoryId())
 				.orElseThrow(() -> new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다."));
 
-		RecordColor recordColor = recordColorRepository.findByName(writeRecordRequestDto.getColorName())
+		RecordColor recordColor = recordColorRepository.findByName(
+						writeRecordRequestDto.getColorName())
 				.orElseThrow(() -> new RecordColorNotFoundException("컬러 정보를 찾을 수 없습니다."));
 
 		RecordIcon recordIcon = recordIconRepository.findByName(writeRecordRequestDto.getIconName())
@@ -103,7 +105,8 @@ public class RecordService {
 		log.info("저장한 레코드 ID : {}", saveRecord.getId());
 
 		if (!imageFileService.isEmptyFile(attachments)) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, saveRecord.getId(), attachments);
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD,
+					saveRecord.getId(), attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
@@ -252,10 +255,12 @@ public class RecordService {
 		Record record = recordRepository.findByIdFetchWriter(recordId)
 				.orElseThrow(() -> new RecordNotFoundException("레코드 정보를 찾을 수 없습니다."));
 
-		RecordColor recordColor = recordColorRepository.findByName(modifyRecordRequestDto.getColorName())
+		RecordColor recordColor = recordColorRepository.findByName(
+						modifyRecordRequestDto.getColorName())
 				.orElseThrow(() -> new RecordColorNotFoundException("컬러 정보를 찾을 수 없습니다."));
 
-		RecordIcon recordIcon = recordIconRepository.findByName(modifyRecordRequestDto.getIconName())
+		RecordIcon recordIcon = recordIconRepository.findByName(
+						modifyRecordRequestDto.getIconName())
 				.orElseThrow(() -> new RecordIconNotFoundException("아이콘 정보를 찾을 수 없습니다."));
 
 		if (record.getWriter().getId() != member.getId()) {
@@ -263,7 +268,8 @@ public class RecordService {
 		}
 
 		if (!imageFileService.isEmptyFile(attachments)) {
-			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, record.getId(), attachments);
+			List<String> urls = imageFileService.saveAttachmentFiles(RefType.RECORD, record.getId(),
+					attachments);
 			log.info("저장된 이미지 urls : {}", urls);
 		}
 
@@ -278,7 +284,7 @@ public class RecordService {
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
