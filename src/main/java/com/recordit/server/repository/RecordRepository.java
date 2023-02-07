@@ -62,4 +62,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ ") "
 			+ "order by RAND() limit :size", nativeQuery = true)
 	List<Record> findRandomRecordByRecordCategoryId(Integer size, Long categoryId);
+
+	@EntityGraph(attributePaths = {"recordIcon", "recordColor"})
+	Page<Record> findAll(Pageable pageable);
 }

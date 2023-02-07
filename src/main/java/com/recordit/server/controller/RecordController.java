@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -172,7 +175,8 @@ public class RecordController {
 			@ApiParam(required = true) @RequestPart(required = true) @Valid ModifyRecordRequestDto modifyRecordRequestDto,
 			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
-		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
+		return ResponseEntity.ok()
+				.body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
 	}
 
 	@ApiOperation(
@@ -200,5 +204,21 @@ public class RecordController {
 	@GetMapping("/mix")
 	public ResponseEntity<MixRecordResponseDto> getMixRecords() {
 		return ResponseEntity.ok().body(recordService.getMixRecords());
+	}
+
+	@ApiOperation(
+			value = "최신 레코드 조회",
+			notes = "최신의 레코드를 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "최신 레코드 조회 성공"
+			)
+	})
+	@GetMapping("/recent")
+	public ResponseEntity<Page<RecentRecordResponseDto>> getRecentRecord(
+			@ModelAttribute @Valid RecentRecordRequestDto recentRecordRequestDto
+	) {
+		return ResponseEntity.ok(recordService.getRecentRecord(recentRecordRequestDto));
 	}
 }
