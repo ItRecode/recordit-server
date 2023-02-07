@@ -175,8 +175,7 @@ public class RecordController {
 			@ApiParam(required = true) @RequestPart(required = true) @Valid ModifyRecordRequestDto modifyRecordRequestDto,
 			@ApiParam @RequestPart(required = false) List<MultipartFile> attachments
 	) {
-		return ResponseEntity.ok()
-				.body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
+		return ResponseEntity.ok().body(recordService.modifyRecord(recordId, modifyRecordRequestDto, attachments));
 	}
 
 	@ApiOperation(
