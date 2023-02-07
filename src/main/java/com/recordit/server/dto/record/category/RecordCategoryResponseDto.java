@@ -1,14 +1,13 @@
 package com.recordit.server.dto.record.category;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.recordit.server.domain.RecordCategory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -25,13 +24,16 @@ public class RecordCategoryResponseDto {
 	@ApiModelProperty(notes = "레코드 카테고리 이름", required = true)
 	private String name;
 
-	@ApiModelProperty(notes = "하위 레코드 목록", required = true)
-	private List<RecordCategoryResponseDto> subcategories = new ArrayList<>();
+	private RecordCategoryResponseDto(Long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
 
-	@Builder
-	public RecordCategoryResponseDto(RecordCategory recordCategory, List<RecordCategoryResponseDto> children) {
-		this.id = recordCategory.getId();
-		this.name = recordCategory.getName();
-		this.subcategories = children;
+	public static RecordCategoryResponseDto of(RecordCategory recordCategory) {
+		return new RecordCategoryResponseDto(recordCategory.getId(), recordCategory.getName());
+	}
+
+	public static List<RecordCategoryResponseDto> of(List<RecordCategory> recordCategories) {
+		return recordCategories.stream().map(RecordCategoryResponseDto::of).collect(Collectors.toList());
 	}
 }
