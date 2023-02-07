@@ -20,7 +20,7 @@ public class RandomRecordRequestDto {
 	@NotNull
 	private Long recordCategoryId;
 
-	@ApiParam(value = "댓글 리스트의 사이즈", required = true, example = "5")
+	@ApiParam(value = "랜덤 레코드 사이즈", required = true, example = "5")
 	@NotNull
 	private Integer size;
 }
