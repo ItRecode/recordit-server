@@ -278,7 +278,7 @@ public class RecordService {
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
