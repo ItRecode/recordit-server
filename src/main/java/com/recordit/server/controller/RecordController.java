@@ -23,6 +23,8 @@ import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
+import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
@@ -200,5 +202,26 @@ public class RecordController {
 	@GetMapping("/mix")
 	public ResponseEntity<MixRecordResponseDto> getMixRecords() {
 		return ResponseEntity.ok().body(recordService.getMixRecords());
+	}
+
+	@ApiOperation(
+			value = "레코드를 검색으로 조회",
+			notes = "레코드를 검색으로 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "검색으로 레코드 조회 성공",
+					response = RandomRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/search")
+	public ResponseEntity<RecordBySearchResponseDto> getRecordsBySearch(
+			@ModelAttribute @Valid RecordBySearchRequestDto recordBySearchRequestDto) {
+		return ResponseEntity.ok().body(recordService.getRecordsBySearch(recordBySearchRequestDto));
 	}
 }
