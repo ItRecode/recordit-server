@@ -49,7 +49,7 @@ class RecordCategoryServiceTest {
 					.willReturn(grandParentRecordCategory);
 
 			// when, then
-			assertThatThrownBy(() -> recordCategoryService.getSubCategories(parentRecordCategoryId))
+			assertThatThrownBy(() -> recordCategoryService.getCategories(parentRecordCategoryId))
 					.isInstanceOf(HaveParentRecordCategoryException.class);
 		}
 
@@ -73,7 +73,7 @@ class RecordCategoryServiceTest {
 					.willReturn(List.of(subRecordCategory1, subRecordCategory2));
 
 			// when
-			List<RecordCategoryResponseDto> subCategories = recordCategoryService.getSubCategories(
+			List<RecordCategoryResponseDto> subCategories = recordCategoryService.getCategories(
 					parentRecordCategoryId
 			);
 

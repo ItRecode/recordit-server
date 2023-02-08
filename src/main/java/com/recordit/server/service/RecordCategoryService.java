@@ -23,7 +23,7 @@ public class RecordCategoryService {
 
 	@Transactional(readOnly = true)
 	@Cacheable(value = "Categories")
-	public List<RecordCategoryResponseDto> getSubCategories(Long parentRecordCategoryId) {
+	public List<RecordCategoryResponseDto> getCategories(Long parentRecordCategoryId) {
 
 		RecordCategory parentRecordCategory = null;
 		if (parentRecordCategoryId != null) {

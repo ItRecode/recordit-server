@@ -44,7 +44,7 @@ public class RecordCategoryController {
 	public ResponseEntity<List<RecordCategoryResponseDto>> getAllRecordCategories(
 			@ApiParam(value = "조회할 카테고리의 부모 ID") @RequestParam(required = false) Long parentRecordCategoryId
 	) {
-		return ResponseEntity.ok(recordCategoryService.getSubCategories(parentRecordCategoryId));
+		return ResponseEntity.ok(recordCategoryService.getCategories(parentRecordCategoryId));
 	}
 
 	@PostMapping
