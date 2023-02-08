@@ -27,6 +27,7 @@ import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -554,6 +555,25 @@ class RecordServiceTest {
 			//when, then
 			assertThatCode(() -> recordService.getMixRecords())
 					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("검색으로 레코드를 조회할 때")
+	class 검색으로_레코드를_조회할_때 {
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			RecordBySearchRequestDto recordBySearchRequestDto = mock(RecordBySearchRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
 		}
 	}
 }
