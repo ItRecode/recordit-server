@@ -25,6 +25,8 @@ import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -325,5 +327,26 @@ public class RecordService {
 		return MixRecordResponseDto.builder()
 				.mixRecordDto(randomCommentList)
 				.build();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<RecentRecordResponseDto> getRecentRecord(
+			RecentRecordRequestDto recentRecordRequestDto
+	) {
+		Page<Record> recordPage = recordRepository.findAllFetchRecordIconAndRecordColor(
+				PageRequest.of(
+						recentRecordRequestDto.getPage(),
+						recentRecordRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
+		);
+
+		return recordPage.map(
+				record -> RecentRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)
+		);
 	}
 }
