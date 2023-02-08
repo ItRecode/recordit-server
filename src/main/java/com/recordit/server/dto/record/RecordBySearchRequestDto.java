@@ -15,6 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RecordBySearchRequestDto {
 	@ApiParam(value = "조회할 검색어", required = true, example = "레코드 제목")
+	@NotNull
 	@Pattern(regexp = "^.{1,12}$", message = "검색어 파라미터는 1글자 이상 12글자 이하입니다.")
 	private String searchKeyword;
 
