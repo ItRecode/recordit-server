@@ -620,7 +620,8 @@ class RecordServiceTest {
 					.willReturn(new PageImpl<>(recordList, pageRequest, 1));
 			//when
 			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
-					recentRecordRequestDto);
+					recentRecordRequestDto
+			);
 			//then
 			assertEquals(1, recentRecord.getTotalElements());
 			assertEquals(23L, recentRecord.getContent().get(0).getRecordId());

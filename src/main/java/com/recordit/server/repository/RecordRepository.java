@@ -64,5 +64,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 	List<Record> findRandomRecordByRecordCategoryId(Integer size, Long categoryId);
 
 	@EntityGraph(attributePaths = {"recordIcon", "recordColor"})
-	Page<Record> findAll(Pageable pageable);
+	@Query(value = "select r from RECORD r "
+			+ "where r.deletedAt is null")
+	Page<Record> findAllFetchRecordIconAndRecordColor(Pageable pageable);
 }

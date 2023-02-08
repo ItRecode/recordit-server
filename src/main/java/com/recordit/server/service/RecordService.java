@@ -333,16 +333,20 @@ public class RecordService {
 	public Page<RecentRecordResponseDto> getRecentRecord(
 			RecentRecordRequestDto recentRecordRequestDto
 	) {
-		Page<Record> recordPage = recordRepository.findAll(PageRequest.of(
-				recentRecordRequestDto.getPage(),
-				recentRecordRequestDto.getSize(),
-				Sort.Direction.DESC,
-				"createdAt"
-		));
+		Page<Record> recordPage = recordRepository.findAllFetchRecordIconAndRecordColor(
+				PageRequest.of(
+						recentRecordRequestDto.getPage(),
+						recentRecordRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
+		);
 
-		return recordPage.map(record -> RecentRecordResponseDto.of(
-				record,
-				commentRepository.countByRecordId(record.getId())
-		));
+		return recordPage.map(
+				record -> RecentRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)
+		);
 	}
 }
