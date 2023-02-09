@@ -583,7 +583,7 @@ class RecordServiceTest {
 					"createdAt"
 			);
 
-			given(recordRepository.findAll(pageRequest))
+			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
 					.willReturn(new PageImpl<>(List.of(), pageRequest, 0));
 			//when
 			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
@@ -616,7 +616,7 @@ class RecordServiceTest {
 					.willReturn("color");
 			given(mockRecordIcon.getName())
 					.willReturn("icon");
-			given(recordRepository.findAll(pageRequest))
+			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
 					.willReturn(new PageImpl<>(recordList, pageRequest, 1));
 			//when
 			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
