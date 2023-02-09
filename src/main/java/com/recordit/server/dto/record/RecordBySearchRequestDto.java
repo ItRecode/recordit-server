@@ -7,11 +7,13 @@ import javax.validation.constraints.Pattern;
 import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RecordBySearchRequestDto {
 	@ApiParam(value = "조회할 검색어", required = true, example = "레코드 제목")

@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -574,6 +579,42 @@ class RecordServiceTest {
 			assertThatThrownBy(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			Long userId = 1L;
+			String searchKeyword = "test";
+			int page = 0;
+			int size = 10;
+			Page<Record> records = new PageImpl<>(Collections.emptyList());
+			RecordBySearchRequestDto recordBySearchRequestDto = RecordBySearchRequestDto.builder()
+					.searchKeyword(searchKeyword)
+					.page(page)
+					.size(size)
+					.build();
+
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(userId);
+
+			given(memberRepository.findById(userId)).willReturn(Optional.of(mockMember));
+
+			given(recordRepository.findByWriterAndTitleContaining(
+							mockMember,
+							searchKeyword,
+							PageRequest.of(
+									page,
+									size,
+									Sort.by(Sort.Direction.DESC, "createdAt")
+							)
+					)
+			).willReturn(records);
+
+			// when, then
+			assertThatCode(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
+					.doesNotThrowAnyException();
 		}
 	}
 }
