@@ -284,7 +284,7 @@ public class RecordService {
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
-		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
+		if (!recordCategoryRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
 			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
 		}
 
