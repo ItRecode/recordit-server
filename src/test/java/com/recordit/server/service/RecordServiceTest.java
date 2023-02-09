@@ -515,7 +515,7 @@ class RecordServiceTest {
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			// given
-			given(recordRepository.existsById(anyLong()))
+			given(recordCategoryRepository.existsById(anyLong()))
 					.willReturn(true);
 			given(recordRepository.findRandomRecordByRecordCategoryId(any(), anyLong()))
 					.willReturn(new ArrayList<>());
