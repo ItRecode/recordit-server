@@ -31,41 +31,59 @@ class RecordCategoryServiceTest {
 	@Mock
 	private RecordCategoryRepository recordCategoryRepository;
 
-	@Test
-	@DisplayName("레코드 카테고리 전체 조회를 테스트한다")
-	void 레코드_카테고리_전체_조회를_테스트한다() {
-		// given
-		RecordCategory recordCategory1 = mock(RecordCategory.class);
-		RecordCategory recordCategory2 = mock(RecordCategory.class);
-		RecordCategory recordCategory3 = mock(RecordCategory.class);
+	@Nested
+	@DisplayName("레코드 카테고리를 조회할 때")
+	class 레코드_카테고리를_조회할_때 {
 
-		given(recordCategory1.getId())
-				.willReturn(1L);
-		given(recordCategory1.getName())
-				.willReturn("recordCategory1");
+		@Test
+		@DisplayName("상위가 아닌 서브 카테고리를 통해 조회하는 경우 예외를 던진다")
+		void 상위가_아닌_서브_카테고리를_통해_조회하는_경우_예외를_던진다() {
+			// given
+			Long parentRecordCategoryId = 3L;
+			RecordCategory parentRecordCategory = mock(RecordCategory.class);
+			RecordCategory grandParentRecordCategory = mock(RecordCategory.class);
 
-		given(recordCategory2.getId())
-				.willReturn(2L);
-		given(recordCategory2.getName())
-				.willReturn("recordCategory2");
-		given(recordCategory2.getParentRecordCategory())
-				.willReturn(recordCategory1);
+			given(recordCategoryRepository.findById(anyLong()))
+					.willReturn(Optional.of(parentRecordCategory));
+			given(parentRecordCategory.getParentRecordCategory())
+					.willReturn(grandParentRecordCategory);
 
-		given(recordCategory3.getId())
-				.willReturn(3L);
-		given(recordCategory3.getName())
-				.willReturn("recordCategory3");
+			// when, then
+			assertThatThrownBy(() -> recordCategoryService.getCategories(parentRecordCategoryId))
+					.isInstanceOf(HaveParentRecordCategoryException.class);
+		}
 
-		given(recordCategoryRepository.findAllFetchDepthIsOne())
-				.willReturn(List.of(recordCategory1, recordCategory2, recordCategory3));
-		// when
-		List<RecordCategoryResponseDto> result = recordCategoryService.getAllRecordCategories();
+		@Test
+		@DisplayName("정상적으로 조회 될 경우 예외를 던지지 않는다")
+		void 정상적으로_조회_될_경우_예외를_던지지_않는다() {
+			// given
+			Long parentRecordCategoryId = null;
+			RecordCategory subRecordCategory1 = mock(RecordCategory.class);
+			RecordCategory subRecordCategory2 = mock(RecordCategory.class);
 
-		// then
-		assertThat(result.size()).isEqualTo(2);
-		assertThat(result.get(0).getSubcategories().size()).isEqualTo(1);
-		assertThat(result.get(0).getSubcategories().get(0).getId()).isEqualTo(2L);
-		assertThat(result.get(1).getId()).isEqualTo(3L);
+			given(subRecordCategory1.getId())
+					.willReturn(1L);
+			given(subRecordCategory1.getName())
+					.willReturn("하위 카테고리1");
+			given(subRecordCategory2.getId())
+					.willReturn(2L);
+			given(subRecordCategory2.getName())
+					.willReturn("하위 카테고리2");
+			given(recordCategoryRepository.findAllByParentRecordCategory(null))
+					.willReturn(List.of(subRecordCategory1, subRecordCategory2));
+
+			// when
+			List<RecordCategoryResponseDto> subCategories = recordCategoryService.getCategories(
+					parentRecordCategoryId
+			);
+
+			// then
+			assertThat(subCategories.size()).isEqualTo(2);
+			assertThat(subCategories.get(0).getId()).isEqualTo(1L);
+			assertThat(subCategories.get(0).getName()).isEqualTo("하위 카테고리1");
+			assertThat(subCategories.get(1).getId()).isEqualTo(2L);
+			assertThat(subCategories.get(1).getName()).isEqualTo("하위 카테고리2");
+		}
 	}
 
 	@Nested

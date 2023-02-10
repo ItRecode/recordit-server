@@ -25,6 +25,8 @@ import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
@@ -284,7 +286,7 @@ public class RecordService {
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
-		if (!recordRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
+		if (!recordCategoryRepository.existsById(randomRecordRequestDto.getRecordCategoryId())) {
 			throw new RecordCategoryNotFoundException("카테고리 정보를 찾을 수 없습니다.");
 		}
 
@@ -330,7 +332,30 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public RecordBySearchResponseDto getRecordsBySearch(RecordBySearchRequestDto recordBySearchRequestDto) {
+  public Page<RecentRecordResponseDto> getRecentRecord(
+			RecentRecordRequestDto recentRecordRequestDto
+	) {
+		Page<Record> recordPage = recordRepository.findAllFetchRecordIconAndRecordColor(
+				PageRequest.of(
+						recentRecordRequestDto.getPage(),
+						recentRecordRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				)
+		);
+
+		return recordPage.map(
+				record -> RecentRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)
+		);
+  }
+
+	@Transactional(readOnly = true)
+	public RecordBySearchResponseDto getRecordsBySearch(
+			RecordBySearchRequestDto recordBySearchRequestDto
+	) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 

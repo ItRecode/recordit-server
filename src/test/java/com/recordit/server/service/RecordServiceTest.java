@@ -1,6 +1,7 @@
 package com.recordit.server.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
@@ -521,7 +524,7 @@ class RecordServiceTest {
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			// given
-			given(recordRepository.existsById(anyLong()))
+			given(recordCategoryRepository.existsById(anyLong()))
 					.willReturn(true);
 			given(recordRepository.findRandomRecordByRecordCategoryId(any(), anyLong()))
 					.willReturn(new ArrayList<>());
@@ -560,6 +563,72 @@ class RecordServiceTest {
 			//when, then
 			assertThatCode(() -> recordService.getMixRecords())
 					.doesNotThrowAnyException();
+		}
+	}
+  
+  @DisplayName("최신 레코드를 조회_할 때")
+	class 최신_레코드를_조회_할_때 {
+		RecentRecordRequestDto recentRecordRequestDto = RecentRecordRequestDto.builder()
+				.page(0)
+				.size(10)
+				.build();
+
+		@Test
+		@DisplayName("비어있다면 아무것도 조회되지 않는다")
+		void 비어있다면_아무것도_조회되지_않는다() {
+			//given
+			PageRequest pageRequest = PageRequest.of(
+					recentRecordRequestDto.getPage(),
+					recentRecordRequestDto.getSize(),
+					Sort.Direction.DESC,
+					"createdAt"
+			);
+
+			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
+					.willReturn(new PageImpl<>(List.of(), pageRequest, 0));
+			//when
+			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
+					recentRecordRequestDto);
+			//then
+			assertEquals(0, recentRecord.getTotalElements());
+		}
+
+		@Test
+		@DisplayName("비어있지 않다면 정상적으로 조회된다")
+		void 비어있지_않다면_정상적으로_조회된다() {
+			//given
+			List<Record> recordList = List.of(mockRecord);
+			PageRequest pageRequest = PageRequest.of(
+					recentRecordRequestDto.getPage(),
+					recentRecordRequestDto.getSize(),
+					Sort.Direction.DESC,
+					"createdAt"
+			);
+			given(mockRecord.getRecordColor())
+					.willReturn(mockRecordColor);
+			given(mockRecord.getRecordIcon())
+					.willReturn(mockRecordIcon);
+			given(mockRecord.getId())
+					.willReturn(23L);
+			given(mockRecord.getTitle())
+					.willReturn("레코드 제목입니다");
+
+			given(mockRecordColor.getName())
+					.willReturn("color");
+			given(mockRecordIcon.getName())
+					.willReturn("icon");
+			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
+					.willReturn(new PageImpl<>(recordList, pageRequest, 1));
+			//when
+			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
+					recentRecordRequestDto
+			);
+			//then
+			assertEquals(1, recentRecord.getTotalElements());
+			assertEquals(23L, recentRecord.getContent().get(0).getRecordId());
+			assertEquals("레코드 제목입니다", recentRecord.getContent().get(0).getTitle());
+			assertEquals("color", recentRecord.getContent().get(0).getColorName());
+			assertEquals("icon", recentRecord.getContent().get(0).getIconName());
 		}
 	}
 
@@ -615,6 +684,5 @@ class RecordServiceTest {
 			// when, then
 			assertThatCode(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
 					.doesNotThrowAnyException();
-		}
 	}
 }

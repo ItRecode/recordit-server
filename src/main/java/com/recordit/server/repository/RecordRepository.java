@@ -63,6 +63,11 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ "order by RAND() limit :size", nativeQuery = true)
 	List<Record> findRandomRecordByRecordCategoryId(Integer size, Long categoryId);
 
+  @EntityGraph(attributePaths = {"recordIcon", "recordColor"})
+	@Query(value = "select r from RECORD r "
+			+ "where r.deletedAt is null")
+	Page<Record> findAllFetchRecordIconAndRecordColor(Pageable pageable);
+
 	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor"})
 	Page<Record> findByWriterAndTitleContaining(
 			Member writer,
