@@ -1,10 +1,16 @@
 package com.recordit.server.service;
 
+import static com.recordit.server.util.DateTimeUtil.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -34,6 +40,7 @@ import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
+import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordDto;
@@ -153,7 +160,7 @@ public class RecordService {
 
 		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 				member,
-				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
+				getStartOfDay(recordByDateRequestDto.getDate()),
 				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
 				PageRequest.of(
 						recordByDateRequestDto.getPage(),
@@ -388,5 +395,33 @@ public class RecordService {
 				.records(findRecords)
 				.recordToNumOfComments(recordToNumOfComment)
 				.build();
+	}
+
+	public Set<Integer> getWrittenRecordDays(
+			WrittenRecordDayRequestDto writtenRecordDayRequestDto
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		LocalDate standardDate = LocalDate.of(
+				writtenRecordDayRequestDto.getYearMonth().getYear(),
+				writtenRecordDayRequestDto.getYearMonth().getMonth(),
+				1
+		);
+
+		LocalDateTime start = getStartOfDay(standardDate.withDayOfMonth(1));
+		LocalDateTime end = getEndOfDay(standardDate.withDayOfMonth(standardDate.lengthOfMonth()));
+
+		TreeSet<Integer> writtenRecordDays = new TreeSet<>();
+		writtenRecordDays.addAll(
+				recordRepository.findAllByWriterAndCreatedAtBetween(member, start, end)
+						.stream().map(
+								record -> record.getCreatedAt().getDayOfMonth()
+						).collect(Collectors.toSet())
+		);
+		return writtenRecordDays;
 	}
 }
