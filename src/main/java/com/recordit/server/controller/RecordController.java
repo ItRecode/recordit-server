@@ -220,7 +220,6 @@ public class RecordController {
 	public ResponseEntity<Page<RecentRecordResponseDto>> getRecentRecord(
 			@ModelAttribute @Valid RecentRecordRequestDto recentRecordRequestDto
 	) {
-		System.out.println("recentRecordRequestDto.getDateTime() = " + recentRecordRequestDto.getDateTime());
 		return ResponseEntity.ok(recordService.getRecentRecord(recentRecordRequestDto));
 	}
 
