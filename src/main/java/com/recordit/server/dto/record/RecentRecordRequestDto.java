@@ -22,6 +22,8 @@ import lombok.ToString;
 @Builder
 public class RecentRecordRequestDto {
 
+	@ApiParam(value = "기준 날짜", required = true, example = "yyy-MM-dd HH:mm")
+	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime dateTime;
 
