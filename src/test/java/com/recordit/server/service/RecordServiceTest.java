@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
@@ -628,6 +630,61 @@ class RecordServiceTest {
 			assertEquals("레코드 제목입니다", recentRecord.getContent().get(0).getTitle());
 			assertEquals("color", recentRecord.getContent().get(0).getColorName());
 			assertEquals("icon", recentRecord.getContent().get(0).getIconName());
+		}
+	}
+
+	@Nested
+	@DisplayName("검색으로 레코드를 조회할 때")
+	class 검색으로_레코드를_조회할_때 {
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			RecordBySearchRequestDto recordBySearchRequestDto = mock(RecordBySearchRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			Long userId = 1L;
+			String searchKeyword = "test";
+			int page = 0;
+			int size = 10;
+			Page<Record> records = new PageImpl<>(Collections.emptyList());
+			RecordBySearchRequestDto recordBySearchRequestDto = RecordBySearchRequestDto.builder()
+					.searchKeyword(searchKeyword)
+					.page(page)
+					.size(size)
+					.build();
+
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(userId);
+
+			given(memberRepository.findById(userId)).willReturn(Optional.of(mockMember));
+
+			given(recordRepository.findByWriterAndTitleContaining(
+							mockMember,
+							searchKeyword,
+							PageRequest.of(
+									page,
+									size,
+									Sort.by(Sort.Direction.DESC, "createdAt")
+							)
+					)
+			).willReturn(records);
+
+			// when, then
+			assertThatCode(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
+					.doesNotThrowAnyException();
 		}
 	}
 }

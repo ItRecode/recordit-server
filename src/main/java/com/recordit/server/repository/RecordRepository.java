@@ -67,4 +67,11 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 	@Query(value = "select r from RECORD r "
 			+ "where r.deletedAt is null")
 	Page<Record> findAllFetchRecordIconAndRecordColor(Pageable pageable);
+
+	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor"})
+	Page<Record> findByWriterAndTitleContaining(
+			Member writer,
+			String searchKeyword,
+			Pageable pageable
+	);
 }

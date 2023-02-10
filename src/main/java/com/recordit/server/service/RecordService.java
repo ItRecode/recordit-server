@@ -29,6 +29,8 @@ import com.recordit.server.dto.record.RecentRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
+import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
@@ -348,5 +350,43 @@ public class RecordService {
 						commentRepository.countByRecordId(record.getId())
 				)
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public RecordBySearchResponseDto getRecordsBySearch(
+			RecordBySearchRequestDto recordBySearchRequestDto
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		PageRequest pageRequest = PageRequest.of(
+				recordBySearchRequestDto.getPage(),
+				recordBySearchRequestDto.getSize(),
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		);
+
+		Page<Record> findRecords = recordRepository.findByWriterAndTitleContaining(
+				member,
+				recordBySearchRequestDto.getSearchKeyword(),
+				pageRequest
+		);
+
+		Map<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
+		for (Record findRecord : findRecords) {
+			recordToNumOfComment.put(
+					// key
+					findRecord,
+					// value
+					commentRepository.countByRecordAndParentCommentIsNull(findRecord)
+			);
+		}
+
+		return RecordBySearchResponseDto.builder()
+				.records(findRecords)
+				.recordToNumOfComments(recordToNumOfComment)
+				.build();
 	}
 }
