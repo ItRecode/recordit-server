@@ -1,14 +1,19 @@
 package com.recordit.server.service;
 
+import static com.recordit.server.util.DateTimeUtil.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,6 +42,7 @@ import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.FixRecordNotExistException;
@@ -685,6 +691,59 @@ class RecordServiceTest {
 			// when, then
 			assertThatCode(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
 					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("작성된 레코드의 일자를 리스트로 조회할 때")
+	class 작성된_레코드의_일자를_리스트로_조회할_때 {
+		WrittenRecordDayRequestDto writtenRecordDayRequestDto = WrittenRecordDayRequestDto.builder()
+				.yearMonth(YearMonth.of(2023, 01))
+				.build();
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getWrittenRecordDays(writtenRecordDayRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+
+			LocalDate standardDate = LocalDate.of(
+					writtenRecordDayRequestDto.getYearMonth().getYear(),
+					writtenRecordDayRequestDto.getYearMonth().getMonth(),
+					1
+			);
+
+			LocalDateTime start = getStartOfDay(standardDate.withDayOfMonth(1));
+			LocalDateTime end = getEndOfDay(standardDate.withDayOfMonth(standardDate.lengthOfMonth()));
+
+			given(recordRepository.findAllByWriterAndCreatedAtBetween(mockMember, start, end))
+					.willReturn(List.of(mockRecord));
+			given(mockRecord.getCreatedAt())
+					.willReturn(mock(LocalDateTime.class));
+			given(mockRecord.getCreatedAt().getDayOfMonth())
+					.willReturn(2);
+
+			// when
+			Set<Integer> days = recordService.getWrittenRecordDays(writtenRecordDayRequestDto);
+
+			// then
+			assertThatCode(() -> recordService.getWrittenRecordDays(writtenRecordDayRequestDto))
+					.doesNotThrowAnyException();
+			assertThat(days.contains(2)).isTrue();
 		}
 	}
 }
