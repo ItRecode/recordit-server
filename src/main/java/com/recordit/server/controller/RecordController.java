@@ -206,9 +206,9 @@ public class RecordController {
 	public ResponseEntity<MixRecordResponseDto> getMixRecords() {
 		return ResponseEntity.ok().body(recordService.getMixRecords());
 	}
-  
-  @ApiOperation(
-  		value = "최신 레코드 조회",
+
+	@ApiOperation(
+			value = "최신 레코드 조회",
 			notes = "최신의 레코드를 조회합니다."
 	)
 	@ApiResponses({
@@ -241,7 +241,7 @@ public class RecordController {
 	@GetMapping("/search")
 	public ResponseEntity<RecordBySearchResponseDto> getRecordsBySearch(
 			@ModelAttribute @Valid RecordBySearchRequestDto recordBySearchRequestDto
-  ) {
+	) {
 		return ResponseEntity.ok().body(recordService.getRecordsBySearch(recordBySearchRequestDto));
-  }
+	}
 }

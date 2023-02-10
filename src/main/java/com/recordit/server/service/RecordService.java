@@ -332,7 +332,7 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-  public Page<RecentRecordResponseDto> getRecentRecord(
+	public Page<RecentRecordResponseDto> getRecentRecord(
 			RecentRecordRequestDto recentRecordRequestDto
 	) {
 		Page<Record> recordPage = recordRepository.findAllFetchRecordIconAndRecordColor(
@@ -350,7 +350,7 @@ public class RecordService {
 						commentRepository.countByRecordId(record.getId())
 				)
 		);
-  }
+	}
 
 	@Transactional(readOnly = true)
 	public RecordBySearchResponseDto getRecordsBySearch(

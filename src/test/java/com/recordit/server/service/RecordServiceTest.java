@@ -565,8 +565,8 @@ class RecordServiceTest {
 					.doesNotThrowAnyException();
 		}
 	}
-  
-  @DisplayName("최신 레코드를 조회_할 때")
+
+	@DisplayName("최신 레코드를 조회_할 때")
 	class 최신_레코드를_조회_할_때 {
 		RecentRecordRequestDto recentRecordRequestDto = RecentRecordRequestDto.builder()
 				.page(0)
@@ -684,5 +684,6 @@ class RecordServiceTest {
 			// when, then
 			assertThatCode(() -> recordService.getRecordsBySearch(recordBySearchRequestDto))
 					.doesNotThrowAnyException();
+		}
 	}
 }
