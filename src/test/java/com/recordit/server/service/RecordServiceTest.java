@@ -565,7 +565,8 @@ class RecordServiceTest {
 					.doesNotThrowAnyException();
 		}
 	}
-
+	
+	@Nested
 	@DisplayName("최신 레코드를 조회_할 때")
 	class 최신_레코드를_조회_할_때 {
 		RecentRecordRequestDto recentRecordRequestDto = RecentRecordRequestDto.builder()
