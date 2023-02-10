@@ -44,7 +44,7 @@ public class MemoryRecordResponseDto {
 						record -> MemoryRecordDto.builder()
 								.recordId(record.getId())
 								.title(record.getTitle())
-								.iconColor(record.getRecordColor().getName())
+								.colorName(record.getRecordColor().getName())
 								.iconName(record.getRecordIcon().getName())
 								.memoryRecordComments(recordToComments.get(record))
 								.build()
