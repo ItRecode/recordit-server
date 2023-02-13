@@ -400,7 +400,6 @@ public class RecordService {
 	public Set<Integer> getWrittenRecordDays(
 			WrittenRecordDayRequestDto writtenRecordDayRequestDto
 	) {
-		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
