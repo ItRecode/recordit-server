@@ -2,7 +2,6 @@ package com.recordit.server.service;
 
 import static com.recordit.server.util.DateTimeUtil.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -400,28 +399,21 @@ public class RecordService {
 	public Set<Integer> getWrittenRecordDays(
 			WrittenRecordDayRequestDto writtenRecordDayRequestDto
 	) {
+		sessionUtil.saveUserIdInSession(1L);
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		LocalDate standardDate = LocalDate.of(
-				writtenRecordDayRequestDto.getYearMonth().getYear(),
-				writtenRecordDayRequestDto.getYearMonth().getMonth(),
-				1
-		);
+		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
 
-		LocalDateTime start = getStartOfDay(standardDate.withDayOfMonth(1));
-		LocalDateTime end = getEndOfDay(standardDate.withDayOfMonth(standardDate.lengthOfMonth()));
-
-		TreeSet<Integer> writtenRecordDays = new TreeSet<>();
-		writtenRecordDays.addAll(
+		TreeSet<Integer> writtenRecordDays =
 				recordRepository.findAllByWriterAndCreatedAtBetween(member, start, end)
-						.stream().map(
-								record -> record.getCreatedAt().getDayOfMonth()
-						).collect(Collectors.toSet())
-		);
+						.stream()
+						.map(record -> record.getCreatedAt().getDayOfMonth())
+						.collect(Collectors.toCollection(TreeSet::new));
 		return writtenRecordDays;
 	}
 }

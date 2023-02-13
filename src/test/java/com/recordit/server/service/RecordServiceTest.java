@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -721,14 +720,8 @@ class RecordServiceTest {
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockMember));
 
-			LocalDate standardDate = LocalDate.of(
-					writtenRecordDayRequestDto.getYearMonth().getYear(),
-					writtenRecordDayRequestDto.getYearMonth().getMonth(),
-					1
-			);
-
-			LocalDateTime start = getStartOfDay(standardDate.withDayOfMonth(1));
-			LocalDateTime end = getEndOfDay(standardDate.withDayOfMonth(standardDate.lengthOfMonth()));
+			LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+			LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
 
 			given(recordRepository.findAllByWriterAndCreatedAtBetween(mockMember, start, end))
 					.willReturn(List.of(mockRecord));
