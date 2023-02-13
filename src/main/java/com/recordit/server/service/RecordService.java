@@ -341,13 +341,14 @@ public class RecordService {
 	public Page<RecentRecordResponseDto> getRecentRecord(
 			RecentRecordRequestDto recentRecordRequestDto
 	) {
-		Page<Record> recordPage = recordRepository.findAllFetchRecordIconAndRecordColor(
+		Page<Record> recordPage = recordRepository.findAllByCreatedAtBeforeFetchRecordIconAndRecordColor(
 				PageRequest.of(
 						recentRecordRequestDto.getPage(),
 						recentRecordRequestDto.getSize(),
 						Sort.Direction.DESC,
 						"createdAt"
-				)
+				),
+				recentRecordRequestDto.getDateTime()
 		);
 
 		return recordPage.map(

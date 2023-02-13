@@ -575,6 +575,7 @@ class RecordServiceTest {
 	@DisplayName("최신 레코드를 조회_할 때")
 	class 최신_레코드를_조회_할_때 {
 		RecentRecordRequestDto recentRecordRequestDto = RecentRecordRequestDto.builder()
+				.dateTime(LocalDateTime.now())
 				.page(0)
 				.size(10)
 				.build();
@@ -590,8 +591,10 @@ class RecordServiceTest {
 					"createdAt"
 			);
 
-			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
-					.willReturn(new PageImpl<>(List.of(), pageRequest, 0));
+			given(recordRepository.findAllByCreatedAtBeforeFetchRecordIconAndRecordColor(
+					pageRequest, recentRecordRequestDto.getDateTime())
+			).willReturn(new PageImpl<>(List.of(), pageRequest, 0));
+
 			//when
 			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
 					recentRecordRequestDto);
@@ -623,8 +626,10 @@ class RecordServiceTest {
 					.willReturn("color");
 			given(mockRecordIcon.getName())
 					.willReturn("icon");
-			given(recordRepository.findAllFetchRecordIconAndRecordColor(pageRequest))
-					.willReturn(new PageImpl<>(recordList, pageRequest, 1));
+			given(recordRepository.findAllByCreatedAtBeforeFetchRecordIconAndRecordColor(
+					pageRequest, recentRecordRequestDto.getDateTime())
+			).willReturn(new PageImpl<>(recordList, pageRequest, 1));
+
 			//when
 			Page<RecentRecordResponseDto> recentRecord = recordService.getRecentRecord(
 					recentRecordRequestDto
