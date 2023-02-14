@@ -1,7 +1,6 @@
 package com.recordit.server.controller;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -33,6 +32,7 @@ import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordResponseDto;
@@ -248,7 +248,7 @@ public class RecordController {
 	}
 
 	@GetMapping("/days")
-	public ResponseEntity<Set<Integer>> getWrittenRecordDays(
+	public ResponseEntity<WrittenRecordDayResponseDto> getWrittenRecordDays(
 			@Valid WrittenRecordDayRequestDto writtenRecordDayRequestDto
 	) {
 		return ResponseEntity.ok(recordService.getWrittenRecordDays(writtenRecordDayRequestDto));

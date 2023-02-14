@@ -1,6 +1,6 @@
 package com.recordit.server.dto.record;
 
-import java.time.YearMonth;
+import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +22,6 @@ public class WrittenRecordDayRequestDto {
 
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM")
-	private YearMonth yearMonth;
+	private LocalDateTime dateTime;
 }
 

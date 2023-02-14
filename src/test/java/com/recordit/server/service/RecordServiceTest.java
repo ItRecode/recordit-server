@@ -6,13 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,6 +40,7 @@ import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.record.FixRecordNotExistException;
@@ -702,7 +701,7 @@ class RecordServiceTest {
 	@DisplayName("작성된 레코드의 일자를 리스트로 조회할 때")
 	class 작성된_레코드의_일자를_리스트로_조회할_때 {
 		WrittenRecordDayRequestDto writtenRecordDayRequestDto = WrittenRecordDayRequestDto.builder()
-				.yearMonth(YearMonth.of(2023, 01))
+				.dateTime(LocalDateTime.now())
 				.build();
 
 		@Test
@@ -725,8 +724,8 @@ class RecordServiceTest {
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockMember));
 
-			LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
-			LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+			LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getDateTime());
+			LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getDateTime());
 
 			given(recordRepository.findAllByWriterAndCreatedAtBetween(mockMember, start, end))
 					.willReturn(List.of(mockRecord));
@@ -736,12 +735,13 @@ class RecordServiceTest {
 					.willReturn(2);
 
 			// when
-			Set<Integer> days = recordService.getWrittenRecordDays(writtenRecordDayRequestDto);
+			WrittenRecordDayResponseDto writtenRecordDays = recordService.getWrittenRecordDays(
+					writtenRecordDayRequestDto);
 
 			// then
 			assertThatCode(() -> recordService.getWrittenRecordDays(writtenRecordDayRequestDto))
 					.doesNotThrowAnyException();
-			assertThat(days.contains(2)).isTrue();
+			assertThat(writtenRecordDays.getWrittenRecordDayDto().contains(2)).isTrue();
 		}
 	}
 }

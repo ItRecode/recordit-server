@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,7 @@ import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
 import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordDto;
@@ -397,7 +397,7 @@ public class RecordService {
 				.build();
 	}
 
-	public Set<Integer> getWrittenRecordDays(
+	public WrittenRecordDayResponseDto getWrittenRecordDays(
 			WrittenRecordDayRequestDto writtenRecordDayRequestDto
 	) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
@@ -406,14 +406,15 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
-		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getDateTime());
+		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getDateTime());
 
 		TreeSet<Integer> writtenRecordDays =
 				recordRepository.findAllByWriterAndCreatedAtBetween(member, start, end)
 						.stream()
 						.map(record -> record.getCreatedAt().getDayOfMonth())
 						.collect(Collectors.toCollection(TreeSet::new));
-		return writtenRecordDays;
+
+		return WrittenRecordDayResponseDto.of(writtenRecordDays);
 	}
 }
