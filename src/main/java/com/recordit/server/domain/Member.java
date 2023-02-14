@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import com.recordit.server.constant.LoginType;
+import com.recordit.server.dto.member.ModifyMemberRequestDto;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -55,5 +56,10 @@ public class Member extends BaseEntity {
 
 	public static Member of(String username, String password, String nickname, String oauthId, LoginType loginType) {
 		return new Member(username, password, nickname, oauthId, loginType);
+	}
+
+	public Long modify(final ModifyMemberRequestDto modifyMemberRequestDto) {
+		this.nickname = modifyMemberRequestDto.getNickName();
+		return this.id;
 	}
 }

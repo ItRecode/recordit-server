@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.domain.Member;
 import com.recordit.server.dto.member.LoginRequestDto;
+import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
@@ -260,6 +261,47 @@ public class MemberServiceTest {
 
 			// when, then
 			assertThatCode(() -> memberService.findNicknameIfPresent())
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("회원정보_변경_에서")
+	class 회원정보_변경_에서 {
+		private Long memberId = 1L;
+
+		private ModifyMemberRequestDto modifyMemberRequestDto = ModifyMemberRequestDto.builder()
+				.nickName("변경된 닉네임")
+				.build();
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> memberService.modifyMember(modifyMemberRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.of(mockMember));
+
+			//when, then
+			assertThatCode(() -> memberService.modifyMember(modifyMemberRequestDto))
 					.doesNotThrowAnyException();
 		}
 	}

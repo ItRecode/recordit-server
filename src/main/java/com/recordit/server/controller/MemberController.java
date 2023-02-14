@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.dto.member.LoginRequestDto;
+import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
@@ -132,4 +134,16 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).body(memberService.findNicknameIfPresent());
 	}
 
+	@ApiOperation(
+			value = "회원 닉네임 변경",
+			notes = "회원 닉네임을 변경합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "변경된 회원의 PK값 반환", response = Long.class),
+			@ApiResponse(code = 400, message = "세션에 사용자 정보가 저장되어 있지 않을 때")
+	})
+	@PutMapping
+	public ResponseEntity<Long> modifyMember(@RequestBody @Valid ModifyMemberRequestDto modifyMemberRequestDto) {
+		return ResponseEntity.status(HttpStatus.OK).body(memberService.modifyMember(modifyMemberRequestDto));
+	}
 }

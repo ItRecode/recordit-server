@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.domain.Member;
 import com.recordit.server.dto.member.LoginRequestDto;
+import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
@@ -97,5 +98,15 @@ public class MemberService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 		return member.getNickname();
+	}
+
+	@Transactional
+	public Long modifyMember(ModifyMemberRequestDto modifyMemberRequestDto) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		return member.modify(modifyMemberRequestDto);
 	}
 }
