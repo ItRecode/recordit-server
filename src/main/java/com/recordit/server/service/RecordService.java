@@ -406,8 +406,8 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getDateTime());
-		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getDateTime());
+		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
 
 		TreeSet<Integer> writtenRecordDays =
 				recordRepository.findAllByWriterAndCreatedAtBetween(member, start, end)

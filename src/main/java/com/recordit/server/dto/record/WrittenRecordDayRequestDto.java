@@ -1,6 +1,6 @@
 package com.recordit.server.dto.record;
 
-import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,8 +20,8 @@ import lombok.ToString;
 @Builder
 public class WrittenRecordDayRequestDto {
 
-	@NotNull
+	@NotNull(message = "날짜를 입력해주세요.")
 	@DateTimeFormat(pattern = "yyyy-MM")
-	private LocalDateTime dateTime;
+	private YearMonth yearMonth;
 }
 

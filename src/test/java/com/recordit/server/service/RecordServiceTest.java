@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -701,7 +702,7 @@ class RecordServiceTest {
 	@DisplayName("작성된 레코드의 일자를 리스트로 조회할 때")
 	class 작성된_레코드의_일자를_리스트로_조회할_때 {
 		WrittenRecordDayRequestDto writtenRecordDayRequestDto = WrittenRecordDayRequestDto.builder()
-				.dateTime(LocalDateTime.now())
+				.yearMonth(YearMonth.of(2023, 01))
 				.build();
 
 		@Test
@@ -724,8 +725,8 @@ class RecordServiceTest {
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockMember));
 
-			LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getDateTime());
-			LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getDateTime());
+			LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+			LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
 
 			given(recordRepository.findAllByWriterAndCreatedAtBetween(mockMember, start, end))
 					.willReturn(List.of(mockRecord));
