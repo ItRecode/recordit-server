@@ -74,4 +74,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			String searchKeyword,
 			Pageable pageable
 	);
+
+	List<Record> findAllByWriterAndCreatedAtBetween(
+			Member writer,
+			LocalDateTime startTime,
+			LocalDateTime endTime
+	);
 }

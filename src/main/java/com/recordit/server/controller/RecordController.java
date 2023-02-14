@@ -31,6 +31,8 @@ import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
+import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordResponseDto;
@@ -243,5 +245,12 @@ public class RecordController {
 			@ModelAttribute @Valid RecordBySearchRequestDto recordBySearchRequestDto
 	) {
 		return ResponseEntity.ok().body(recordService.getRecordsBySearch(recordBySearchRequestDto));
+	}
+
+	@GetMapping("/days")
+	public ResponseEntity<WrittenRecordDayResponseDto> getWrittenRecordDays(
+			@Valid WrittenRecordDayRequestDto writtenRecordDayRequestDto
+	) {
+		return ResponseEntity.ok(recordService.getWrittenRecordDays(writtenRecordDayRequestDto));
 	}
 }
