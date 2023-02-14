@@ -1,9 +1,6 @@
 package com.recordit.server.dto.record.ranking;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import com.recordit.server.domain.Record;
 
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
@@ -23,10 +20,7 @@ public class RecordRankingResponseDto {
 		this.recordRankingDtos = recordRankingDtos;
 	}
 
-	public static RecordRankingResponseDto of(List<Record> records) {
-		List<RecordRankingDto> mapToRecordRankingDtos = records.stream()
-				.map(RecordRankingDto::of)
-				.collect(Collectors.toList());
-		return new RecordRankingResponseDto(mapToRecordRankingDtos);
+	public static RecordRankingResponseDto of(List<RecordRankingDto> recordRankingDtos) {
+		return new RecordRankingResponseDto(recordRankingDtos);
 	}
 }
