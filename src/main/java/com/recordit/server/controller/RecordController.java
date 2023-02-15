@@ -36,7 +36,10 @@ import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordResponseDto;
+import com.recordit.server.dto.record.ranking.RecordRankingRequestDto;
+import com.recordit.server.dto.record.ranking.RecordRankingResponseDto;
 import com.recordit.server.exception.ErrorMessage;
+import com.recordit.server.service.RecordRankingService;
 import com.recordit.server.service.RecordService;
 
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +54,7 @@ import lombok.RequiredArgsConstructor;
 public class RecordController {
 
 	private final RecordService recordService;
+	private final RecordRankingService recordRankingService;
 
 	@ApiOperation(
 			value = "레코드 작성",
@@ -246,6 +250,30 @@ public class RecordController {
 	) {
 		return ResponseEntity.ok().body(recordService.getRecordsBySearch(recordBySearchRequestDto));
 	}
+
+	@ApiOperation(
+			value = "레코드 카테고리를 통해 댓글의 갯수를 기준으로 랭킹을 조회",
+			notes = "레코드 카테고리를 통해 댓글의 갯수를 기준으로 랭킹을 조회합니다. \t\n"
+					+ "상위 카테고리를 지정할 경우 전체 조회를 하고, 하위 카테고리를 지정할 경우 해당 하위 카테고리의 랭킹을 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 랭킹 조회 성공",
+					response = RecordRankingResponseDto.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/ranking")
+	public ResponseEntity<RecordRankingResponseDto> getRecordByCategorySortByComments(
+			@ModelAttribute @Valid RecordRankingRequestDto recordRankingRequestDto
+	) {
+		return ResponseEntity.ok(recordRankingService.getRecordRanking(recordRankingRequestDto));
+	}
+
 
 	@GetMapping("/days")
 	public ResponseEntity<WrittenRecordDayResponseDto> getWrittenRecordDays(

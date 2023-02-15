@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
+import com.recordit.server.domain.RecordCategory;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
 
@@ -74,6 +75,29 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			String searchKeyword,
 			Pageable pageable
 	);
+
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "comments", "recordIcon", "recordColor"})
+	@Query(value = "select r "
+			+ "from RECORD r "
+			+ "left join r.writer "
+			+ "left join r.recordCategory "
+			+ "left join r.comments "
+			+ "left join r.recordIcon "
+			+ "left join r.recordColor"
+	)
+	List<Record> findAllFetchAll();
+
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "comments", "recordIcon", "recordColor"})
+	@Query(value = "select r "
+			+ "from RECORD r "
+			+ "left join r.writer "
+			+ "left join r.recordCategory "
+			+ "left join r.comments "
+			+ "left join r.recordIcon "
+			+ "left join r.recordColor "
+			+ "where r.recordCategory = :recordCategory"
+	)
+	List<Record> findAllByRecordCategoryFetchAll(@Param("recordCategory") RecordCategory recordCategory);
 
 	List<Record> findAllByWriterAndCreatedAtBetween(
 			Member writer,

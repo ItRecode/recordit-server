@@ -17,6 +17,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Where(clause = "DELETED_AT is null")
 @SQLDelete(sql = "UPDATE RECORD_CATEGORY SET RECORD_CATEGORY.DELETED_AT = CURRENT_TIMESTAMP WHERE RECORD_CATEGORY.RECORD_CATEGORY_ID = ?")
 @Getter
+@EqualsAndHashCode(of = {"id", "name"})
 public class RecordCategory extends BaseEntity {
 
 	@Id
