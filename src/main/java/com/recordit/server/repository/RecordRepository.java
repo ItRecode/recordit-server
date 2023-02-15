@@ -98,4 +98,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ "where r.recordCategory = :recordCategory"
 	)
 	List<Record> findAllByRecordCategoryFetchAll(@Param("recordCategory") RecordCategory recordCategory);
+
+	List<Record> findAllByWriterAndCreatedAtBetween(
+			Member writer,
+			LocalDateTime startTime,
+			LocalDateTime endTime
+	);
 }
