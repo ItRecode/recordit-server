@@ -32,7 +32,10 @@ public class RecordRankingService {
 		RecordCategory recordCategory = recordCategoryRepository.findByIdFetchSubCategories(
 				recordRankingRequestDto.getRecordCategoryId()
 		).orElseThrow(() -> new RecordCategoryNotFoundException("지정한 레코드 카테고리가 존재하지 않습니다."));
-		List<Record> findRecords = recordRepository.findAllByRecordCategoryFetchAll(recordCategory);
+
+		List<RecordCategory> parentCategoryAndSubCategories = recordCategory.getSubcategories();
+		parentCategoryAndSubCategories.add(recordCategory);
+		List<Record> findRecords = recordRepository.findAllInRecordCategoryFetchAll(parentCategoryAndSubCategories);
 
 		List<RecordRankingDto> recordRanking = recordRankingProvider.getRecordRanking(
 				findRecords,
@@ -53,4 +56,5 @@ public class RecordRankingService {
 			}
 		}
 	}
+
 }

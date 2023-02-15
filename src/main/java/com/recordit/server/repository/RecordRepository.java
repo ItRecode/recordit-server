@@ -95,9 +95,9 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ "left join r.comments "
 			+ "left join r.recordIcon "
 			+ "left join r.recordColor "
-			+ "where r.recordCategory = :recordCategory"
+			+ "where r.recordCategory in :recordCategories"
 	)
-	List<Record> findAllByRecordCategoryFetchAll(@Param("recordCategory") RecordCategory recordCategory);
+	List<Record> findAllInRecordCategoryFetchAll(@Param("recordCategories") List<RecordCategory> recordCategories);
 
 	List<Record> findAllByWriterAndCreatedAtBetween(
 			Member writer,
