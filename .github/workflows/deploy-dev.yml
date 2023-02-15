@@ -1,0 +1,120 @@
+name: Deploy to cloudtype
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Connect deploy key
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          ghtoken: ${{ secrets.GHP_TOKEN }}
+      - name: Deploy
+        uses: cloudtype-github-actions/deploy@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          project: kdomo/tengers
+          stage: dev
+          yaml: >
+            name: recodeit-server
+
+            app: java@11
+
+            options:
+              ports: 8080
+              env:
+                - name: DATASOURCE_HOST
+                  value: ${{ secrets.DEV_DATASOURCE_HOST }}
+                - name: DATASOURCE_PORT
+                  value: ${{ secrets.DEV_DATASOURCE_PORT }}
+                - name: DATASOURCE_USERNAME
+                  value: ${{ secrets.DEV_DATASOURCE_USERNAME }}
+                - name: DATASOURCE_PASSWORD
+                  value: ${{ secrets.DEV_DATASOURCE_PASSWORD }}
+                - name: REDIS_HOST
+                  value: ${{ secrets.DEV_REDIS_HOST }}
+                - name: REDIS_PORT
+                  value: ${{ secrets.DEV_REDIS_PORT }}
+                - name: REDIS_PASSWORD
+                  value: ${{ secrets.DEV_REDIS_PASSWORD }}
+                - name: SPRING_PROFILES_ACTIVE
+                  value: ${{ secrets.DEV_SPRING_PROFILES_ACTIVE }}
+                - name: OAUTH_KAKAO_CLIENT_ID
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_CLIENT_ID }}
+                - name: OAUTH_KAKAO_CLIENT_SECRET
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_CLIENT_SECRET }}
+                - name: OAUTH_KAKAO_REDIRECT_URL
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_REDIRECT_URL }}
+                - name: OAUTH_GOOGLE_CLIENT_ID
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_CLIENT_ID }}
+                - name: OAUTH_GOOGLE_CLIENT_SECRET
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_CLIENT_SECRET }}
+                - name: OAUTH_GOOGLE_REDIRECT_URL
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_REDIRECT_URL }}
+                - name: S3_ACCESS_KEY
+                  value: ${{ secrets.DEV_S3_ACCESS_KEY }}
+                - name: S3_SECRET_ACCESS_KEY
+                  value: ${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}
+                - name: S3_BUCKET_NAME
+                  value: ${{ secrets.DEV_S3_BUCKET_NAME }}
+                - name: S3_DIRECTORY_NAME
+                  value: ${{ secrets.DEV_S3_DIRECTORY_NAME }}
+                - name: TZ
+                  value: ${{ secrets.TZ }}
+                - name: CORS_ORIGIN_NAME
+                  value: ${{ secrets.DEV_CORS_ORIGIN_NAME }}
+              build: ./gradlew clean build
+              buildenv:
+                - name: OAUTH_KAKAO_CLIENT_ID
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_CLIENT_ID }}
+                - name: OAUTH_KAKAO_CLIENT_SECRET
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_CLIENT_SECRET }}
+                - name: OAUTH_KAKAO_REDIRECT_URL
+                  value: ${{ secrets.DEV_OAUTH_KAKAO_REDIRECT_URL }}
+                - name: OAUTH_GOOGLE_CLIENT_ID
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_CLIENT_ID }}
+                - name: OAUTH_GOOGLE_CLIENT_SECRET
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_CLIENT_SECRET }}
+                - name: OAUTH_GOOGLE_REDIRECT_URL
+                  value: ${{ secrets.DEV_OAUTH_GOOGLE_REDIRECT_URL }}
+                - name: S3_ACCESS_KEY
+                  value: ${{ secrets.DEV_S3_ACCESS_KEY }}
+                - name: S3_SECRET_ACCESS_KEY
+                  value: ${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}
+                - name: S3_BUCKET_NAME
+                  value: ${{ secrets.DEV_S3_BUCKET_NAME }}
+                - name: S3_DIRECTORY_NAME
+                  value: ${{ secrets.DEV_S3_DIRECTORY_NAME }}
+                - name: CORS_ORIGIN_NAME
+                  value: ${{ secrets.DEV_CORS_ORIGIN_NAME }}
+            context:
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
+      - name: Notify on success
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.DEV_SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ secrets.DEV_SLACK_CHANNEL }}
+          SLACK_COLOR: '#703CDE'
+          SLACK_USERNAME: DEV Bot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Message
+          SLACK_MESSAGE: '테스트 서버 Build succeeded! :짠:'
+      - name: Notify on failure
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.DEV_SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ secrets.DEV_SLACK_CHANNEL }}
+          SLACK_COLOR: '#F33D63'
+          SLACK_USERNAME: DEV Bot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Message
+          SLACK_MESSAGE: '테스트 서버 Build failed! :울다:'
