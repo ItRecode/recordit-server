@@ -745,4 +745,18 @@ class RecordServiceTest {
 			assertThat(writtenRecordDays.getWrittenRecordDayDto().contains(2)).isTrue();
 		}
 	}
+
+	@Test
+	@DisplayName("레코드의 개수를 반환한다")
+	void 레코드의_개수를_반환한다() {
+		//given
+		given(recordRepository.count())
+				.willReturn(172L);
+		//when
+		Long recordAllCount = recordService.getRecordAllCount();
+		//then
+		assertThat(recordAllCount).isEqualTo(172L);
+		assertThatCode(() -> recordService.getRecordAllCount())
+				.doesNotThrowAnyException();
+	}
 }
