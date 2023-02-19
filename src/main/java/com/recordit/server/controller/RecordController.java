@@ -274,11 +274,24 @@ public class RecordController {
 		return ResponseEntity.ok(recordRankingService.getRecordRanking(recordRankingRequestDto));
 	}
 
-
 	@GetMapping("/days")
 	public ResponseEntity<WrittenRecordDayResponseDto> getWrittenRecordDays(
 			@Valid WrittenRecordDayRequestDto writtenRecordDayRequestDto
 	) {
 		return ResponseEntity.ok(recordService.getWrittenRecordDays(writtenRecordDayRequestDto));
+	}
+
+	@ApiOperation(
+			value = "레코드의 전체 개수 반환",
+			notes = "레코드의 전체 개수를 반환합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 전체 개수 조회 성공"
+			)
+	})
+	@GetMapping("/count")
+	public ResponseEntity<Long> getRecordAllCount() {
+		return ResponseEntity.ok(recordService.getRecordAllCount());
 	}
 }

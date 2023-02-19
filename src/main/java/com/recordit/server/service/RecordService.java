@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -84,6 +86,7 @@ public class RecordService {
 	private final CommentRepository commentRepository;
 
 	@Transactional
+	@CacheEvict(value = "RecordAllCount", allEntries = true)
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
 			List<MultipartFile> attachments) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
@@ -229,6 +232,7 @@ public class RecordService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "RecordAllCount", allEntries = true)
 	public void deleteRecord(Long recordId) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -416,5 +420,10 @@ public class RecordService {
 						.collect(Collectors.toCollection(TreeSet::new));
 
 		return WrittenRecordDayResponseDto.of(writtenRecordDays);
+	}
+
+	@Cacheable(value = "RecordAllCount")
+	public long getRecordAllCount() {
+		return recordRepository.count();
 	}
 }
