@@ -1,0 +1,81 @@
+name: Build and Deploy to AWS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      OAUTH_KAKAO_CLIENT_ID: ${{ secrets.PROD_OAUTH_KAKAO_CLIENT_ID }}
+      OAUTH_KAKAO_CLIENT_SECRET: ${{ secrets.PROD_OAUTH_KAKAO_CLIENT_SECRET }}
+      OAUTH_KAKAO_REDIRECT_URL: ${{ secrets.PROD_OAUTH_KAKAO_REDIRECT_URL }}
+      OAUTH_GOOGLE_CLIENT_ID: ${{ secrets.PROD_OAUTH_GOOGLE_CLIENT_ID }}
+      OAUTH_GOOGLE_CLIENT_SECRET: ${{ secrets.PROD_OAUTH_GOOGLE_CLIENT_SECRET }}
+      OAUTH_GOOGLE_REDIRECT_URL: ${{ secrets.PROD_OAUTH_GOOGLE_REDIRECT_URL }}
+      S3_ACCESS_KEY: ${{ secrets.PROD_S3_ACCESS_KEY }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.PROD_S3_SECRET_ACCESS_KEY }}
+      S3_BUCKET_NAME: ${{ secrets.PROD_S3_BUCKET_NAME }}
+      CORS_ORIGIN_NAME: ${{ secrets.PROD_CORS_ORIGIN_NAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: recordit/record-it:latest
+          file: ./dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy:
+    needs: build
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH 연결 설정
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            /home/ec2-user/deploy.sh
+
+      - name: Notify on success
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.PROD_SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ secrets.PROD_SLACK_CHANNEL }}
+          SLACK_COLOR: '#703CDE'
+          SLACK_USERNAME: PROD Bot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Message
+          SLACK_MESSAGE: '상용 서버 Build succeeded! :짠:'
+      - name: Notify on failure
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.PROD_SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ secrets.PROD_SLACK_CHANNEL }}
+          SLACK_COLOR: '#F33D63'
+          SLACK_USERNAME: PROD Bot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Message
+          SLACK_MESSAGE: '상용 서버 Build failed! :울다:'
