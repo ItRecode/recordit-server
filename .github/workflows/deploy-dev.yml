@@ -108,7 +108,7 @@ jobs:
           SLACK_TITLE: Message
           SLACK_MESSAGE: '테스트 서버 Build succeeded! :짠:'
       - name: Notify on failure
-        if: ${{ success() }}
+        if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.DEV_SLACK_WEBHOOK }}
