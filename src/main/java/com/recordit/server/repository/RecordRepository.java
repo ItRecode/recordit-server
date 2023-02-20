@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
+import com.recordit.server.domain.RecordCategory;
 
 public interface RecordRepository extends JpaRepository<Record, Long> {
 
@@ -62,4 +63,45 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			+ ") "
 			+ "order by RAND() limit :size", nativeQuery = true)
 	List<Record> findRandomRecordByRecordCategoryId(Integer size, Long categoryId);
+
+	@EntityGraph(attributePaths = {"recordIcon", "recordColor"})
+	@Query(value = "select r from RECORD r "
+			+ "where r.deletedAt is null and r.createdAt <= :dateTime")
+	Page<Record> findAllByCreatedAtBeforeFetchRecordIconAndRecordColor(Pageable pageable, LocalDateTime dateTime);
+
+	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor"})
+	Page<Record> findByWriterAndTitleContaining(
+			Member writer,
+			String searchKeyword,
+			Pageable pageable
+	);
+
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "comments", "recordIcon", "recordColor"})
+	@Query(value = "select r "
+			+ "from RECORD r "
+			+ "left join r.writer "
+			+ "left join r.recordCategory "
+			+ "left join r.comments "
+			+ "left join r.recordIcon "
+			+ "left join r.recordColor"
+	)
+	List<Record> findAllFetchAll();
+
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "comments", "recordIcon", "recordColor"})
+	@Query(value = "select r "
+			+ "from RECORD r "
+			+ "left join r.writer "
+			+ "left join r.recordCategory "
+			+ "left join r.comments "
+			+ "left join r.recordIcon "
+			+ "left join r.recordColor "
+			+ "where r.recordCategory in :recordCategories"
+	)
+	List<Record> findAllInRecordCategoryFetchAll(@Param("recordCategories") List<RecordCategory> recordCategories);
+
+	List<Record> findAllByWriterAndCreatedAtBetween(
+			Member writer,
+			LocalDateTime startTime,
+			LocalDateTime endTime
+	);
 }

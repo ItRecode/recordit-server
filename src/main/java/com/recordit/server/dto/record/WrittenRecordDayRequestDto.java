@@ -1,9 +1,12 @@
 package com.recordit.server.dto.record;
 
+import java.time.YearMonth;
+
 import javax.validation.constraints.NotNull;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,12 +18,10 @@ import lombok.ToString;
 @ApiModel
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class RandomRecordRequestDto {
-	@ApiParam(value = "카테고리 ID", required = true, example = "1")
-	@NotNull
-	private Long recordCategoryId;
+public class WrittenRecordDayRequestDto {
 
-	@ApiParam(value = "랜덤 레코드 사이즈", required = true, example = "5")
-	@NotNull
-	private Integer size;
+	@NotNull(message = "날짜를 입력해주세요.")
+	@DateTimeFormat(pattern = "yyyy-MM")
+	private YearMonth yearMonth;
 }
+

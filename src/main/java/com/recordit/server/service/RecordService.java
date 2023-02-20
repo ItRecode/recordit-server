@@ -1,12 +1,18 @@
 package com.recordit.server.service;
 
+import static com.recordit.server.util.DateTimeUtil.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,11 +31,17 @@ import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
+import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
+import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordDto;
@@ -74,6 +86,7 @@ public class RecordService {
 	private final CommentRepository commentRepository;
 
 	@Transactional
+	@CacheEvict(value = "RecordAllCount", allEntries = true)
 	public WriteRecordResponseDto writeRecord(WriteRecordRequestDto writeRecordRequestDto,
 			List<MultipartFile> attachments) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
@@ -149,7 +162,7 @@ public class RecordService {
 
 		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 				member,
-				DateTimeUtil.getStartOfDay(recordByDateRequestDto.getDate()),
+				getStartOfDay(recordByDateRequestDto.getDate()),
 				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
 				PageRequest.of(
 						recordByDateRequestDto.getPage(),
@@ -219,6 +232,7 @@ public class RecordService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "RecordAllCount", allEntries = true)
 	public void deleteRecord(Long recordId) {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
@@ -278,7 +292,7 @@ public class RecordService {
 		return record.modify(modifyRecordRequestDto, recordColor, recordIcon);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<RandomRecordResponseDto> getRandomRecord(
 			RandomRecordRequestDto randomRecordRequestDto
 	) {
@@ -325,5 +339,91 @@ public class RecordService {
 		return MixRecordResponseDto.builder()
 				.mixRecordDto(randomCommentList)
 				.build();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<RecentRecordResponseDto> getRecentRecord(
+			RecentRecordRequestDto recentRecordRequestDto
+	) {
+		Page<Record> recordPage = recordRepository.findAllByCreatedAtBeforeFetchRecordIconAndRecordColor(
+				PageRequest.of(
+						recentRecordRequestDto.getPage(),
+						recentRecordRequestDto.getSize(),
+						Sort.Direction.DESC,
+						"createdAt"
+				),
+				recentRecordRequestDto.getDateTime()
+		);
+
+		return recordPage.map(
+				record -> RecentRecordResponseDto.of(
+						record,
+						commentRepository.countByRecordId(record.getId())
+				)
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public RecordBySearchResponseDto getRecordsBySearch(
+			RecordBySearchRequestDto recordBySearchRequestDto
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		PageRequest pageRequest = PageRequest.of(
+				recordBySearchRequestDto.getPage(),
+				recordBySearchRequestDto.getSize(),
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		);
+
+		Page<Record> findRecords = recordRepository.findByWriterAndTitleContaining(
+				member,
+				recordBySearchRequestDto.getSearchKeyword(),
+				pageRequest
+		);
+
+		Map<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
+		for (Record findRecord : findRecords) {
+			recordToNumOfComment.put(
+					// key
+					findRecord,
+					// value
+					commentRepository.countByRecordAndParentCommentIsNull(findRecord)
+			);
+		}
+
+		return RecordBySearchResponseDto.builder()
+				.records(findRecords)
+				.recordToNumOfComments(recordToNumOfComment)
+				.build();
+	}
+
+	public WrittenRecordDayResponseDto getWrittenRecordDays(
+			WrittenRecordDayRequestDto writtenRecordDayRequestDto
+	) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		LocalDateTime start = getFirstDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+		LocalDateTime end = getLastDayOfMonth(writtenRecordDayRequestDto.getYearMonth());
+
+		TreeSet<Integer> writtenRecordDays =
+				recordRepository.findAllByWriterAndCreatedAtBetween(member, start, end)
+						.stream()
+						.map(record -> record.getCreatedAt().getDayOfMonth())
+						.collect(Collectors.toCollection(TreeSet::new));
+
+		return WrittenRecordDayResponseDto.of(writtenRecordDays);
+	}
+
+	@Cacheable(value = "RecordAllCount")
+	public long getRecordAllCount() {
+		return recordRepository.count();
 	}
 }

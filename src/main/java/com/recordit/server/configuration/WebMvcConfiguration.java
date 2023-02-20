@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.recordit.server.converter.LoginTypeConverter;
+import com.recordit.server.converter.RankingPeriodConverter;
 
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
@@ -35,5 +36,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
 		registry.addConverter(new LoginTypeConverter());
+		registry.addConverter(new RankingPeriodConverter());
 	}
 }

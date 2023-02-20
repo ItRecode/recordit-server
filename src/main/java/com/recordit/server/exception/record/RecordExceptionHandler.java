@@ -63,4 +63,11 @@ public class RecordExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
+
+	@ExceptionHandler(NotMatchRankingPeriodException.class)
+	public ResponseEntity<ErrorMessage> handleNotMatchRankingPeriodException(
+			NotMatchRankingPeriodException exception) {
+		return ResponseEntity.badRequest()
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
 }

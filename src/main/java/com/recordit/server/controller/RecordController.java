@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +22,24 @@ import org.springframework.web.multipart.MultipartFile;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentRecordRequestDto;
+import com.recordit.server.dto.record.RecentRecordResponseDto;
 import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordByDateResponseDto;
+import com.recordit.server.dto.record.RecordBySearchRequestDto;
+import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WriteRecordResponseDto;
+import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
+import com.recordit.server.dto.record.WrittenRecordDayResponseDto;
 import com.recordit.server.dto.record.memory.MemoryRecordRequestDto;
 import com.recordit.server.dto.record.memory.MemoryRecordResponseDto;
 import com.recordit.server.dto.record.mix.MixRecordResponseDto;
+import com.recordit.server.dto.record.ranking.RecordRankingRequestDto;
+import com.recordit.server.dto.record.ranking.RecordRankingResponseDto;
 import com.recordit.server.exception.ErrorMessage;
+import com.recordit.server.service.RecordRankingService;
 import com.recordit.server.service.RecordService;
 
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +54,7 @@ import lombok.RequiredArgsConstructor;
 public class RecordController {
 
 	private final RecordService recordService;
+	private final RecordRankingService recordRankingService;
 
 	@ApiOperation(
 			value = "레코드 작성",
@@ -200,5 +211,87 @@ public class RecordController {
 	@GetMapping("/mix")
 	public ResponseEntity<MixRecordResponseDto> getMixRecords() {
 		return ResponseEntity.ok().body(recordService.getMixRecords());
+	}
+
+	@ApiOperation(
+			value = "최신 레코드 조회",
+			notes = "최신의 레코드를 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "최신 레코드 조회 성공"
+			)
+	})
+	@GetMapping("/recent")
+	public ResponseEntity<Page<RecentRecordResponseDto>> getRecentRecord(
+			@ModelAttribute @Valid RecentRecordRequestDto recentRecordRequestDto
+	) {
+		return ResponseEntity.ok(recordService.getRecentRecord(recentRecordRequestDto));
+	}
+
+	@ApiOperation(
+			value = "레코드를 검색으로 조회",
+			notes = "레코드를 검색으로 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "검색으로 레코드 조회 성공",
+					response = RandomRecordResponseDto.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/search")
+	public ResponseEntity<RecordBySearchResponseDto> getRecordsBySearch(
+			@ModelAttribute @Valid RecordBySearchRequestDto recordBySearchRequestDto
+	) {
+		return ResponseEntity.ok().body(recordService.getRecordsBySearch(recordBySearchRequestDto));
+	}
+
+	@ApiOperation(
+			value = "레코드 카테고리를 통해 댓글의 갯수를 기준으로 랭킹을 조회",
+			notes = "레코드 카테고리를 통해 댓글의 갯수를 기준으로 랭킹을 조회합니다. \t\n"
+					+ "상위 카테고리를 지정할 경우 전체 조회를 하고, 하위 카테고리를 지정할 경우 해당 하위 카테고리의 랭킹을 조회합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 랭킹 조회 성공",
+					response = RecordRankingResponseDto.class
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/ranking")
+	public ResponseEntity<RecordRankingResponseDto> getRecordByCategorySortByComments(
+			@ModelAttribute @Valid RecordRankingRequestDto recordRankingRequestDto
+	) {
+		return ResponseEntity.ok(recordRankingService.getRecordRanking(recordRankingRequestDto));
+	}
+
+	@GetMapping("/days")
+	public ResponseEntity<WrittenRecordDayResponseDto> getWrittenRecordDays(
+			@Valid WrittenRecordDayRequestDto writtenRecordDayRequestDto
+	) {
+		return ResponseEntity.ok(recordService.getWrittenRecordDays(writtenRecordDayRequestDto));
+	}
+
+	@ApiOperation(
+			value = "레코드의 전체 개수 반환",
+			notes = "레코드의 전체 개수를 반환합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "레코드 전체 개수 조회 성공"
+			)
+	})
+	@GetMapping("/count")
+	public ResponseEntity<Long> getRecordAllCount() {
+		return ResponseEntity.ok(recordService.getRecordAllCount());
 	}
 }

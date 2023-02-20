@@ -27,8 +27,8 @@ public class MemoryRecordDto {
 	@ApiModelProperty(notes = "추억 레코드 아이콘 이름")
 	private String iconName;
 
-	@ApiModelProperty(notes = "추억 레코드 아이콘 색상")
-	private String iconColor;
+	@ApiModelProperty(notes = "추억 레코드 컬러 이름")
+	private String colorName;
 
 	@ApiModelProperty(notes = "추억 레코드 댓글 리스트")
 	private List<MemoryRecordCommentDto> memoryRecordComments;
@@ -38,13 +38,13 @@ public class MemoryRecordDto {
 			Long recordId,
 			String title,
 			String iconName,
-			String iconColor,
+			String colorName,
 			List<Comment> memoryRecordComments
 	) {
 		this.recordId = recordId;
 		this.title = title;
 		this.iconName = iconName;
-		this.iconColor = iconColor;
+		this.colorName = colorName;
 		this.memoryRecordComments = memoryRecordComments.stream()
 				.map(
 						comment -> MemoryRecordCommentDto.builder()
