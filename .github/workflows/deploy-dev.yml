@@ -106,7 +106,9 @@ jobs:
           SLACK_USERNAME: DEV Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '테스트 서버 Build succeeded! :짠:'
+          SLACK_MESSAGE: '테스트 서버 Build succeeded 🎉'
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_MESSAGES: ${{ join(github.event.commits.*.message, '\n') }}
       - name: Notify on failure
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
@@ -117,4 +119,6 @@ jobs:
           SLACK_USERNAME: DEV Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '테스트 서버 Build failed! :울다:'
+          SLACK_MESSAGE: '테스트 서버 Build failed 🥲'
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_MESSAGES: ${{ join(github.event.commits.*.message, '\n') }}
