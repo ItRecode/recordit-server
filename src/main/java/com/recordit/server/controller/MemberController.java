@@ -146,4 +146,17 @@ public class MemberController {
 	public ResponseEntity<Long> modifyMember(@RequestBody @Valid ModifyMemberRequestDto modifyMemberRequestDto) {
 		return ResponseEntity.status(HttpStatus.OK).body(memberService.modifyMember(modifyMemberRequestDto));
 	}
+
+	@ApiOperation(
+			value = "로그아웃",
+			notes = "로그아웃"
+	)
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "로그아웃 성공", response = Long.class),
+			@ApiResponse(code = 400, message = "잘못된 요청")
+	})
+	@PostMapping("/logout")
+	public ResponseEntity<Long> logout() {
+		return ResponseEntity.status(HttpStatus.OK).body(memberService.logout());
+	}
 }
