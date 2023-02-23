@@ -28,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.constant.RefType;
+import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 import com.recordit.server.domain.RecordCategory;
@@ -35,9 +36,9 @@ import com.recordit.server.domain.RecordColor;
 import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
+import com.recordit.server.dto.record.RecentOneRecordResponseDto;
 import com.recordit.server.dto.record.RecentRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordResponseDto;
-import com.recordit.server.dto.record.RecordByDateRequestDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.WriteRecordRequestDto;
 import com.recordit.server.dto.record.WrittenRecordDayRequestDto;
@@ -106,6 +107,9 @@ class RecordServiceTest {
 
 	@Mock
 	private Record mockRecord;
+
+	@Mock
+	private Comment mockComment;
 
 	@Nested
 	@DisplayName("레코드를 작성 할 때")
@@ -354,22 +358,81 @@ class RecordServiceTest {
 	}
 
 	@Nested
-	@DisplayName("날짜로 레코드를 조회할 때")
-	class 날짜로_레코드를_조회할_때 {
+	@DisplayName("마이레코드에서 가장 최신 글 단건을 조회할 때")
+	class 마이레코드에서_가장_최신_글_단건을_조회할_때 {
 
 		@Test
 		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
 		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
 			// given
-			RecordByDateRequestDto recordByDateRequestDto = mock(RecordByDateRequestDto.class);
-
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.empty());
 
 			// when, then
-			assertThatThrownBy(() -> recordService.getRecordBy(recordByDateRequestDto))
+			assertThatThrownBy(() -> recordService.getTodayRecentOneRecord())
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("오늘 작성한 레코드가 없다면 예외를 던진다")
+		void 오늘_작성한_레코드가_없다면_예외를_던진다() {
+			// given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> recordService.getTodayRecentOneRecord())
+					.isInstanceOf(RecordNotFoundException.class)
+					.hasMessage("오늘 쓴 레코드를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 조회를 성공하고 예외를 던지지 않는다")
+		void 정상적이라면_조회를_성공하고_예외를_던지지_않는다() {
+			//given
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
+					.willReturn(Optional.of(mockRecord));
+			given(mockRecord.getId())
+					.willReturn(1L);
+			given(mockRecord.getTitle())
+					.willReturn("마이레코드 타이틀");
+
+			given(mockRecord.getRecordColor())
+					.willReturn(mockRecordColor);
+			given(mockRecordColor.getName())
+					.willReturn("icon-purple");
+
+			given(mockRecord.getRecordIcon())
+					.willReturn(mockRecordIcon);
+			given(mockRecordIcon.getName())
+					.willReturn("moon");
+
+			given(mockRecord.getRecordCategory())
+					.willReturn(mockRecordCategory);
+			given(mockRecordCategory.getName())
+					.willReturn("축하해주세요");
+
+			given(mockRecord.getComments())
+					.willReturn(List.of(mockComment));
+
+			//when
+			RecentOneRecordResponseDto responseDto = recordService.getTodayRecentOneRecord();
+
+			//then
+			assertThat(responseDto.getRecordId()).isEqualTo(1L);
+			assertThat(responseDto.getTitle()).isEqualTo("마이레코드 타이틀");
+			assertThat(responseDto.getColorName()).isEqualTo("icon-purple");
+			assertThat(responseDto.getIconName()).isEqualTo("moon");
+			assertThat(responseDto.getCategoryName()).isEqualTo("축하해주세요");
+			assertThat(responseDto.getCommentCount()).isEqualTo(1);
+
+			assertThatCode(() -> recordService.getTodayRecentOneRecord())
+					.doesNotThrowAnyException();
 		}
 	}
 
