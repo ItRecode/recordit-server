@@ -412,6 +412,11 @@ class RecordServiceTest {
 			given(mockRecordIcon.getName())
 					.willReturn("moon");
 
+			given(mockRecord.getRecordCategory())
+					.willReturn(mockRecordCategory);
+			given(mockRecordCategory.getName())
+					.willReturn("축하해주세요");
+
 			given(mockRecord.getComments())
 					.willReturn(List.of(mockComment));
 
@@ -423,8 +428,9 @@ class RecordServiceTest {
 			assertThat(responseDto.getTitle()).isEqualTo("마이레코드 타이틀");
 			assertThat(responseDto.getColorName()).isEqualTo("icon-purple");
 			assertThat(responseDto.getIconName()).isEqualTo("moon");
+			assertThat(responseDto.getCategoryName()).isEqualTo("축하해주세요");
 			assertThat(responseDto.getCommentCount()).isEqualTo(1);
-			
+
 			assertThatCode(() -> recordService.getTodayRecentOneRecord())
 					.doesNotThrowAnyException();
 		}

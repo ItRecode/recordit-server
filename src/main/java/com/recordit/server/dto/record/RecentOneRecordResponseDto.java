@@ -26,19 +26,29 @@ public class RecentOneRecordResponseDto {
 	@ApiParam(value = "레코드 아이콘명", required = true)
 	private String iconName;
 
+	@ApiParam(value = "레코드 카테고리 명", required = true)
+	private String categoryName;
+
 	@ApiParam(value = "댓글 개수", required = true)
 	private Long commentCount;
 
 	@ApiParam(value = "작성 날짜", required = true)
 	private LocalDateTime createdAt;
 
-	private RecentOneRecordResponseDto(Long recordId, String title, String colorName, String iconName,
+	private RecentOneRecordResponseDto(
+			Long recordId,
+			String title,
+			String colorName,
+			String iconName,
+			String categoryName,
 			Long commentCount,
-			LocalDateTime createdAt) {
+			LocalDateTime createdAt
+	) {
 		this.recordId = recordId;
 		this.title = title;
 		this.colorName = colorName;
 		this.iconName = iconName;
+		this.categoryName = categoryName;
 		this.commentCount = commentCount;
 		this.createdAt = createdAt;
 	}
@@ -51,6 +61,7 @@ public class RecentOneRecordResponseDto {
 				record.getTitle(),
 				record.getRecordColor().getName(),
 				record.getRecordIcon().getName(),
+				record.getRecordCategory().getName(),
 				Long.valueOf(
 						record.getComments()
 								.stream()
