@@ -22,10 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentOneRecordResponseDto;
 import com.recordit.server.dto.record.RecentRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordResponseDto;
-import com.recordit.server.dto.record.RecordByDateRequestDto;
-import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -99,24 +98,21 @@ public class RecordController {
 	}
 
 	@ApiOperation(
-			value = "날짜로 작성한 레코드 조회",
-			notes = "날짜로 작성한 레코드를 조회합니다."
+			value = "사용자의 오늘 최신 레코드 한건 조회",
+			notes = "사용자의 오늘 최신 레코드 한건을 조회합니다."
 	)
 	@ApiResponses({
 			@ApiResponse(
-					code = 200, message = "날짜로 작성한 레코드 조회 성공",
-					response = RecordByDateResponseDto.class
+					code = 200, message = "날짜로 작성한 레코드 조회 성공"
 			),
 			@ApiResponse(
-					code = 400, message = "잘못된 요청입니다.",
+					code = 400, message = "로그인을 하지 않은 경우, 오늘 작성 된 레코드가 없는 경우",
 					response = ErrorMessage.class
 			)
 	})
-	@GetMapping
-	public ResponseEntity<RecordByDateResponseDto> getTodayWriteRecord(
-			@ModelAttribute RecordByDateRequestDto recordByDateRequestDto
-	) {
-		return ResponseEntity.ok().body(recordService.getRecordBy(recordByDateRequestDto));
+	@GetMapping("/today")
+	public ResponseEntity<RecentOneRecordResponseDto> todayRecentOneRecord() {
+		return ResponseEntity.ok().body(recordService.getTodayRecentOneRecord());
 	}
 
 	@ApiOperation(
