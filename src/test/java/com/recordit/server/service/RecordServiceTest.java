@@ -380,7 +380,7 @@ class RecordServiceTest {
 			// given
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockMember));
-			given(recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
+			given(recordRepository.findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
 					.willReturn(Optional.empty());
 
 			// when, then
@@ -395,7 +395,7 @@ class RecordServiceTest {
 			//given
 			given(memberRepository.findById(anyLong()))
 					.willReturn(Optional.of(mockMember));
-			given(recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
+			given(recordRepository.findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(any(), any(), any()))
 					.willReturn(Optional.of(mockRecord));
 			given(mockRecord.getId())
 					.willReturn(1L);

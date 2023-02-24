@@ -37,7 +37,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 	);
 
 	@EntityGraph(attributePaths = {"writer", "recordCategory", "recordIcon", "recordColor"})
-	Optional<Record> findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+	Optional<Record> findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 			Member writer,
 			LocalDateTime startTime,
 			LocalDateTime endTime

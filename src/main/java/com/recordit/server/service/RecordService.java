@@ -160,7 +160,7 @@ public class RecordService {
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		Record record = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+		Record record = recordRepository.findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 				member,
 				getStartOfDay(LocalDate.now()),
 				getEndOfDay(LocalDate.now())
