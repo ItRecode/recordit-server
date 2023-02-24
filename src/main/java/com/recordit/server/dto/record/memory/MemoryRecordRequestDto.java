@@ -1,7 +1,11 @@
 package com.recordit.server.dto.record.memory;
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
@@ -13,6 +17,10 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemoryRecordRequestDto {
+
+	@ApiParam(value = "조회할 날짜", example = "2022-11-16")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate date;
 
 	@ApiParam(value = "추억 레코드 조회 페이지 !주의: 0부터 시작", required = true, example = "0")
 	@NotNull

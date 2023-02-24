@@ -131,7 +131,7 @@ public class RecordController {
 	})
 	@GetMapping("/memory")
 	public ResponseEntity<MemoryRecordResponseDto> getMemoryRecordList(
-			@ModelAttribute @Valid MemoryRecordRequestDto memoryRecordRequestDto
+			@Valid MemoryRecordRequestDto memoryRecordRequestDto
 	) {
 		return ResponseEntity.ok().body(recordService.getMemoryRecords(memoryRecordRequestDto));
 	}
