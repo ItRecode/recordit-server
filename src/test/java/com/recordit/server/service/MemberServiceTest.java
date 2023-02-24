@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.domain.Member;
+import com.recordit.server.domain.MemberDeleteHistory;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
@@ -28,7 +29,10 @@ import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
 import com.recordit.server.exception.member.NotFoundUserInfoInSessionException;
+import com.recordit.server.repository.CommentRepository;
+import com.recordit.server.repository.MemberDeleteHistoryRepository;
 import com.recordit.server.repository.MemberRepository;
+import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.service.oauth.OauthService;
 import com.recordit.server.service.oauth.OauthServiceLocator;
 import com.recordit.server.util.RedisManager;
@@ -39,6 +43,15 @@ public class MemberServiceTest {
 
 	@InjectMocks
 	private MemberService memberService;
+
+	@Mock
+	private MemberDeleteHistoryRepository memberDeleteHistoryRepository;
+
+	@Mock
+	private RecordRepository recordRepository;
+
+	@Mock
+	private CommentRepository commentRepository;
 
 	@Mock
 	private OauthServiceLocator oauthServiceLocator;
@@ -303,6 +316,47 @@ public class MemberServiceTest {
 			//when, then
 			assertThatCode(() -> memberService.modifyMember(modifyMemberRequestDto))
 					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("회원탈퇴_에서")
+	class 회원탈퇴_에서 {
+		private Long memberId = 1L;
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> memberService.deleteMember())
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			// given
+			given(sessionUtil.findUserIdBySession()).willReturn(memberId);
+			given(memberRepository.findById(memberId)).willReturn(Optional.of(mockMember));
+
+			// when
+			Long deletedUserId = memberService.deleteMember();
+
+			// then
+			assertThat(deletedUserId).isEqualTo(memberId);
+
+			verify(memberRepository, times(1)).delete(mockMember);
+			verify(memberDeleteHistoryRepository, times(1)).save(any(MemberDeleteHistory.class));
+			verify(recordRepository, times(1)).deleteByWriter(mockMember);
+			verify(commentRepository, times(1)).deleteByWriter(mockMember);
 		}
 	}
 }
