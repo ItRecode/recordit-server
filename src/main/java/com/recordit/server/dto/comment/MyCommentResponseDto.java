@@ -10,7 +10,6 @@ import com.recordit.server.domain.Comment;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -29,13 +28,24 @@ public class MyCommentResponseDto {
 	@ApiModelProperty(notes = "내가 작성한 댓글 리스트", required = true)
 	private List<MyCommentDto> myCommentDtos;
 
-	@Builder
-	public MyCommentResponseDto(Page<Comment> comments) {
-		totalPage = comments.getTotalPages();
-		totalCount = comments.getTotalElements();
-		myCommentDtos = comments.getContent().stream()
-				.map(
-						comment -> MyCommentDto.builder().comment(comment).build()
-				).collect(Collectors.toList());
+	private MyCommentResponseDto(
+			Integer totalPage,
+			Long totalCount,
+			List<MyCommentDto> myCommentDtos
+	) {
+		this.totalPage = totalPage;
+		this.totalCount = totalCount;
+		this.myCommentDtos = myCommentDtos;
+	}
+
+	public static MyCommentResponseDto of(Page<Comment> comments) {
+		return new MyCommentResponseDto(
+				comments.getTotalPages(),
+				comments.getTotalElements(),
+				comments.getContent().stream()
+						.map(
+								comment -> MyCommentDto.of(comment)
+						).collect(Collectors.toList())
+		);
 	}
 }

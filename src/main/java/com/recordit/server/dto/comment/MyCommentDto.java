@@ -7,7 +7,6 @@ import com.recordit.server.domain.Comment;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -41,15 +40,36 @@ public class MyCommentDto {
 	@ApiModelProperty(notes = "레코드에 달린 댓글 작성 시간")
 	private LocalDateTime commentCreatedAt;
 
-	@Builder
-	public MyCommentDto(Comment comment) {
-		this.categoryName = comment.getRecord().getRecordCategory().getName();
-		this.recordId = comment.getRecord().getId();
-		this.title = comment.getRecord().getTitle();
-		this.iconName = comment.getRecord().getRecordIcon().getName();
-		this.colorName = comment.getRecord().getRecordColor().getName();
-		this.recordCreatedAt = comment.getRecord().getCreatedAt();
-		this.commentContent = comment.getContent();
-		this.commentCreatedAt = comment.getCreatedAt();
+	private MyCommentDto(
+			String categoryName,
+			Long recordId,
+			String title,
+			String iconName,
+			String colorName,
+			LocalDateTime recordCreatedAt,
+			String commentContent,
+			LocalDateTime commentCreatedAt
+	) {
+		this.categoryName = categoryName;
+		this.recordId = recordId;
+		this.title = title;
+		this.iconName = iconName;
+		this.colorName = colorName;
+		this.recordCreatedAt = recordCreatedAt;
+		this.commentContent = commentContent;
+		this.commentCreatedAt = commentCreatedAt;
+	}
+
+	public static MyCommentDto of(Comment comment) {
+		return new MyCommentDto(
+				comment.getRecord().getRecordCategory().getName(),
+				comment.getRecord().getId(),
+				comment.getRecord().getTitle(),
+				comment.getRecord().getRecordIcon().getName(),
+				comment.getRecord().getRecordColor().getName(),
+				comment.getRecord().getCreatedAt(),
+				comment.getContent(),
+				comment.getCreatedAt()
+		);
 	}
 }

@@ -233,8 +233,6 @@ public class CommentService {
 
 		Page<Comment> findComments = commentRepository.findByWriter(member, pageRequest);
 
-		return MyCommentResponseDto.builder()
-				.comments(findComments)
-				.build();
+		return MyCommentResponseDto.of(findComments);
 	}
 }
