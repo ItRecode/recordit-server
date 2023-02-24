@@ -110,14 +110,7 @@ public class MemberService {
 		return member.modify(modifyMemberRequestDto);
 	}
 
-	public Long logout() {
-		Long userIdBySession = sessionUtil.findUserIdBySession();
-
-		Member member = memberRepository.findById(userIdBySession)
-				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
-
+	public void logout() {
 		sessionUtil.invalidateSession();
-
-		return userIdBySession;
 	}
 }

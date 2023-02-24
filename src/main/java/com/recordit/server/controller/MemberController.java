@@ -153,10 +153,9 @@ public class MemberController {
 	)
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "로그아웃 성공", response = Long.class),
-			@ApiResponse(code = 400, message = "잘못된 요청")
 	})
 	@PostMapping("/logout")
-	public ResponseEntity<Long> logout() {
-		return ResponseEntity.status(HttpStatus.OK).body(memberService.logout());
+	public void logout() {
+		memberService.logout();
 	}
 }
