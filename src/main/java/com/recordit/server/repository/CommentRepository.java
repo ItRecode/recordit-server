@@ -6,10 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -31,4 +33,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
 	List<Comment> findByRecord(Record fixRecord);
+
+	@Modifying
+	@Query("update COMMENT c set c.deletedAt = CURRENT_TIMESTAMP where c.writer = :writer and c.deletedAt is null")
+	void deleteByWriter(@Param("writer") Member writer);
 }

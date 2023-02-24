@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.domain.Member;
+import com.recordit.server.domain.MemberDeleteHistory;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
@@ -18,7 +19,10 @@ import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
+import com.recordit.server.repository.CommentRepository;
+import com.recordit.server.repository.MemberDeleteHistoryRepository;
 import com.recordit.server.repository.MemberRepository;
+import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.service.oauth.OauthService;
 import com.recordit.server.service.oauth.OauthServiceLocator;
 import com.recordit.server.util.RedisManager;
@@ -33,8 +37,11 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 	private final OauthServiceLocator oauthServiceLocator;
 	private final MemberRepository memberRepository;
+	private final RecordRepository recordRepository;
+	private final CommentRepository commentRepository;
 	private final SessionUtil sessionUtil;
 	private final RedisManager redisManager;
+	private final MemberDeleteHistoryRepository memberDeleteHistoryRepository;
 
 	@Transactional
 	public Optional<RegisterSessionResponseDto> oauthLogin(LoginType loginType, LoginRequestDto loginRequestDto) {
@@ -108,5 +115,20 @@ public class MemberService {
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
 		return member.modify(modifyMemberRequestDto);
+	}
+
+	@Transactional
+	public Long deleteMember() {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		memberRepository.delete(member);
+		memberDeleteHistoryRepository.save(MemberDeleteHistory.of(member.getId()));
+		recordRepository.deleteByWriter(member);
+		commentRepository.deleteByWriter(member);
+
+		return userIdBySession;
 	}
 }

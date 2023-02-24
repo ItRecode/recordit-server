@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -146,4 +147,18 @@ public class MemberController {
 	public ResponseEntity<Long> modifyMember(@RequestBody @Valid ModifyMemberRequestDto modifyMemberRequestDto) {
 		return ResponseEntity.status(HttpStatus.OK).body(memberService.modifyMember(modifyMemberRequestDto));
 	}
+
+	@ApiOperation(
+			value = "회원탈퇴",
+			notes = "회원탈퇴"
+	)
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "회원탈퇴한 회원의 PK값", response = Long.class),
+			@ApiResponse(code = 400, message = "잘못된 요청")
+	})
+	@DeleteMapping("/delete")
+	public ResponseEntity<Long> deleteMember() {
+		return ResponseEntity.status(HttpStatus.OK).body(memberService.deleteMember());
+	}
+
 }
