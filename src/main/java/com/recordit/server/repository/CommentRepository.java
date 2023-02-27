@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -31,4 +32,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
 	List<Comment> findByRecord(Record fixRecord);
+
+	@EntityGraph(attributePaths = {"record", "record.recordCategory", "record.recordColor", "record.recordIcon"})
+	Page<Comment> findByWriter(Member writer, Pageable pageable);
 }
