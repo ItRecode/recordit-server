@@ -305,4 +305,42 @@ public class MemberServiceTest {
 					.doesNotThrowAnyException();
 		}
 	}
+
+	@Nested
+	@DisplayName("로그아웃_에서")
+	class 로그아웃_에서 {
+
+		Long memberId = 1L;
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> memberService.logout())
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.of(mockMember));
+
+			//when, then
+			assertThatCode(() -> memberService.logout())
+					.doesNotThrowAnyException();
+		}
+	}
 }
