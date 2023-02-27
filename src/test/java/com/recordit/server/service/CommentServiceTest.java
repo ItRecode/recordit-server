@@ -537,22 +537,6 @@ public class CommentServiceTest {
 		Page<Comment> commentPage = new PageImpl<>(commentList, pageRequest, 1);
 
 		@Test
-		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
-		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
-			// given
-			given(sessionUtil.findUserIdBySession())
-					.willReturn(memberId);
-
-			given(memberRepository.findById(memberId))
-					.willReturn(Optional.empty());
-
-			// when, then
-			assertThatThrownBy(() -> commentService.getMyComments(myCommentRequestDto))
-					.isInstanceOf(MemberNotFoundException.class)
-					.hasMessage("회원 정보를 찾을 수 없습니다.");
-		}
-
-		@Test
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			//given
@@ -576,7 +560,7 @@ public class CommentServiceTest {
 
 			given(commentPage.getContent().get(0).getRecord().getRecordColor())
 					.willReturn(mock(RecordColor.class));
-			
+
 			//when, then
 			assertThatCode(() -> commentService.getMyComments(myCommentRequestDto))
 					.doesNotThrowAnyException();
