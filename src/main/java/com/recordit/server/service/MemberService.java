@@ -2,6 +2,8 @@ package com.recordit.server.service;
 
 import static com.recordit.server.constant.RegisterSessionConstants.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +21,7 @@ import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
+import com.recordit.server.exception.member.SignupCooldownException;
 import com.recordit.server.repository.CommentRepository;
 import com.recordit.server.repository.MemberDeleteHistoryRepository;
 import com.recordit.server.repository.MemberRepository;
@@ -75,6 +78,23 @@ public class MemberService {
 		if (oauthId.isEmpty()) {
 			log.warn("요청한 Register Session이 존재하지 않음 : {}", registerRequestDto.getRegisterSession());
 			throw new NotFoundRegisterSessionException("Oauth 회원가입을 위한 register_session이 존재하지 않습니다.");
+		}
+
+		Optional<Member> findMember = memberRepository
+				.findTopByOauthIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(oauthId.get());
+
+		if (findMember.isPresent()) {
+			Optional<MemberDeleteHistory> memberDeleteHistory = memberDeleteHistoryRepository
+					.findByMemberIdAndHistoryDeletedAtIsNull(findMember.get().getId());
+
+			if (memberDeleteHistory.isPresent()) {
+				throw new SignupCooldownException(
+						"해당 계정은 회원탈퇴 상태이므로 회원탈퇴후 일주일 경과 시간인 '"
+								+ LocalDateTime.of(
+								memberDeleteHistory.get().getMemberDeletedAt().plusWeeks(1L).toLocalDate(),
+								LocalTime.MIN)
+								+ "' 이후에 재가입 가능합니다");
+			}
 		}
 
 		isDuplicateNickname(registerRequestDto.getNickname());

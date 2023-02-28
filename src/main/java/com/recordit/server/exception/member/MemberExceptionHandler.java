@@ -50,5 +50,12 @@ public class MemberExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
 	}
+
+	@ExceptionHandler(SignupCooldownException.class)
+	public ResponseEntity<ErrorMessage> handleSignupCooldownException(
+			SignupCooldownException exception) {
+		return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+	}
 }
 

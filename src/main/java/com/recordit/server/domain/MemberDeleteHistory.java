@@ -11,10 +11,12 @@ import javax.persistence.Id;
 import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "MEMBER_DELETE_HISTORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class MemberDeleteHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

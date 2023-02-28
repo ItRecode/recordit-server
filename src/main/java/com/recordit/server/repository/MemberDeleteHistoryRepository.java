@@ -1,6 +1,7 @@
 package com.recordit.server.repository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,4 +20,6 @@ public interface MemberDeleteHistoryRepository extends JpaRepository<MemberDelet
 			@Param("oneWeekAgoStart") LocalDateTime oneWeekAgoStart,
 			@Param("oneWeekAgoEnd") LocalDateTime oneWeekAgoEnd
 	);
+
+	Optional<MemberDeleteHistory> findByMemberIdAndHistoryDeletedAtIsNull(Long memberId);
 }
