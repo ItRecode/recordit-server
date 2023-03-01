@@ -183,11 +183,7 @@ public class RecordService {
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
-		Page<Record> findRecords = recordRepository.findByWriterFetchAllCreatedAtBefore(
-				member,
-				DateTimeUtil.getStartOfToday(),
-				pageRequest
-		);
+		Page<Record> findRecords = lookupRecordsByDate(memoryRecordRequestDto, member, pageRequest);
 
 		Map<Record, List<Comment>> recordToComments = new LinkedHashMap<>();
 		for (Record findRecord : findRecords) {
@@ -206,10 +202,7 @@ public class RecordService {
 			);
 		}
 
-		return MemoryRecordResponseDto.builder()
-				.memoryRecords(findRecords)
-				.recordToComments(recordToComments)
-				.build();
+		return MemoryRecordResponseDto.of(findRecords, recordToComments);
 	}
 
 	@Transactional
@@ -406,5 +399,26 @@ public class RecordService {
 	@Cacheable(value = "RecordAllCount")
 	public long getRecordAllCount() {
 		return recordRepository.count();
+	}
+
+	private Page<Record> lookupRecordsByDate(
+			MemoryRecordRequestDto memoryRecordRequestDto,
+			Member member,
+			PageRequest pageRequest
+	) {
+		if (memoryRecordRequestDto.getDate() != null) {
+			return recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+					member,
+					getStartOfDay(memoryRecordRequestDto.getDate()),
+					getEndOfDay(memoryRecordRequestDto.getDate()),
+					pageRequest
+			);
+		}
+
+		return recordRepository.findByWriterFetchAllCreatedAtBefore(
+				member,
+				DateTimeUtil.getStartOfToday(),
+				pageRequest
+		);
 	}
 }

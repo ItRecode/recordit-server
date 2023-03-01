@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -353,6 +355,69 @@ class RecordServiceTest {
 			assertThatThrownBy(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
 					.isInstanceOf(MemberNotFoundException.class)
 					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("날짜가 없다면 정상적으로 추억레코드가 조회된다")
+		void 날짜가_없다면_모든날짜로_검색하며_예외를_던지지_않는다() {
+			// given
+			MemoryRecordRequestDto memoryRecordRequestDto = mock(MemoryRecordRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(memoryRecordRequestDto.getMemoryRecordSize())
+					.willReturn(10);
+			given(memoryRecordRequestDto.getMemoryRecordPage())
+					.willReturn(0);
+
+			given(recordRepository.findByWriterFetchAllCreatedAtBefore(any(Member.class), any(LocalDateTime.class),
+					any(PageRequest.class)))
+					.willReturn(new PageImpl<>(Collections.emptyList()));
+			ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+			// when, then
+			assertThatCode(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
+					.doesNotThrowAnyException();
+			verify(recordRepository, times(1))
+					.findByWriterFetchAllCreatedAtBefore(
+							captor.capture(),
+							any(LocalDateTime.class),
+							any(PageRequest.class));
+		}
+
+		@Test
+		@DisplayName("날짜가 있다면 날짜로 추억레코드를 검색하며 예외를 던지지 않는다")
+		void 날짜가_있다면_날짜로_추억레코드를_검색하며_예외를_던지지_않는다() {
+			// given
+			MemoryRecordRequestDto memoryRecordRequestDto = mock(MemoryRecordRequestDto.class);
+
+			given(memberRepository.findById(anyLong()))
+					.willReturn(Optional.of(mockMember));
+			given(memoryRecordRequestDto.getDate())
+					.willReturn(LocalDate.now());
+			given(memoryRecordRequestDto.getMemoryRecordSize())
+					.willReturn(10);
+			given(memoryRecordRequestDto.getMemoryRecordPage())
+					.willReturn(0);
+
+			given(recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+					any(Member.class),
+					any(LocalDateTime.class),
+					any(LocalDateTime.class),
+					any(PageRequest.class)))
+					.willReturn(new PageImpl<>(Collections.emptyList()));
+
+			ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+			// when, then
+			assertThatCode(() -> recordService.getMemoryRecords(memoryRecordRequestDto))
+					.doesNotThrowAnyException();
+			verify(recordRepository, times(1))
+					.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+							captor.capture(),
+							any(LocalDateTime.class),
+							any(LocalDateTime.class),
+							any(PageRequest.class));
 		}
 
 	}
