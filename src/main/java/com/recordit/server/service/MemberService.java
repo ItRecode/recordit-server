@@ -89,11 +89,10 @@ public class MemberService {
 
 			if (memberDeleteHistory.isPresent()) {
 				throw new SignupCooldownException(
-						"해당 계정은 회원탈퇴 상태이므로 회원탈퇴후 일주일 경과 시간인 '"
-								+ LocalDateTime.of(
+						LocalDateTime.of(
 								memberDeleteHistory.get().getMemberDeletedAt().plusWeeks(1L).toLocalDate(),
-								LocalTime.MIN)
-								+ "' 이후에 재가입 가능합니다");
+								LocalTime.MIN) + ""
+				);
 			}
 		}
 

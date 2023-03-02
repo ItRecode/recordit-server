@@ -54,8 +54,8 @@ public class MemberExceptionHandler {
 	@ExceptionHandler(SignupCooldownException.class)
 	public ResponseEntity<ErrorMessage> handleSignupCooldownException(
 			SignupCooldownException exception) {
-		return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ErrorMessage.of(exception, HttpStatus.FORBIDDEN));
 	}
 }
 

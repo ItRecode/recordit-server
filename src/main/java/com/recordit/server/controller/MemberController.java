@@ -21,6 +21,7 @@ import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
 import com.recordit.server.dto.member.RegisterSessionResponseDto;
+import com.recordit.server.exception.ErrorMessage;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.service.MemberService;
 import com.recordit.server.util.SessionUtil;
@@ -154,7 +155,7 @@ public class MemberController {
 	)
 	@ApiResponses({
 			@ApiResponse(code = 200, message = "회원탈퇴한 회원의 PK값", response = Long.class),
-			@ApiResponse(code = 400, message = "잘못된 요청")
+			@ApiResponse(code = 400, message = "잘못된 요청", response = ErrorMessage.class)
 	})
 	@DeleteMapping("/delete")
 	public ResponseEntity<Long> deleteMember() {
