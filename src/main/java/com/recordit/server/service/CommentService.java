@@ -233,10 +233,12 @@ public class CommentService {
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
-		Page<Record> records = recordRepository.findRecordsByDistinctCommentWriter(member, pageRequest);
+		Page<Record> recordPage = recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest);
+		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent());
+
 		LinkedHashMap<Record, List<Comment>> recordListLinkedHashMap = new LinkedHashMap<>();
 
-		for (Record record : records.getContent()) {
+		for (Record record : records) {
 			recordListLinkedHashMap.put(
 					record,
 					record.getComments()
@@ -248,6 +250,6 @@ public class CommentService {
 			);
 		}
 
-		return MyCommentResponseDto.of(records, recordListLinkedHashMap);
+		return MyCommentResponseDto.of(recordPage, recordListLinkedHashMap);
 	}
 }

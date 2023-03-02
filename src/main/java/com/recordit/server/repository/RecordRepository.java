@@ -104,11 +104,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			LocalDateTime endTime
 	);
 
+	@Query("select distinct r from RECORD r left join r.comments rs where rs.writer = :writer")
+	Page<Record> findDistinctRecordsByCommentWriter(@Param("writer") Member member, Pageable pageable);
+
 	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor", "comments"})
-	@Query("select r from RECORD r "
-			+ "where r in "
-			+ "(select distinct r from RECORD r "
-			+ "left join r.comments cs where cs.writer = :writer) "
-	)
-	Page<Record> findRecordsByDistinctCommentWriter(@Param("writer") Member member, Pageable pageable);
+	@Query("select r from RECORD r where r in :records")
+	List<Record> findByRecordIn(@Param("records") List<Record> records);
 }

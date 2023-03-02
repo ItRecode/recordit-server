@@ -562,8 +562,11 @@ public class CommentServiceTest {
 			given(memberRepository.findById(memberId))
 					.willReturn(Optional.of(member));
 
-			given(recordRepository.findRecordsByDistinctCommentWriter(member, pageRequest))
+			given(recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest))
 					.willReturn(recordPage);
+
+			given(recordRepository.findByRecordIn(recordList))
+					.willReturn(recordList);
 
 			given(recordPage.getContent().get(0).getRecordCategory())
 					.willReturn(mock(RecordCategory.class));
