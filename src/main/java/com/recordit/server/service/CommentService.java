@@ -1,5 +1,7 @@
 package com.recordit.server.service;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -231,8 +233,21 @@ public class CommentService {
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
-		Page<Comment> findComments = commentRepository.findByWriter(member, pageRequest);
+		Page<Record> records = recordRepository.findRecordsByDistinctCommentWriter(member, pageRequest);
+		LinkedHashMap<Record, List<Comment>> recordListLinkedHashMap = new LinkedHashMap<>();
 
-		return MyCommentResponseDto.of(findComments);
+		for (Record record : records.getContent()) {
+			recordListLinkedHashMap.put(
+					record,
+					record.getComments()
+							.stream()
+							.filter(comment -> comment.getWriter().getId().equals(member.getId()))
+							.sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
+							.limit(3L)
+							.collect(Collectors.toList())
+			);
+		}
+
+		return MyCommentResponseDto.of(records, recordListLinkedHashMap);
 	}
 }
