@@ -136,6 +136,10 @@ public class MemberService {
 		return member.modify(modifyMemberRequestDto);
 	}
 
+	public void logout() {
+		sessionUtil.invalidateSession();
+	}
+
 	@Transactional
 	public Long deleteMember() {
 		Long userIdBySession = sessionUtil.findUserIdBySession();

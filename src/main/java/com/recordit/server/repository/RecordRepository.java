@@ -37,20 +37,19 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			Pageable pageable
 	);
 
-	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor"})
-	@Query("select r "
-			+ "from RECORD r "
-			+ "left join r.recordCategory "
-			+ "left join r.recordIcon "
-			+ "left join r.recordColor "
-			+ "where r.writer = :writer "
-			+ "and :startTime <= r.createdAt and r.createdAt <= :endTime "
-	)
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "recordIcon", "recordColor"})
 	Page<Record> findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
-			@Param("writer") Member writer,
-			@Param("startTime") LocalDateTime startTime,
-			@Param("endTime") LocalDateTime endTime,
+			Member writer,
+			LocalDateTime startTime,
+			LocalDateTime endTime,
 			Pageable pageable
+	);
+
+	@EntityGraph(attributePaths = {"writer", "recordCategory", "recordIcon", "recordColor"})
+	Optional<Record> findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+			Member writer,
+			LocalDateTime startTime,
+			LocalDateTime endTime
 	);
 
 	@Query("select r from RECORD r join fetch r.writer where r.id = :id")

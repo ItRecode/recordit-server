@@ -320,6 +320,20 @@ public class MemberServiceTest {
 	}
 
 	@Nested
+	@DisplayName("로그아웃_에서")
+	class 로그아웃_에서 {
+		Long memberId = 1L;
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//when, then
+			assertThatCode(() -> memberService.logout())
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
 	@DisplayName("회원탈퇴_에서")
 	class 회원탈퇴_에서 {
 		private Long memberId = 1L;

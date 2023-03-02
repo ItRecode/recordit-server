@@ -150,6 +150,18 @@ public class MemberController {
 	}
 
 	@ApiOperation(
+			value = "로그아웃",
+			notes = "로그아웃"
+	)
+	@ApiResponses({
+			@ApiResponse(code = 200, message = "로그아웃 성공", response = Long.class),
+	})
+	@PostMapping("/logout")
+	public void logout() {
+		memberService.logout();
+	}
+
+	@ApiOperation(
 			value = "회원탈퇴",
 			notes = "회원탈퇴"
 	)

@@ -34,6 +34,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	@EntityGraph(attributePaths = {"record", "record.recordColor", "record.recordIcon"})
 	List<Comment> findByRecord(Record fixRecord);
 
+	@EntityGraph(attributePaths = {"record", "record.recordCategory", "record.recordColor", "record.recordIcon"})
+	Page<Comment> findByWriter(Member writer, Pageable pageable);
+
 	@Modifying
 	@Query("update COMMENT c set c.deletedAt = CURRENT_TIMESTAMP where c.writer = :writer and c.deletedAt is null")
 	void deleteByWriter(@Param("writer") Member writer);

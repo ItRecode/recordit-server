@@ -3,6 +3,7 @@ package com.recordit.server.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +14,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
+import com.recordit.server.domain.RecordCategory;
+import com.recordit.server.domain.RecordColor;
+import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
+import com.recordit.server.dto.comment.MyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -505,6 +514,71 @@ public class CommentServiceTest {
 
 			// when, then
 			assertThatCode(() -> commentService.modifyComment(1123L, modifyCommentRequestDto, multipartFile))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("내가작성한 댓글 조회에서")
+	class 내가작성한_댓글_조회에서 {
+		private Long memberId = 1L;
+		private MyCommentRequestDto myCommentRequestDto = MyCommentRequestDto.builder()
+				.page(1)
+				.size(10)
+				.build();
+		Member member = mock(Member.class);
+		PageRequest pageRequest = PageRequest.of(
+				myCommentRequestDto.getPage(),
+				myCommentRequestDto.getSize(),
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		);
+
+		List<Comment> commentList = List.of(mock(Comment.class));
+		Page<Comment> commentPage = new PageImpl<>(commentList, pageRequest, 1);
+
+		@Test
+		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
+		void 회원_정보를_찾을_수_없다면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.empty());
+
+			// when, then
+			assertThatThrownBy(() -> commentService.getMyComments(myCommentRequestDto))
+					.isInstanceOf(MemberNotFoundException.class)
+					.hasMessage("회원 정보를 찾을 수 없습니다.");
+		}
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.of(member));
+
+			given(commentRepository.findByWriter(member, pageRequest))
+					.willReturn(commentPage);
+
+			given(commentPage.getContent().get(0).getRecord())
+					.willReturn(mock(Record.class));
+
+			given(commentPage.getContent().get(0).getRecord().getRecordCategory())
+					.willReturn(mock(RecordCategory.class));
+
+			given(commentPage.getContent().get(0).getRecord().getRecordIcon())
+					.willReturn(mock(RecordIcon.class));
+
+			given(commentPage.getContent().get(0).getRecord().getRecordColor())
+					.willReturn(mock(RecordColor.class));
+			
+			//when, then
+			assertThatCode(() -> commentService.getMyComments(myCommentRequestDto))
 					.doesNotThrowAnyException();
 		}
 	}

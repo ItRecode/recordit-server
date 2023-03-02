@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
+import com.recordit.server.dto.comment.MyCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.ErrorMessage;
@@ -125,5 +126,24 @@ public class CommentController {
 	) {
 		commentService.modifyComment(commentId, modifyCommentRequestDto, attachment);
 		return ResponseEntity.ok().build();
+	}
+
+	@ApiOperation(
+			value = "내가 작성한 댓글 조회",
+			notes = "내가 작성한 댓글 조회 합니다."
+	)
+	@ApiResponses({
+			@ApiResponse(
+					code = 200, message = "내가 작성한 댓글 조회 성공"
+			),
+			@ApiResponse(
+					code = 400,
+					message = "잘못 된 요청",
+					response = ErrorMessage.class
+			)
+	})
+	@GetMapping("/my")
+	public ResponseEntity getMyComments(@ModelAttribute @Valid MyCommentRequestDto myCommentRequestDto) {
+		return ResponseEntity.ok().body(commentService.getMyComments(myCommentRequestDto));
 	}
 }

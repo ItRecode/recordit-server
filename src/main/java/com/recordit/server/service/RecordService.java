@@ -2,6 +2,7 @@ package com.recordit.server.service;
 
 import static com.recordit.server.util.DateTimeUtil.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,10 +32,9 @@ import com.recordit.server.domain.RecordIcon;
 import com.recordit.server.dto.record.ModifyRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordRequestDto;
 import com.recordit.server.dto.record.RandomRecordResponseDto;
+import com.recordit.server.dto.record.RecentOneRecordResponseDto;
 import com.recordit.server.dto.record.RecentRecordRequestDto;
 import com.recordit.server.dto.record.RecentRecordResponseDto;
-import com.recordit.server.dto.record.RecordByDateRequestDto;
-import com.recordit.server.dto.record.RecordByDateResponseDto;
 import com.recordit.server.dto.record.RecordBySearchRequestDto;
 import com.recordit.server.dto.record.RecordBySearchResponseDto;
 import com.recordit.server.dto.record.RecordDetailResponseDto;
@@ -153,39 +153,20 @@ public class RecordService {
 	}
 
 	@Transactional(readOnly = true)
-	public RecordByDateResponseDto getRecordBy(RecordByDateRequestDto recordByDateRequestDto) {
+	public RecentOneRecordResponseDto getTodayRecentOneRecord() {
 		Long userIdBySession = sessionUtil.findUserIdBySession();
 		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
 
 		Member member = memberRepository.findById(userIdBySession)
 				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
 
-		Page<Record> findRecords = recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+		Record record = recordRepository.findFirstByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
 				member,
-				getStartOfDay(recordByDateRequestDto.getDate()),
-				DateTimeUtil.getEndOfDay(recordByDateRequestDto.getDate()),
-				PageRequest.of(
-						recordByDateRequestDto.getPage(),
-						recordByDateRequestDto.getSize(),
-						Sort.Direction.DESC,
-						"createdAt"
-				)
-		);
+				getStartOfDay(LocalDate.now()),
+				getEndOfDay(LocalDate.now())
+		).orElseThrow(() -> new RecordNotFoundException("오늘 쓴 레코드를 찾을 수 없습니다."));
 
-		LinkedHashMap<Record, Long> recordToNumOfComment = new LinkedHashMap<>();
-		for (Record record : findRecords) {
-			recordToNumOfComment.put(
-					// key
-					record,
-					// value
-					commentRepository.countByRecordAndParentCommentIsNull(record)
-			);
-		}
-
-		return RecordByDateResponseDto.builder()
-				.records(findRecords)
-				.recordToNumOfComments(recordToNumOfComment)
-				.build();
+		return RecentOneRecordResponseDto.of(record);
 	}
 
 	@Transactional(readOnly = true)
@@ -202,11 +183,7 @@ public class RecordService {
 				Sort.by(Sort.Direction.DESC, "createdAt")
 		);
 
-		Page<Record> findRecords = recordRepository.findByWriterFetchAllCreatedAtBefore(
-				member,
-				DateTimeUtil.getStartOfToday(),
-				pageRequest
-		);
+		Page<Record> findRecords = lookupRecordsByDate(memoryRecordRequestDto, member, pageRequest);
 
 		Map<Record, List<Comment>> recordToComments = new LinkedHashMap<>();
 		for (Record findRecord : findRecords) {
@@ -225,10 +202,7 @@ public class RecordService {
 			);
 		}
 
-		return MemoryRecordResponseDto.builder()
-				.memoryRecords(findRecords)
-				.recordToComments(recordToComments)
-				.build();
+		return MemoryRecordResponseDto.of(findRecords, recordToComments);
 	}
 
 	@Transactional
@@ -425,5 +399,26 @@ public class RecordService {
 	@Cacheable(value = "RecordAllCount")
 	public long getRecordAllCount() {
 		return recordRepository.count();
+	}
+
+	private Page<Record> lookupRecordsByDate(
+			MemoryRecordRequestDto memoryRecordRequestDto,
+			Member member,
+			PageRequest pageRequest
+	) {
+		if (memoryRecordRequestDto.getDate() != null) {
+			return recordRepository.findAllByWriterAndCreatedAtBetweenOrderByCreatedAtDesc(
+					member,
+					getStartOfDay(memoryRecordRequestDto.getDate()),
+					getEndOfDay(memoryRecordRequestDto.getDate()),
+					pageRequest
+			);
+		}
+
+		return recordRepository.findByWriterFetchAllCreatedAtBefore(
+				member,
+				DateTimeUtil.getStartOfToday(),
+				pageRequest
+		);
 	}
 }

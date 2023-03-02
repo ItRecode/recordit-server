@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Record;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -33,25 +33,32 @@ public class MemoryRecordDto {
 	@ApiModelProperty(notes = "추억 레코드 댓글 리스트")
 	private List<MemoryRecordCommentDto> memoryRecordComments;
 
-	@Builder
-	public MemoryRecordDto(
+	private MemoryRecordDto(
 			Long recordId,
 			String title,
 			String iconName,
 			String colorName,
-			List<Comment> memoryRecordComments
+			List<MemoryRecordCommentDto> memoryRecordComments
 	) {
 		this.recordId = recordId;
 		this.title = title;
 		this.iconName = iconName;
 		this.colorName = colorName;
-		this.memoryRecordComments = memoryRecordComments.stream()
-				.map(
-						comment -> MemoryRecordCommentDto.builder()
-								.commentId(comment.getId())
-								.content(comment.getContent())
-								.build()
-				)
-				.collect(Collectors.toList());
+		this.memoryRecordComments = memoryRecordComments;
+	}
+
+	public static MemoryRecordDto of(
+			Record record,
+			List<Comment> memoryRecordComments
+	) {
+		return new MemoryRecordDto(
+				record.getId(),
+				record.getTitle(),
+				record.getRecordIcon().getName(),
+				record.getRecordColor().getName(),
+				memoryRecordComments.stream()
+						.map(comment -> MemoryRecordCommentDto.of(comment))
+						.collect(Collectors.toList())
+		);
 	}
 }
