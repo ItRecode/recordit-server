@@ -243,7 +243,8 @@ public class CommentService {
 					record,
 					record.getComments()
 							.stream()
-							.filter(comment -> comment.getWriter().getId().equals(member.getId()))
+							.filter(comment -> comment.getWriter() != null
+									&& comment.getWriter().getId().equals(member.getId()))
 							.sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
 							.limit(3L)
 							.collect(Collectors.toList())

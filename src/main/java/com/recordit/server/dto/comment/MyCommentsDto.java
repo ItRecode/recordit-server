@@ -19,28 +19,28 @@ import lombok.ToString;
 @ApiModel
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MyCommentsDto {
-	@ApiModelProperty(notes = "레코드의 카테고리 이름")
+	@ApiModelProperty(notes = "레코드의 카테고리 이름", required = true, example = "축하해주세요")
 	private String categoryName;
 
-	@ApiModelProperty(notes = "레코드 아이디")
+	@ApiModelProperty(notes = "레코드 아이디", required = true)
 	private Long recordId;
 
-	@ApiModelProperty(notes = "레코드의 제목")
+	@ApiModelProperty(notes = "레코드의 제목", required = true, example = "제목")
 	private String title;
 
-	@ApiModelProperty(notes = "레코드의 아이콘 이름")
+	@ApiModelProperty(notes = "레코드의 아이콘 이름", required = true, example = "moon")
 	private String iconName;
 
-	@ApiModelProperty(notes = "레코드의 색상 이름")
+	@ApiModelProperty(notes = "레코드의 색상 이름", required = true, example = "icon-pink")
 	private String colorName;
 
-	@ApiModelProperty(notes = "레코드 작성 시각")
+	@ApiModelProperty(notes = "레코드 작성 시각", required = true)
 	private LocalDateTime recordCreatedAt;
 
-	@ApiModelProperty(notes = "레코드에 달린 모든 댓글 갯수")
+	@ApiModelProperty(notes = "레코드에 달린 모든 댓글 갯수", required = true)
 	private Integer commentsCount;
 
-	@ApiModelProperty(notes = "내가 작성한 댓글 리스트")
+	@ApiModelProperty(notes = "내가 작성한 댓글 리스트", required = true)
 	private List<MyCommentDto> myCommentDtos;
 
 	private MyCommentsDto(
