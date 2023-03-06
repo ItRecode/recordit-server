@@ -233,9 +233,7 @@ public class CommentService {
 		);
 
 		Page<Record> recordPage = recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest);
-		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent()).stream()
-				.sorted(Comparator.comparing(Record::getCreatedAt).reversed())
-				.collect(Collectors.toList());
+		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent());
 
 		LinkedHashMap<Record, List<Comment>> recordListLinkedHashMap = new LinkedHashMap<>();
 

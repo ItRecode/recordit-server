@@ -108,6 +108,6 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 	Page<Record> findDistinctRecordsByCommentWriter(@Param("writer") Member member, Pageable pageable);
 
 	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor", "comments"})
-	@Query("select r from RECORD r where r in :records")
+	@Query("select r from RECORD r where r in :records order by r.createdAt desc")
 	List<Record> findByRecordIn(@Param("records") List<Record> records);
 }
