@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -529,8 +528,7 @@ public class CommentServiceTest {
 		Member member = mock(Member.class);
 		PageRequest pageRequest = PageRequest.of(
 				myCommentRequestDto.getPage(),
-				myCommentRequestDto.getSize(),
-				Sort.by(Sort.Direction.DESC, "createdAt")
+				myCommentRequestDto.getSize()
 		);
 
 		List<Record> recordList = List.of(mock(Record.class));
@@ -567,6 +565,9 @@ public class CommentServiceTest {
 
 			given(recordRepository.findByRecordIn(recordList))
 					.willReturn(recordList);
+
+			given(recordPage.getContent().get(0).getWriter())
+					.willReturn(mock(Member.class));
 
 			given(recordPage.getContent().get(0).getRecordCategory())
 					.willReturn(mock(RecordCategory.class));

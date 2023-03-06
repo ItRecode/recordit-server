@@ -229,8 +229,7 @@ public class CommentService {
 
 		PageRequest pageRequest = PageRequest.of(
 				myCommentRequestDto.getPage(),
-				myCommentRequestDto.getSize(),
-				Sort.by(Sort.Direction.DESC, "createdAt")
+				myCommentRequestDto.getSize()
 		);
 
 		Page<Record> recordPage = recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest);
