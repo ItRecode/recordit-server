@@ -12,7 +12,6 @@ import com.recordit.server.domain.Record;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -32,22 +31,26 @@ public class MemoryRecordResponseDto {
 	@ApiModelProperty(notes = "추억 레코드 리스트")
 	private List<MemoryRecordDto> memoryRecordList;
 
-	@Builder
-	public MemoryRecordResponseDto(
+	private MemoryRecordResponseDto(
+			Integer totalPage,
+			Long totalCount,
+			List<MemoryRecordDto> memoryRecordList
+	) {
+		this.totalPage = totalPage;
+		this.totalCount = totalCount;
+		this.memoryRecordList = memoryRecordList;
+	}
+
+	public static MemoryRecordResponseDto of(
 			Page<Record> memoryRecords,
 			Map<Record, List<Comment>> recordToComments
 	) {
-		this.totalPage = memoryRecords.getTotalPages();
-		this.totalCount = memoryRecords.getTotalElements();
-		this.memoryRecordList = memoryRecords.stream()
-				.map(
-						record -> MemoryRecordDto.builder()
-								.recordId(record.getId())
-								.title(record.getTitle())
-								.colorName(record.getRecordColor().getName())
-								.iconName(record.getRecordIcon().getName())
-								.memoryRecordComments(recordToComments.get(record))
-								.build()
-				).collect(Collectors.toList());
+		return new MemoryRecordResponseDto(
+				memoryRecords.getTotalPages(),
+				memoryRecords.getTotalElements(),
+				memoryRecords.stream()
+						.map(record -> MemoryRecordDto.of(record, recordToComments.get(record)))
+						.collect(Collectors.toList())
+		);
 	}
 }

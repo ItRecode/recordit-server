@@ -28,6 +28,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 11
+          distribution: 'adopt'
 
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -67,7 +68,7 @@ jobs:
           SLACK_USERNAME: PROD Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '상용 서버 Build succeeded! :짠:'
+          SLACK_MESSAGE: "상용 서버 Build succeeded 🎉 \n\n *CommitMessage* \n ${{ join(github.event.commits.*.message, '\n') }}"
       - name: Notify on failure
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
@@ -78,4 +79,4 @@ jobs:
           SLACK_USERNAME: PROD Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '상용 서버 Build failed! :울다:'
+          SLACK_MESSAGE: "상용 서버 Build failed 🥲 \n\n *CommitMessage* \n ${{ join(github.event.commits.*.message, '\n') }}"

@@ -91,7 +91,7 @@ jobs:
                 - name: S3_DIRECTORY_NAME
                   value: ${{ secrets.DEV_S3_DIRECTORY_NAME }}
                 - name: CORS_ORIGIN_NAME
-                  value: ${{ secrets.DEV_CORS_ORIGIN_NAME }}
+                  value: CORS_ORIGIN_NAME
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
@@ -106,7 +106,7 @@ jobs:
           SLACK_USERNAME: DEV Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '테스트 서버 Build succeeded! :짠:'
+          SLACK_MESSAGE: "테스트 서버 Build succeeded 🎉 \n\n *CommitMessage* \n ${{ join(github.event.commits.*.message, '\n') }}"
       - name: Notify on failure
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
@@ -117,4 +117,4 @@ jobs:
           SLACK_USERNAME: DEV Bot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Message
-          SLACK_MESSAGE: '테스트 서버 Build failed! :울다:'
+          SLACK_MESSAGE: "테스트 서버 Build failed 🥲 \n\n *CommitMessage* \n ${{ join(github.event.commits.*.message, '\n') }}"

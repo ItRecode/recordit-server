@@ -291,6 +291,25 @@ public class MemberServiceTest {
 		}
 
 		@Test
+		@DisplayName("변경할_닉네임이_이미_사용중이라면_예외를_던진다")
+		void 변경할_닉네임이_이미_사용중이라면_예외를_던진다() {
+			// given
+			given(sessionUtil.findUserIdBySession())
+					.willReturn(memberId);
+
+			given(memberRepository.findById(memberId))
+					.willReturn(Optional.of(mockMember));
+
+			given(memberRepository.existsByNickname(anyString()))
+					.willReturn(true);
+
+			// when, then
+			assertThatThrownBy(() -> memberService.modifyMember(modifyMemberRequestDto))
+					.isInstanceOf(DuplicateNicknameException.class)
+					.hasMessage("중복된 닉네임이 존재합니다.");
+		}
+
+		@Test
 		@DisplayName("정상적이라면 예외를 던지지 않는다")
 		void 정상적이라면_예외를_던지지_않는다() {
 			//given
@@ -302,6 +321,20 @@ public class MemberServiceTest {
 
 			//when, then
 			assertThatCode(() -> memberService.modifyMember(modifyMemberRequestDto))
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Nested
+	@DisplayName("로그아웃_에서")
+	class 로그아웃_에서 {
+		Long memberId = 1L;
+
+		@Test
+		@DisplayName("정상적이라면 예외를 던지지 않는다")
+		void 정상적이라면_예외를_던지지_않는다() {
+			//when, then
+			assertThatCode(() -> memberService.logout())
 					.doesNotThrowAnyException();
 		}
 	}

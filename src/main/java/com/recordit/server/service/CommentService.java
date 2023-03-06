@@ -1,5 +1,7 @@
 package com.recordit.server.service;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,8 @@ import com.recordit.server.domain.Record;
 import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
+import com.recordit.server.dto.comment.MyCommentRequestDto;
+import com.recordit.server.dto.comment.MyCommentResponseDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.comment.CommentNotFoundException;
@@ -213,5 +217,39 @@ public class CommentService {
 		}
 
 		comment.modify(modifyCommentRequestDto);
+	}
+
+	@Transactional(readOnly = true)
+	public MyCommentResponseDto getMyComments(MyCommentRequestDto myCommentRequestDto) {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+		log.info("세션에서 찾은 사용자 ID : {}", userIdBySession);
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		PageRequest pageRequest = PageRequest.of(
+				myCommentRequestDto.getPage(),
+				myCommentRequestDto.getSize()
+		);
+
+		Page<Record> recordPage = recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest);
+		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent());
+
+		LinkedHashMap<Record, List<Comment>> recordListLinkedHashMap = new LinkedHashMap<>();
+
+		for (Record record : records) {
+			recordListLinkedHashMap.put(
+					record,
+					record.getComments()
+							.stream()
+							.filter(comment -> comment.getWriter() != null
+									&& comment.getWriter().getId().equals(member.getId()))
+							.sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
+							.limit(3L)
+							.collect(Collectors.toList())
+			);
+		}
+
+		return MyCommentResponseDto.of(recordPage, recordListLinkedHashMap);
 	}
 }
