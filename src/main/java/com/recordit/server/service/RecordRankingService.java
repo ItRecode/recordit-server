@@ -48,7 +48,7 @@ public class RecordRankingService {
 		);
 
 		LocalDateTime rankingAggregationTime = redisManager.get(RANKING_AGGREGATION_TIME, LocalDateTime.class)
-				.orElseThrow(() -> new IllegalStateException());
+				.orElseThrow(() -> new IllegalStateException("랭킹 집계시 집계 시간이 저장되지 않았습니다."));
 
 		return RecordRankingResponseDto.of(recordRanking, rankingAggregationTime);
 	}

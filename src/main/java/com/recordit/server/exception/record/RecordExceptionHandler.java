@@ -70,4 +70,11 @@ public class RecordExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ErrorMessage.of(exception, HttpStatus.BAD_REQUEST));
 	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ErrorMessage> handleIllegalStateException(
+			IllegalStateException exception) {
+		return ResponseEntity.internalServerError()
+				.body(ErrorMessage.of(exception, HttpStatus.INTERNAL_SERVER_ERROR));
+	}
 }
