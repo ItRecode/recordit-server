@@ -229,12 +229,13 @@ public class CommentService {
 
 		PageRequest pageRequest = PageRequest.of(
 				myCommentRequestDto.getPage(),
-				myCommentRequestDto.getSize(),
-				Sort.by(Sort.Direction.DESC, "createdAt")
+				myCommentRequestDto.getSize()
 		);
 
 		Page<Record> recordPage = recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest);
-		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent());
+		List<Record> records = recordRepository.findByRecordIn(recordPage.getContent()).stream()
+				.sorted(Comparator.comparing(Record::getCreatedAt).reversed())
+				.collect(Collectors.toList());
 
 		LinkedHashMap<Record, List<Comment>> recordListLinkedHashMap = new LinkedHashMap<>();
 

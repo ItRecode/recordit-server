@@ -25,6 +25,9 @@ public class MyCommentsDto {
 	@ApiModelProperty(notes = "레코드 아이디", required = true)
 	private Long recordId;
 
+	@ApiModelProperty(notes = "레코드 작성자 닉네임", required = true)
+	private String recordWriterNickname;
+
 	@ApiModelProperty(notes = "레코드의 제목", required = true, example = "제목")
 	private String title;
 
@@ -46,6 +49,7 @@ public class MyCommentsDto {
 	private MyCommentsDto(
 			String categoryName,
 			Long recordId,
+			String recordWriterNickname,
 			String title,
 			String iconName,
 			String colorName,
@@ -55,6 +59,7 @@ public class MyCommentsDto {
 	) {
 		this.categoryName = categoryName;
 		this.recordId = recordId;
+		this.recordWriterNickname = recordWriterNickname;
 		this.title = title;
 		this.iconName = iconName;
 		this.colorName = colorName;
@@ -70,6 +75,7 @@ public class MyCommentsDto {
 		return new MyCommentsDto(
 				record.getRecordCategory().getName(),
 				record.getId(),
+				record.getWriter().getNickname(),
 				record.getTitle(),
 				record.getRecordIcon().getName(),
 				record.getRecordColor().getName(),
