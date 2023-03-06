@@ -1,5 +1,6 @@
 package com.recordit.server.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.recordit.server.dto.record.ranking.RecordRankingResponseDto;
 import com.recordit.server.exception.record.category.RecordCategoryNotFoundException;
 import com.recordit.server.repository.RecordCategoryRepository;
 import com.recordit.server.repository.RecordRepository;
+import com.recordit.server.util.RedisManager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,8 @@ public class RecordRankingService {
 	private final RecordRankingProvider recordRankingProvider;
 	private final RecordRepository recordRepository;
 	private final RecordCategoryRepository recordCategoryRepository;
+	private final RedisManager redisManager;
+	private final static String RANKING_AGGREGATION_TIME = "RANKING_AGGREGATION_TIME";
 
 	@Transactional(readOnly = true)
 	public RecordRankingResponseDto getRecordRanking(RecordRankingRequestDto recordRankingRequestDto) {
@@ -43,7 +47,10 @@ public class RecordRankingService {
 				recordCategory
 		);
 
-		return RecordRankingResponseDto.of(recordRanking);
+		LocalDateTime rankingAggregationTime = redisManager.get(RANKING_AGGREGATION_TIME, LocalDateTime.class)
+				.orElseThrow(() -> new IllegalStateException());
+
+		return RecordRankingResponseDto.of(recordRanking, rankingAggregationTime);
 	}
 
 	@Transactional(readOnly = true)
@@ -55,6 +62,7 @@ public class RecordRankingService {
 				recordRankingProvider.updateRecordRanking(allRecords, rankingPeriod, recordCategory);
 			}
 		}
+		redisManager.set(RANKING_AGGREGATION_TIME, LocalDateTime.now());
 	}
 
 }

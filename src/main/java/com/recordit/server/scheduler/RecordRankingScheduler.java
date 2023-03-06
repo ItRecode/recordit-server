@@ -16,7 +16,7 @@ public class RecordRankingScheduler {
 	private final RecordRankingService recordRankingService;
 
 	// 매 30분 마다
-	@Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/1 * * * ?")
 	public void updateRecordRanking() {
 		log.info("레코드 랭킹 집계 스케쥴러 실행");
 		recordRankingService.updateRecordRanking();
