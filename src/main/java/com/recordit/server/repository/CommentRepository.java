@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.recordit.server.domain.Comment;
+import com.recordit.server.domain.Member;
 import com.recordit.server.domain.Record;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {

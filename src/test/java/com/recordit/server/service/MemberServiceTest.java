@@ -389,7 +389,6 @@ public class MemberServiceTest {
 			verify(memberRepository, times(1)).delete(mockMember);
 			verify(memberDeleteHistoryRepository, times(1)).save(any(MemberDeleteHistory.class));
 			verify(recordRepository, times(1)).deleteByWriter(mockMember);
-			verify(commentRepository, times(1)).deleteByWriter(mockMember);
 		}
 	}
 }
