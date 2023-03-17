@@ -20,6 +20,7 @@ import com.recordit.server.dto.comment.CommentRequestDto;
 import com.recordit.server.dto.comment.CommentResponseDto;
 import com.recordit.server.dto.comment.ModifyCommentRequestDto;
 import com.recordit.server.dto.comment.MyCommentRequestDto;
+import com.recordit.server.dto.comment.MyCommentResponseDto;
 import com.recordit.server.dto.comment.WriteCommentRequestDto;
 import com.recordit.server.dto.comment.WriteCommentResponseDto;
 import com.recordit.server.exception.ErrorMessage;
@@ -143,7 +144,7 @@ public class CommentController {
 			)
 	})
 	@GetMapping("/my")
-	public ResponseEntity getMyComments(@ModelAttribute @Valid MyCommentRequestDto myCommentRequestDto) {
+	public ResponseEntity<MyCommentResponseDto> getMyComments(@Valid MyCommentRequestDto myCommentRequestDto) {
 		return ResponseEntity.ok().body(commentService.getMyComments(myCommentRequestDto));
 	}
 }

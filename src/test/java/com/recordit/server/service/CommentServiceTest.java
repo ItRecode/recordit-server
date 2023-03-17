@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -529,12 +528,11 @@ public class CommentServiceTest {
 		Member member = mock(Member.class);
 		PageRequest pageRequest = PageRequest.of(
 				myCommentRequestDto.getPage(),
-				myCommentRequestDto.getSize(),
-				Sort.by(Sort.Direction.DESC, "createdAt")
+				myCommentRequestDto.getSize()
 		);
 
-		List<Comment> commentList = List.of(mock(Comment.class));
-		Page<Comment> commentPage = new PageImpl<>(commentList, pageRequest, 1);
+		List<Record> recordList = List.of(mock(Record.class));
+		Page<Record> recordPage = new PageImpl<>(recordList, pageRequest, 1);
 
 		@Test
 		@DisplayName("회원_정보를_찾을 수 없다면 예외를 던진다")
@@ -562,21 +560,24 @@ public class CommentServiceTest {
 			given(memberRepository.findById(memberId))
 					.willReturn(Optional.of(member));
 
-			given(commentRepository.findByWriter(member, pageRequest))
-					.willReturn(commentPage);
+			given(recordRepository.findDistinctRecordsByCommentWriter(member, pageRequest))
+					.willReturn(recordPage);
 
-			given(commentPage.getContent().get(0).getRecord())
-					.willReturn(mock(Record.class));
+			given(recordRepository.findByRecordIn(recordList))
+					.willReturn(recordList);
 
-			given(commentPage.getContent().get(0).getRecord().getRecordCategory())
+			given(recordPage.getContent().get(0).getWriter())
+					.willReturn(mock(Member.class));
+
+			given(recordPage.getContent().get(0).getRecordCategory())
 					.willReturn(mock(RecordCategory.class));
 
-			given(commentPage.getContent().get(0).getRecord().getRecordIcon())
+			given(recordPage.getContent().get(0).getRecordIcon())
 					.willReturn(mock(RecordIcon.class));
 
-			given(commentPage.getContent().get(0).getRecord().getRecordColor())
+			given(recordPage.getContent().get(0).getRecordColor())
 					.willReturn(mock(RecordColor.class));
-			
+
 			//when, then
 			assertThatCode(() -> commentService.getMyComments(myCommentRequestDto))
 					.doesNotThrowAnyException();
