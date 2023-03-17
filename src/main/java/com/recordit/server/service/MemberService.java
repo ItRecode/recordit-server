@@ -2,6 +2,8 @@ package com.recordit.server.service;
 
 import static com.recordit.server.constant.RegisterSessionConstants.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.recordit.server.constant.LoginType;
 import com.recordit.server.domain.Member;
+import com.recordit.server.domain.MemberDeleteHistory;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
@@ -18,7 +21,11 @@ import com.recordit.server.dto.member.RegisterSessionResponseDto;
 import com.recordit.server.exception.member.DuplicateNicknameException;
 import com.recordit.server.exception.member.MemberNotFoundException;
 import com.recordit.server.exception.member.NotFoundRegisterSessionException;
+import com.recordit.server.exception.member.SignupCooldownException;
+import com.recordit.server.repository.CommentRepository;
+import com.recordit.server.repository.MemberDeleteHistoryRepository;
 import com.recordit.server.repository.MemberRepository;
+import com.recordit.server.repository.RecordRepository;
 import com.recordit.server.service.oauth.OauthService;
 import com.recordit.server.service.oauth.OauthServiceLocator;
 import com.recordit.server.util.RedisManager;
@@ -33,8 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 	private final OauthServiceLocator oauthServiceLocator;
 	private final MemberRepository memberRepository;
+	private final RecordRepository recordRepository;
+	private final CommentRepository commentRepository;
 	private final SessionUtil sessionUtil;
 	private final RedisManager redisManager;
+	private final MemberDeleteHistoryRepository memberDeleteHistoryRepository;
 
 	@Transactional
 	public Optional<RegisterSessionResponseDto> oauthLogin(LoginType loginType, LoginRequestDto loginRequestDto) {
@@ -68,6 +78,22 @@ public class MemberService {
 		if (oauthId.isEmpty()) {
 			log.warn("요청한 Register Session이 존재하지 않음 : {}", registerRequestDto.getRegisterSession());
 			throw new NotFoundRegisterSessionException("Oauth 회원가입을 위한 register_session이 존재하지 않습니다.");
+		}
+
+		Optional<Member> findMember = memberRepository
+				.findTopByOauthIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(oauthId.get());
+
+		if (findMember.isPresent()) {
+			Optional<MemberDeleteHistory> memberDeleteHistory = memberDeleteHistoryRepository
+					.findByMemberIdAndHistoryDeletedAtIsNull(findMember.get().getId());
+
+			if (memberDeleteHistory.isPresent()) {
+				throw new SignupCooldownException(
+						LocalDateTime.of(
+								memberDeleteHistory.get().getMemberDeletedAt().plusWeeks(1L).toLocalDate(),
+								LocalTime.MIN) + ""
+				);
+			}
 		}
 
 		isDuplicateNickname(registerRequestDto.getNickname());
@@ -113,5 +139,20 @@ public class MemberService {
 
 	public void logout() {
 		sessionUtil.invalidateSession();
+	}
+
+	@Transactional
+	public Long deleteMember() {
+		Long userIdBySession = sessionUtil.findUserIdBySession();
+
+		Member member = memberRepository.findById(userIdBySession)
+				.orElseThrow(() -> new MemberNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+		memberRepository.delete(member);
+		memberDeleteHistoryRepository.save(MemberDeleteHistory.of(member.getId()));
+		recordRepository.deleteByWriter(member);
+		commentRepository.deleteByWriter(member);
+
+		return userIdBySession;
 	}
 }
