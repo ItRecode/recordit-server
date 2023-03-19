@@ -136,6 +136,23 @@ public class ImageFileService {
 		}
 	}
 
+	@Transactional
+	public void deleteToList(
+			@NonNull RefType refType,
+			@NonNull List<Long> refIds
+	) {
+		List<String> attachmentFileNames = imageFileRepository.findAllByRefTypeAndRefIdIn(refType, refIds).stream()
+				.map(ImageFile::getSaveName)
+				.collect(Collectors.toList());
+
+		imageFileRepository.deleteAllByRefTypeAndRefIdIn(refType, refIds);
+
+		for (String attachmentFileName : attachmentFileNames) {
+			s3Uploader.delete(attachmentFileName);
+			log.info("저장한 이미지 파일 삭제 : {}", attachmentFileName);
+		}
+	}
+
 	private void validateImageContentType(MultipartFile multipartFile) {
 		if (!multipartFile.getContentType().startsWith("image")) {
 			log.warn("요청 파일 ContentType : {}", multipartFile.getContentType());
