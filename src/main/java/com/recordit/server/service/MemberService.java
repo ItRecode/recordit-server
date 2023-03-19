@@ -157,8 +157,9 @@ public class MemberService {
 		memberRepository.delete(member);
 		memberDeleteHistoryRepository.save(MemberDeleteHistory.of(member.getId()));
 
-		List<Record> records = recordRepository.findAllByWriter(member);
-		imageFileService.deleteToList(RefType.RECORD, records.stream().map(Record::getId).collect(Collectors.toList()));
+		List<Long> recordIdList = recordRepository.findAllByWriter(member).stream()
+				.map(Record::getId).collect(Collectors.toList());
+		imageFileService.deleteToList(RefType.RECORD, recordIdList);
 		recordRepository.deleteByWriter(member);
 
 		List<Comment> comments = commentRepository.findAllByWriter(member);
