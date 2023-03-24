@@ -40,4 +40,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	@Modifying
 	@Query("update COMMENT c set c.deletedAt = CURRENT_TIMESTAMP where c.writer = :writer and c.deletedAt is null")
 	void deleteByWriter(@Param("writer") Member writer);
+
+	List<Comment> findAllByWriter(Member member);
 }

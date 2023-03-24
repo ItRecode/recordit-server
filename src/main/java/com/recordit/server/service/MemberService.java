@@ -4,16 +4,21 @@ import static com.recordit.server.constant.RegisterSessionConstants.*;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.recordit.server.constant.LoginType;
+import com.recordit.server.constant.RefType;
+import com.recordit.server.domain.Comment;
 import com.recordit.server.domain.Member;
 import com.recordit.server.domain.MemberDeleteHistory;
+import com.recordit.server.domain.Record;
 import com.recordit.server.dto.member.LoginRequestDto;
 import com.recordit.server.dto.member.ModifyMemberRequestDto;
 import com.recordit.server.dto.member.RegisterRequestDto;
@@ -45,6 +50,7 @@ public class MemberService {
 	private final SessionUtil sessionUtil;
 	private final RedisManager redisManager;
 	private final MemberDeleteHistoryRepository memberDeleteHistoryRepository;
+	private final ImageFileService imageFileService;
 
 	@Transactional
 	public Optional<RegisterSessionResponseDto> oauthLogin(LoginType loginType, LoginRequestDto loginRequestDto) {
@@ -150,9 +156,18 @@ public class MemberService {
 
 		memberRepository.delete(member);
 		memberDeleteHistoryRepository.save(MemberDeleteHistory.of(member.getId()));
+
+		List<Long> recordIdList = recordRepository.findAllByWriter(member).stream()
+				.map(Record::getId).collect(Collectors.toList());
+		imageFileService.deleteToList(RefType.RECORD, recordIdList);
 		recordRepository.deleteByWriter(member);
+
+		List<Comment> comments = commentRepository.findAllByWriter(member);
+		imageFileService.deleteToList(RefType.COMMENT,
+				comments.stream().map(Comment::getId).collect(Collectors.toList()));
 		commentRepository.deleteByWriter(member);
 
+		sessionUtil.invalidateSession();
 		return userIdBySession;
 	}
 }
