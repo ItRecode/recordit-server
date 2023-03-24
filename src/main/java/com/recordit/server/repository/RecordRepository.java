@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -104,10 +105,18 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 			LocalDateTime endTime
 	);
 
+	@Modifying
+	@Query("update from RECORD r "
+			+ "set r.deletedAt = CURRENT_TIMESTAMP "
+			+ "where r.writer = :writer and r.deletedAt is null")
+	void deleteByWriter(@Param("writer") Member writer);
+
 	@Query("select distinct r from RECORD r left join r.comments rs where rs.writer = :writer")
 	Page<Record> findDistinctRecordsByCommentWriter(@Param("writer") Member member, Pageable pageable);
 
 	@EntityGraph(attributePaths = {"recordCategory", "recordIcon", "recordColor", "comments"})
 	@Query("select r from RECORD r where r in :records order by r.createdAt desc")
 	List<Record> findByRecordIn(@Param("records") List<Record> records);
+
+	List<Record> findAllByWriter(Member member);
 }
